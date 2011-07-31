@@ -119,26 +119,13 @@ class RENDER_OT_render_view(bpy.types.Operator):
 
         if not kitems.from_id(bpy.types.YAFA_RENDER.viewRenderKey):
             bpy.types.YAFA_RENDER.viewRenderKey = kitems.new("RENDER_OT_render_view", 'F12', 'RELEASE', False, False, False, True).id
-
         return context.scene.render.engine  == 'YAFA_RENDER'
 
-    def draw(self, context):
-
-        split = self.layout.split().column()
-
-        split.label("The selected view is not on perspective mode", icon='ERROR')
-        split.label("or there was no 3d view available to render.")
-
-        split.separator()
-
-        split.label("Rendering 3d views in orthographic mode", icon='INFO')
-        split.label("is not supported yet.")
-
-    def invoke(self, context, event):
+    def execute(self, context):
 
         bpy.types.YAFA_RENDER.useViewToRender = True
 
-        # Get the 3d view unde the mouse cursor
+        # Get the 3d view under the mouse cursor
         # if the region is not a 3d view
         # then search for the first active one
 
@@ -150,13 +137,13 @@ class RENDER_OT_render_view(bpy.types.Operator):
                 break
 
         if not view3d or view3d.view_perspective == "ORTHO":
-            context.window_manager.invoke_popup(self)
-            return {'CANCELLED'}
+            self.report({'WARNING'}, ("The selected view is not in perspective mode or there was no 3d view available to render."))
+            return {"CANCELLED"}
 
-        bpy.types.YAFA_RENDER.viewMatrix = view3d.view_matrix.copy()
-        bpy.ops.render.render('INVOKE_DEFAULT')
-
-        return {'FINISHED'}
+        else:
+            bpy.types.YAFA_RENDER.viewMatrix = view3d.view_matrix.copy()
+            bpy.ops.render.render('INVOKE_DEFAULT')
+            return {'FINISHED'}
 
 
 class YAF_OT_presets_ior_list(bpy.types.Operator):
