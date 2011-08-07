@@ -114,11 +114,6 @@ class RENDER_OT_render_view(bpy.types.Operator):
     @classmethod
     def poll(self, context):
 
-        check_kitems = context.window_manager.keyconfigs.active.keymaps["Screen"]
-        kitems = check_kitems.keymap_items
-
-        if not kitems.from_id(bpy.types.YAFA_RENDER.viewRenderKey):
-            bpy.types.YAFA_RENDER.viewRenderKey = kitems.new("RENDER_OT_render_view", 'F12', 'RELEASE', False, False, False, True).id
         return context.scene.render.engine  == 'YAFA_RENDER'
 
     def execute(self, context):
@@ -138,6 +133,7 @@ class RENDER_OT_render_view(bpy.types.Operator):
 
         if not view3d or view3d.view_perspective == "ORTHO":
             self.report({'WARNING'}, ("The selected view is not in perspective mode or there was no 3d view available to render."))
+            bpy.types.YAFA_RENDER.useViewToRender = False
             return {"CANCELLED"}
 
         else:

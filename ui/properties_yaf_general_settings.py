@@ -79,6 +79,9 @@ Scene.gs_show_sam_pix = BoolProperty(attr = "gs_show_sam_pix",
 Scene.gs_z_channel =    BoolProperty(attr = "gs_z_channel",
                         description = "Render depth map (Z-Buffer)",
                         default = False)
+Scene.gs_verbose =      BoolProperty(attr = "gs_verbose",
+                        description = "Print engine Log in console window",
+                        default = True)
 Scene.gs_type_render =  EnumProperty(
                         description = "Choose the Render Method",
                         items = (
@@ -163,6 +166,7 @@ class YAF_PT_general_settings(bpy.types.Panel):
         col.prop(sc, "gs_premult", text = "Premultiply")
         col.prop(sc, "gs_clamp_rgb", text = "Clamp RGB")
         col.prop(sc, "gs_show_sam_pix", text = "Show Sam Pix")
+        col.prop(sc, "gs_verbose", text = "Print Log Info")
 
         row = layout.row()
         col = row.column()

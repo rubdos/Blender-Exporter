@@ -34,8 +34,8 @@ Pedro Alcaide (povmaniaco), Paulo Gomes (tuga3d), \
 Michele Castigliego (subcomandante), Bert Buchholz, \
 Rodrigo Placencia (DarkTide), Alexander Smirnov (Exvion)",
     "version": (0, 1, 2, 'alpha'),
-    "blender": (2, 5, 8),
-    "api": 37702,
+    "blender": (2, 5, 9),
+    "api": 39084,
     "location": "Info Header (engine dropdown)",
     "description": "YafaRay integration for blender",
     "warning": "Alpha state",
@@ -74,14 +74,20 @@ else:
 def register():
     prop.register()
     bpy.utils.register_module(__name__)
-
-    kitems = bpy.context.window_manager.keyconfigs.active.keymaps["Screen"]
-    kitems.keymap_items.new("RENDER_OT_render_view", 'F12', 'RELEASE', False, False, False, True)
+    # register key for 'render 3d view' for yafaray addon, new since rev.39084
+    km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='Screen')
+    kmi = km.keymap_items.new('render.render_view', 'F12', 'RELEASE', False, False, False, True)
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
     prop.unregister()
+    bpy.utils.unregister_module(__name__)
+    # unregister key for 'render 3d view' for yafaray addon, new since rev.39084
+    km = bpy.context.window_manager.keyconfigs.addon.keymaps['Screen']
+    for kmi in km.keymap_items:
+        if kmi.idname == 'render.render_view':
+            km.keymap_items.remove(kmi)
+            break
 
 if __name__ == '__main__':
     register()

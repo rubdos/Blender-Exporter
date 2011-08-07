@@ -10,13 +10,13 @@ import platform
 import yafrayinterface
 from yafaray import PLUGIN_PATH
 from yafaray import YAF_ID_NAME
-from yafaray.io.yaf_object import yafObject
-from yafaray.io.yaf_light  import yafLight
-from yafaray.io.yaf_world  import yafWorld
-from yafaray.io.yaf_integrator import yafIntegrator
-from yafaray.io import yaf_scene
-from yafaray.io.yaf_texture import yafTexture
-from yafaray.io.yaf_material import yafMaterial
+from .yaf_object import yafObject
+from .yaf_light  import yafLight
+from .yaf_world  import yafWorld
+from .yaf_integrator import yafIntegrator
+from . import yaf_scene
+from .yaf_texture import yafTexture
+from .yaf_material import yafMaterial
 
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
@@ -28,7 +28,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     useViewToRender = False
     viewMatrix = None
     viewRenderKey = -65535
+    # check for texture preview
     is_texPrev = False
+    # check if the scene has a light (for bidirectional crash without lights in scene)
+    has_no_lights = True 
 
     def setInterface(self, yi):
         self.materialMap = {}
@@ -39,8 +42,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             pass
             self.yi.setVerbosityMute()
         else:
-            # TODO: add verbosity control in the general settings
-            self.yi.setVerbosityInfo()
+            if self.scene.gs_verbose:
+                self.yi.setVerbosityInfo()
+            else:
+                self.yi.setVerbosityMute()
 
         self.yi.loadPlugins(PLUGIN_PATH)
         self.yaf_object     = yafObject(self.yi, self.materialMap)
@@ -63,10 +68,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # blend mat, there the textures need to be handled separately
         for obj in [o for o in self.scene.objects if (not o.hide_render and o.is_visible(self.scene))]:
             for mat_slot in [m for m in obj.material_slots if m.material]:
-                for tex in [t for t in mat_slot.material.texture_slots if (t and t.texture)]:
+                for tex in [t for t in mat_slot.material.texture_slots if (t and t.texture and t.use)]:
                     if self.preview and tex.texture.name == "fakeshadow":
                         continue
-                    if self.preview and obj.name == 'texture':  # stretched plane needs to be fixed for tex preview
+                    # stretched plane needs to be fixed for texture preview
+                    if self.preview and obj.name == 'texture':
                         bpy.types.YAFA_RENDER.is_texPrev = True
                     else:
                         bpy.types.YAFA_RENDER.is_texPrev = False
@@ -89,6 +95,13 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                     continue
                 self.yaf_lamp.createLight(self.yi, obj, obj.matrix_world)
 
+        for l in self.scene.objects:
+            if not l.hide_render and l.is_visible(self.scene) and l.type == 'LAMP':
+                bpy.types.YAFA_RENDER.has_no_lights = False
+                break
+            else:
+                bpy.types.YAFA_RENDER.has_no_lights = True
+
         self.yi.printInfo("Exporter: Processing Geometry...")
         self.yaf_object.writeObjects()
 
@@ -96,16 +109,22 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         mat1_name = mat.material1
         mat2_name = mat.material2
 
-        if mat.name == mat1_name or mat.name == mat2_name:
+        if mat.name == mat1_name or mat.name == mat2_name or mat1_name == mat2_name or mat == mat.material2:
             self.yi.printError("Exporter: Blend material " + mat.name + " contains itself!")
             return
 
-        if not mat1_name in bpy.data.materials or not mat2_name in bpy.data.materials:
-            self.yi.printWarning("Exporter: Problem with blend material " + mat.name + ". Could not find one of the two blended materials.")
+        if (mat1_name not in bpy.data.materials) or (mat2_name not in bpy.data.materials):
+            self.yi.printWarning("Exporter: Problem with blend material " + mat.name + \
+            ". Could not find one of the two blended materials.")
             return
 
         mat1 = bpy.data.materials[mat1_name]
         mat2 = bpy.data.materials[mat2_name]
+
+        # export textures from blended materials
+        for m in [mat1, mat2]:
+            for tex in [t for t in m.texture_slots if (t and t.texture)]:
+                self.yaf_texture.writeTexture(self.scene, tex.texture)
 
         if mat1.mat_type == 'blend':
             self.handleBlendMat(mat1)
@@ -128,7 +147,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.materials = set()
         self.yi.paramsClearAll()
         self.yi.paramsSetString("type", "shinydiffusemat")
-        self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
+        self.yi.printInfo("Exporter: Creating Material 'defaultMat'")
         ymat = self.yi.createMaterial("defaultMat")
         self.materialMap["default"] = ymat
 
@@ -161,9 +180,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         filetype = switchFileType.get(filetype, 'png')
         extension = '.' + filetype
         #  write image or XML-File with filename from framenumber
-        output = os.path.abspath(os.path.join(output_path, ("%0" + str(len(str(self.scene.frame_end))) + "d") % self.scene.frame_current))
+        output = os.path.abspath(os.path.join(output_path, \
+        ("%0" + str(len(str(self.scene.frame_end))) + "d") % self.scene.frame_current))
 
-        if not os.path.exists(output_path):  # try to create dir if it not exists...
+        if not os.path.exists(output_path):
+            # try to create dir if it not exists...
             try:
                 os.makedirs(output_path)
             except:
@@ -175,9 +196,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         return outputFile, output, filetype
 
-    # callback to render scene
-    def render(self, scene):
 
+    def _export(self, scene):
         self.preview = (scene.name == "preview")
         self.bl_use_postprocess = False
         self.update_stats("", "Setting up render")
@@ -187,6 +207,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         self.scene = scene
         r = scene.render
+        light_type = scene.intg_light_method
 
         [sizeX, sizeY, bStartX, bStartY, bsizeX, bsizeY, camDummy] = yaf_scene.getRenderCoords(scene)
 
@@ -198,12 +219,13 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             y = sizeY
 
         self.setInterface(yafrayinterface.yafrayInterface_t())
-
+        co = None
         self.yi.setInputGamma(scene.gs_gamma_input, True)
 
         rfilepath = bpy.path.abspath(r.filepath)
         rfilepath = os.path.realpath(rfilepath)
         rfilepath = os.path.normpath(rfilepath)
+        outputFile = rfilepath
 
         if scene.gs_type_render == "file":
             outputFile, output, file_type = self.decideOutputFileName(rfilepath, scene.img_output)
@@ -216,7 +238,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             ih = self.yi.createImageHandler("outFile")
             co = yafrayinterface.imageOutput_t(ih, str(outputFile), 0, 0)
 
-        if scene.gs_type_render == "xml":  # Export the Scene to XML File
+        # Export the Scene to XML File
+        elif scene.gs_type_render == "xml":
             outputFile, output, file_type = self.decideOutputFileName(rfilepath, 'XML')
             self.setInterface(yafrayinterface.xmlInterface_t())
             co = yafrayinterface.imageOutput_t()
@@ -227,7 +250,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_integrator.exportIntegrator(self.scene)
         self.yaf_integrator.exportVolumeIntegrator(self.scene)
 
-        yaf_scene.exportRenderSettings(self.yi, self.scene)  # must be called last as the params from here will be used by render()
+        # has to be called last as the params from here will be used by render()
+        yaf_scene.exportRenderSettings(self.yi, self.scene)
+        return [sizeX, sizeY, bStartX, bStartY, x, y, outputFile, co, light_type]
+
+    def _render(self, scene, sizeX, sizeY, bStartX, bStartY, x, y, outputFile, co):
 
         if scene.gs_type_render == "file":
             self.yi.printInfo("Exporter: Rendering to file " + outputFile)
@@ -236,14 +263,16 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             result = self.begin_result(bStartX, bStartY, x + bStartX, y + bStartY)
             lay = result.layers[0]
 
-            if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':  # exr format has z-buffer included, so no need to load '_zbuffer' - file
+            # exr format has z-buffer included, so no need to load '_zbuffer' - file
+            if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':
                 lay.load_from_file(output + '_zbuffer.' + file_type)
             else:
                 lay.load_from_file(outputFile)
 
             self.end_result(result)
 
-        if scene.gs_type_render == "xml":  # Export the Scene to XML File
+        # Export the Scene to XML File
+        elif scene.gs_type_render == "xml":
             self.yi.printInfo("Exporter: Writing XML to file " + outputFile)
             self.yi.render(co)
 
@@ -297,10 +326,34 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 del self.yi
                 self.update_stats("", "Render is aborted")
                 self.bl_use_postprocess = True
+                time.sleep(0.5)
                 return
 
         self.update_stats("", "Done!")
         self.yi.clearAll()
         del self.yi
-
         self.bl_use_postprocess = True
+        return
+
+    def _abort(self, scene):
+        self.update_stats("", "Aborting...")
+        self.yi.abort()
+        self.yi.clearAll()
+        del self.yi
+        self.update_stats("", "Render is aborted")
+        self.bl_use_postprocess = True
+        return
+
+    # callback to render the scene
+    def render(self, scene):
+
+        [sizeX, sizeY, bStartX, bStartY, x, y, outputFile, co, light_type] = self._export(scene)
+            
+        if bpy.types.YAFA_RENDER.has_no_lights and light_type == 'Bidirectional':
+            self._abort(scene)
+            self.report({'ERROR'}, "No lights and lighting method is bidirectional!")
+        elif self.scene.render.use_border:
+            self._abort(scene)
+            self.report({'ERROR'}, "Border render not supported!")   
+        else:
+            self._render(scene, sizeX, sizeY, bStartX, bStartY, x, y, outputFile, co)
