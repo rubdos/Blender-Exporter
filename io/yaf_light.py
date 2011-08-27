@@ -48,7 +48,7 @@ class yafLight:
 
         return ID
 
-    def createLight(self, yi, lamp_object, matrix = None):
+    def createLight(self, yi, lamp_object, matrix=None):
 
         lamp = lamp_object.data
         name = lamp_object.name

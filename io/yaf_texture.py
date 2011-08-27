@@ -82,9 +82,9 @@ class yafTexture:
 
             yi.paramsSetInt("depth", 0)
 
-            turb       = 0.0
+            turb = 0.0
             noise_size = 0.25
-            hard       = True
+            hard = True
 
             if tex.wood_type == 'BANDNOISE' or tex.wood_type == 'RINGNOISE':
 
@@ -168,9 +168,9 @@ class yafTexture:
 
             if tex.color_mode == 'POSITION':
                 ts = "col1"
-            elif tex.color_mode  == 'POSITION_OUTLINE':
+            elif tex.color_mode == 'POSITION_OUTLINE':
                 ts = "col2"
-            elif tex.color_mode  == 'POSITION_OUTLINE_INTENSITY':
+            elif tex.color_mode == 'POSITION_OUTLINE_INTENSITY':
                 ts = "col3"
             else:
                 ts = "int"

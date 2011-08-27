@@ -69,7 +69,8 @@ class yafWorld:
                             elif texco == 'SPHERE':
                                 yi.paramsSetString("mapping", "sphere")
                             else:
-                                yi.printWarning("World texture mapping neither Sphere nor AngMap!")
+                                yi.printWarning("World texture mapping neither Sphere nor AngMap, set it to Sphere now by default!")
+                                yi.paramsSetString("mapping", "sphere")
 
                             yi.paramsSetString("type", "textureback")
                             yi.paramsSetString("texture", "world_texture")

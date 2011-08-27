@@ -1,7 +1,8 @@
 import bpy
-from yafaray.ui.properties_yaf_material import YAF_MaterialButtonsPanel
+from .properties_yaf_material import YAF_MaterialButtonsPanel
 from bl_ui.properties_material import active_node_mat, check_material
-from yafaray.ui.ior_values import *
+from .ior_values import ior_list
+from bpy.types import Menu, Panel
 
 
 def draw_generator(ior_n):
@@ -30,7 +31,7 @@ for ior_group, ior_n in ior_list:
     submenus.append(submenu)
 
 
-class YAF_MT_presets_ior_list(bpy.types.Menu):
+class YAF_MT_presets_ior_list(Menu):
     bl_label = "Glass"
 
     def draw(self, context):
@@ -39,7 +40,7 @@ class YAF_MT_presets_ior_list(bpy.types.Menu):
             sl.menu(sm.bl_idname)
 
 
-class YAF_PT_material_panel_diffuse(YAF_MaterialButtonsPanel, bpy.types.Panel):
+class YAF_PT_material_panel_diffuse(YAF_MaterialButtonsPanel, Panel):
     bl_label = ' '
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'

@@ -1,5 +1,4 @@
 #This file is part of Yafaray Exporter Integration for Blender 2.5
-
 from . import properties_yaf_render
 from . import properties_yaf_camera
 from . import properties_yaf_material
@@ -10,7 +9,6 @@ from . import properties_yaf_world
 from . import properties_yaf_strand
 from . import properties_yaf_object
 from . import properties_yaf_light
-from . import properties_yaf_convert
 
 from bl_ui import properties_object as properties_object
 for member in dir(properties_object):  # add all object panels from blender
