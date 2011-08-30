@@ -1,7 +1,7 @@
 import bpy
 import os
 import mathutils
-from math import degrees, pi
+from math import degrees, pi, sin, cos
 from bpy.path import abspath
 
 
@@ -78,9 +78,6 @@ class yafLight:
             elif name == "Lamp.008":
                 lampType = "sun"
                 power = 0.8
-
-        if self.preview and name == "preview.005":
-            power = power * 5
 
         yi.paramsClearAll()
 

@@ -8,10 +8,11 @@ Camera = bpy.types.Camera
 
 def call_camera_update(self, context):
     camera = context.camera
-    if camera.camera_type == 'orthographic':
-        camera.type = 'ORTHO'
-    else:
-        camera.type = 'PERSP'
+    if camera is not None:
+        if camera.camera_type == 'orthographic':
+            camera.type = 'ORTHO'
+        else:
+            camera.type = 'PERSP'
 
 Camera.camera_type = EnumProperty(
     name="Camera Type",
