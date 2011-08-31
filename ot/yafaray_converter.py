@@ -360,6 +360,14 @@ def convertGeneralSettings(scene):
 
     props = propsDummy.get("Renderer", None)
 
+    switch_output_method = {"GUI": "into_blender", "Image": "file", "XML": "xml"}
+    scene.gs_type_render = switch_output_method.get(props["output_method"], "into_blender")
+    if props["output_method"] == "Image":
+        switch_file_type = {"TIFF [Tag Image File Format]": "TIFF", "TGA [Truevision TARGA]": "TARGA", \
+                            "PNG [Portable Network Graphics]": "PNG", "JPEG [Joint Photographic Experts Group]": "JPEG", \
+                            "HDR [Radiance RGBE]": "HDR", "EXR [IL&M OpenEXR]": "OPEN_EXR"}
+        scene.img_output = switch_file_type.get(props["file_type"], "PNG")
+
     variableDict = dict(
         raydepth="ray_depth",
         shadowDepth="shadow_depth",
@@ -367,11 +375,14 @@ def convertGeneralSettings(scene):
         clayRender="clay_render",
         drawParams="draw_params",
         customString="custom_string",
-        autoalpha="auto_alpha",
         transpShad="transp_shad")
 
     for p in props:
-        if p == "tiles_order":
+        if p in {"tiles_order", "AA_minsamples", "show_perturbed_normals", "fg_samples", "AA_pixelwidth", "AA_inc_samples", \
+                 "finalGather", "output_method", "caustic_radius", "photons", "debugType", "autoSave", "cPhotons", "AA_threshold", \
+                 "fg_bounces", "AO_samples", "do_AO", "diffuseRadius", "auto_alpha", "caustics", "search", "filter_type", \
+                 "no_recursive", "AO_distance", "AO_passes", "caustic_depth", "path_samples", "bounces", "lightType", "use_background", \
+                 "caustic_mix", "AO_color", "caustic_type", "show_map", "causticRadius", "AA_passes", "file_type", "autoalpha"}:
             continue
         value = props[p]
 
@@ -423,14 +434,14 @@ def convertIntegratorSettings(scene):
             p = variableDict[p]
 
         try:
-            if type(value) in [float, int, bool]:
-                exec("scene.intg_" + p + " = " + str(value))
-            elif type(value) in [str]:
-                exec("scene.intg_." + p + " = \"" + value + "\"")
+            if type(value) in {float, int, bool}:
+                exec("scene.intg_{0} = {1}".format(p, value))
+            elif type(value) in {str}:
+                exec("scene.intg_{0} = \"{1}\"".format(p, value))
             else:
-                exec("scene.intg_" + p + " = [" + str(value[0]) + ", " + str(value[1]) + ", " + str(value[2]) + "]")
+                exec("scene.intg_{0} = [{1}, {2}, {3}]".format(p, round(value[0], 3), round(value[1], 3), round(value[2], 3)))
         except:
-            problemList.append("Intg: Problem inserting: " + p)
+            problemList.append("Intg: Problem inserting: {0}".format(p))
 
     return problemList
 

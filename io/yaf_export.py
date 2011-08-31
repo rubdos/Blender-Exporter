@@ -341,8 +341,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 return
 
         self.update_stats("", "Done!")
-        t.join()
+        if scene.gs_type_render == "into_blender":
+            t.join()
         self.yi.clearAll()
         del self.yi
-
         self.bl_use_postprocess = True
