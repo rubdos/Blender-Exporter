@@ -2,11 +2,13 @@ import bpy
 #import types and props ---->
 from bpy.props import EnumProperty
 from bpy.types import Panel
+from bl_ui.properties_render import RenderButtonsPanel
+RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
 Scene = bpy.types.Scene
 
 
+# set fileformat for image saving on same format as in YafaRay, both have default PNG
 def call_update_fileformat(self, context):
-    # set fileformat for image saving on same format as in YafaRay, both have default PNG
     sc = context.scene
     rd = sc.render
     if sc.img_output != rd.file_format:
@@ -30,19 +32,7 @@ Scene.img_output = EnumProperty(
     default='PNG', update=call_update_fileformat)
 
 
-class YAF_RenderButtonsPanel():
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "render"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
-
-    @classmethod
-    def poll(cls, context):
-        rd = context.scene.render
-        return (context.scene and rd.use_game_engine is False) and (rd.engine in cls.COMPAT_ENGINES)
-
-
-class YAFRENDER_PT_render(YAF_RenderButtonsPanel, Panel):
+class YAFRENDER_PT_render(RenderButtonsPanel, Panel):
     bl_label = "Render"
 
     def draw(self, context):
@@ -57,7 +47,7 @@ class YAFRENDER_PT_render(YAF_RenderButtonsPanel, Panel):
         layout.prop(rd, "display_mode", text="Display")
 
 
-class YAFRENDER_PT_dimensions(YAF_RenderButtonsPanel, Panel):
+class YAFRENDER_PT_dimensions(RenderButtonsPanel, Panel):
     bl_label = "Dimensions"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -96,7 +86,7 @@ from . import properties_yaf_integrator
 from . import properties_yaf_AA_settings
 
 
-class YAFRENDER_PT_output(YAF_RenderButtonsPanel, Panel):
+class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
     bl_label = "Output Settings"
 
     def draw(self, context):
@@ -114,7 +104,7 @@ class YAFRENDER_PT_output(YAF_RenderButtonsPanel, Panel):
         col.row().prop(rd, "color_mode", text="Color", expand=True)
 
 
-class YAFRENDER_PT_post_processing(YAF_RenderButtonsPanel, Panel):
+class YAFRENDER_PT_post_processing(RenderButtonsPanel, Panel):
     bl_label = "Post Processing"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -133,7 +123,7 @@ class YAFRENDER_PT_post_processing(YAF_RenderButtonsPanel, Panel):
         col.prop(rd, "dither_intensity", text="Dither", slider=True)
 
 
-class YAF_PT_convert(YAF_RenderButtonsPanel, Panel):
+class YAF_PT_convert(RenderButtonsPanel, Panel):
     bl_label = "Convert old YafaRay Settings"
 
     def draw(self, context):

@@ -1,8 +1,12 @@
 import bpy
 # import types and props ---->
-from bpy.props import IntProperty, FloatProperty, EnumProperty
+from bpy.props import (IntProperty,
+                       FloatProperty,
+                       EnumProperty)
 from bpy.types import Panel
-from .properties_yaf_render import YAF_RenderButtonsPanel
+from bl_ui.properties_render import RenderButtonsPanel
+RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+
 Scene = bpy.types.Scene
 
 Scene.AA_min_samples = IntProperty(
@@ -47,7 +51,7 @@ Scene.AA_filter_type = EnumProperty(
     default="gauss")
 
 
-class YAF_PT_AA_settings(YAF_RenderButtonsPanel, Panel):
+class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
     bl_label = "Anti-Aliasing Settings"
 
     def draw(self, context):

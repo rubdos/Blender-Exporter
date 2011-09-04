@@ -37,7 +37,7 @@ class yafTexture:
         textureConfigured = False
 
         if tex.type == 'BLEND':
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type BLEND")
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.type))
             yi.paramsSetString("type", "blend")
 
             switchBlendType = {
@@ -56,7 +56,7 @@ class yafTexture:
             textureConfigured = True
 
         elif tex.type == 'CLOUDS':
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type CLOUDS")
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.type))
             yi.paramsSetString("type", "clouds")
 
             noise_size = tex.noise_scale
@@ -77,7 +77,7 @@ class yafTexture:
             textureConfigured = True
 
         elif tex.type == 'WOOD':
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type WOOD")
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.type))
             yi.paramsSetString("type", "wood")
 
             yi.paramsSetInt("depth", 0)
@@ -122,7 +122,7 @@ class yafTexture:
             textureConfigured = True
 
         elif tex.type == 'MARBLE':
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type MARBLE")
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.type))
             yi.paramsSetString("type", "marble")
 
             yi.paramsSetInt("depth", tex.noise_depth)
@@ -163,7 +163,7 @@ class yafTexture:
             textureConfigured = True
 
         elif tex.type == 'VORONOI':
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type VORONOI")
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.type))
             yi.paramsSetString("type", "voronoi")
 
             if tex.color_mode == 'POSITION':
@@ -205,7 +205,7 @@ class yafTexture:
             textureConfigured = True
 
         elif tex.type == 'MUSGRAVE':
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type MUSGRAVE")
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.type))
             yi.paramsSetString("type", "musgrave")
 
             switchMusgraveType = {
@@ -227,13 +227,14 @@ class yafTexture:
             if  noise_size > 0:
                 noise_size = 1.0 / noise_size
             yi.paramsSetFloat("size", noise_size)
-
-            yi.paramsSetFloat("intensity", tex.offset)
+            yi.paramsSetFloat("offset", tex.offset)
+            yi.paramsSetFloat("intensity", tex.noise_intensity)
+            yi.paramsSetFloat("gain", tex.gain)
 
             textureConfigured = True
 
         elif tex.type == 'DISTORTED_NOISE':
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type DISTORTED NOISE")
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.type))
             yi.paramsSetString("type", "distorted_noise")
 
             yi.paramsSetFloat("distort", tex.distortion)
@@ -258,7 +259,7 @@ class yafTexture:
                 yi.printInfo("Exporter: No valid texture image supplied.")
                 return False
 
-            yi.printInfo("Exporter: Creating Texture: \"" + name + "\" type IMAGE: " + image_file)
+            yi.printInfo("Exporter: Creating Texture: '{0}' type {1}: {2}".format(name, tex.type, image_file))
 
             yi.paramsSetString("type", "image")
             yi.paramsSetString("filename", image_file)

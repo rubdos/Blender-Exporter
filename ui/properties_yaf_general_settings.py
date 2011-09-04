@@ -1,7 +1,8 @@
 import bpy
 import sys
 from ..ot import yafaray_presets
-from .properties_yaf_render import YAF_RenderButtonsPanel
+from bl_ui.properties_render import RenderButtonsPanel
+RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
 #import types and props ---->
 from bpy.props import (IntProperty,
                        FloatProperty,
@@ -126,7 +127,7 @@ class YAFARAY_MT_presets_render(Menu):
     draw = yafaray_presets.Yafaray_Menu.draw_preset
 
 
-class YAF_PT_general_settings(YAF_RenderButtonsPanel, Panel):
+class YAF_PT_general_settings(RenderButtonsPanel, Panel):
     bl_label = "General Settings"
 
     def draw(self, context):

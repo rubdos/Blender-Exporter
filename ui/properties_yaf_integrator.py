@@ -1,7 +1,8 @@
 import bpy
 #import types and props ---->
 from bpy.types import Panel
-from .properties_yaf_render import YAF_RenderButtonsPanel
+from bl_ui.properties_render import RenderButtonsPanel
+RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
 from bpy.props import (IntProperty,
                        FloatProperty,
                        FloatVectorProperty,
@@ -177,7 +178,7 @@ Scene.intg_photon_radius = FloatProperty(
     default=1.0)
 
 
-class YAF_PT_render(YAF_RenderButtonsPanel, Panel):
+class YAF_PT_render(RenderButtonsPanel, Panel):
     bl_label = "Yafaray Integrator"
 
     def draw(self, context):
