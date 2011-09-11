@@ -1,5 +1,6 @@
 import bpy
 from bl_ui.properties_material import active_node_mat
+from bl_ui.properties_texture import context_tex_datablock
 #import types and props ---->
 from bpy.types import Panel
 from bpy.props import (EnumProperty,
@@ -43,29 +44,6 @@ Texture.yaf_is_normal_map = BoolProperty(
     name="Use map as normal map",
     description="Use image RGB values for normal mapping",
     default=False)
-
-
-def context_tex_datablock(context):
-    idblock = context.material
-    if idblock:
-        return active_node_mat(idblock)
-
-    idblock = context.lamp
-    if idblock:
-        return idblock
-
-    idblock = context.world
-    if idblock:
-        return idblock
-
-    idblock = context.brush
-    if idblock:
-        return idblock
-
-    if context.particle_system:
-        idblock = context.particle_system.settings
-
-    return idblock
 
 
 class YAF_TextureButtonsPanel():

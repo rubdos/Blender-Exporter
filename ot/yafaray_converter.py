@@ -361,11 +361,12 @@ def convertGeneralSettings(scene):
     props = propsDummy.get("Renderer", None)
 
     switch_output_method = {"GUI": "into_blender", "Image": "file", "XML": "xml"}
-    scene.gs_type_render = switch_output_method.get(props["output_method"], "into_blender")
-    if props["output_method"] == "Image":
-        switch_file_type = {"TIFF [Tag Image File Format]": "TIFF", "TGA [Truevision TARGA]": "TARGA", \
-                            "PNG [Portable Network Graphics]": "PNG", "JPEG [Joint Photographic Experts Group]": "JPEG", \
-                            "HDR [Radiance RGBE]": "HDR", "EXR [IL&M OpenEXR]": "OPEN_EXR"}
+    if hasattr(props, "output_method"):
+        scene.gs_type_render = switch_output_method.get(props["output_method"], "into_blender")
+        if props["output_method"] == "Image":
+            switch_file_type = {"TIFF [Tag Image File Format]": "TIFF", "TGA [Truevision TARGA]": "TARGA", \
+                                "PNG [Portable Network Graphics]": "PNG", "JPEG [Joint Photographic Experts Group]": "JPEG", \
+                                "HDR [Radiance RGBE]": "HDR", "EXR [IL&M OpenEXR]": "OPEN_EXR"}
         scene.img_output = switch_file_type.get(props["file_type"], "PNG")
 
     variableDict = dict(

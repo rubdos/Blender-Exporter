@@ -93,7 +93,7 @@ class yafLight:
             yi.paramsSetString("type", "pointlight")
             power = 0.5 * power * power  # original value
 
-            if lamp.use_sphere:
+            if getattr(lamp, "use_sphere", False):
                 radius = lamp.shadow_soft_size
                 power /= (radius * radius)  # radius < 1 crash geometry ?
 
