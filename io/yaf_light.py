@@ -71,6 +71,7 @@ class yafLight:
 
         lamp = lamp_object.data
         name = lamp_object.name
+        
 
         if matrix is None:
             matrix = lamp_object.matrix_world.copy()
@@ -123,6 +124,7 @@ class yafLight:
                     yi.paramsSetInt("object", ID)
 
                 yi.paramsSetString("type", "spherelight")
+                yi.paramsSetPoint("from", pos[0], pos[1], pos[2])# povman
                 yi.paramsSetInt("samples", lamp.yaf_samples)
                 yi.paramsSetFloat("radius", radius)
 
@@ -148,16 +150,18 @@ class yafLight:
 
         elif lampType == "sun":
             yi.paramsSetString("type", "sunlight")
-            if not lamp.directional:
-                yi.paramsSetInt("samples", lamp.yaf_samples)
+            yi.paramsSetInt("samples", lamp.yaf_samples)
             yi.paramsSetFloat("angle", lamp.angle)
             yi.paramsSetPoint("direction", dir[0], dir[1], dir[2])
-            if lamp.directional:
-                yi.paramsSetString("type", "directional")
-                yi.paramsSetBool("infinite", lamp.infinite)
+            
+        elif lampType == "directional":
+            yi.paramsSetString("type", "directional")
+            yi.paramsSetPoint("direction", dir[0], dir[1], dir[2])
+            yi.paramsSetBool("infinite", lamp.infinite)
+            if not lamp.infinite:
+                yi.paramsSetFloat("radius", lamp.shadow_soft_size)
                 yi.paramsSetPoint("from", pos[0], pos[1], pos[2]) # povman
-                yi.paramsSetFloat("radius", lamp.radius)
-
+                
         elif lampType == "ies":
             # use for IES light
             yi.paramsSetString("type", "ieslight")
