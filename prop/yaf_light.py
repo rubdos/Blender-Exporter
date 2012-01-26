@@ -107,6 +107,12 @@ def register():
         description="Number of samples to be taken for direct lighting",
         min=0, max=512,
         default=16)
+    
+    Lamp.radius = FloatProperty(
+        name="Radius",
+        description="Radius for cone in directional light",
+        min=0.5, max=89.0,
+        default=15.0)
 
 
 def unregister():
@@ -122,3 +128,4 @@ def unregister():
     del Lamp.ies_soft_shadows
     del Lamp.ies_file
     del Lamp.yaf_samples
+    del Lamp.radius
