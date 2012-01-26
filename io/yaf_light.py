@@ -116,8 +116,8 @@ class yafLight:
             power = 0.5 * power * power  # original value
 
             if getattr(lamp, "use_sphere", False):
-                radius = lamp.shadow_soft_size
-                power /= (radius * radius)  # radius < 1 crash geometry ?
+                radius = lamp.distance 
+                power /= (radius * radius)
 
                 if lamp.create_geometry:
                     ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], radius, self.lightMat)
