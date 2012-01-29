@@ -150,7 +150,7 @@ class YAF_PT_lamp_directional(LampButtonsPanel, Panel):
         layout.prop(lamp, "yaf_energy", text="Power")
         layout.prop(lamp, "infinite")
         if not lamp.infinite:
-            layout.prop(lamp,"shadow_soft_size", text='Radio of directional cone')
+            layout.prop(lamp,"shadow_soft_size", text='Radius of directional cone')
 
 
 class YAF_PT_lamp_point(LampButtonsPanel, Panel):
