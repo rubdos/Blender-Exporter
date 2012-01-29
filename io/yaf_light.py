@@ -31,11 +31,9 @@ class yafLight:
         self.preview = preview
 
     def makeSphere(self, nu, nv, x, y, z, rad, mat):
-
         yi = self.yi
 
         # get next free id from interface
-
         ID = yi.getNextFreeID()
 
         yi.startGeometry()
@@ -71,7 +69,6 @@ class yafLight:
 
         lamp = lamp_object.data
         name = lamp_object.name
-        
 
         if matrix is None:
             matrix = lamp_object.matrix_world.copy()
@@ -81,13 +78,11 @@ class yafLight:
         dir = matrix.col[2]
         # up = matrix[1]  /* UNUSED */
         to = pos - dir
-        is_sunlight = False # for override 'from' value
 
         lampType = lamp.lamp_type
         power = lamp.yaf_energy
         color = lamp.color
-        
-        
+
         if self.preview:
             if name == "Lamp":
                 pos = (-6, -4, 8, 1.0)
@@ -109,27 +104,23 @@ class yafLight:
 
         if lamp.create_geometry and not self.lightMat:
             self.yi.paramsClearAll()
-            yi.paramsSetColor("color", color[0], color[1], color[2]) # povman
+            self.yi.paramsSetColor("color", color[0], color[1], color[2])  # color for spherelight mesh -> fix from povmaniaco
             self.yi.paramsSetString("type", "light_mat")
             self.lightMat = self.yi.createMaterial("lm")
             self.yi.paramsClearAll()
 
         if lampType == "point":
             yi.paramsSetString("type", "pointlight")
-            power = 0.5 * power * power  # original value
-
-            if getattr(lamp, "use_sphere", False):
-                radius = lamp.distance
+            if getattr(lamp, "use_sphere"):
+                radius = max(lamp.distance, 0.01)  # avoid ZeroDivisionError
                 power /= (radius * radius)
-
                 if lamp.create_geometry:
                     ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], radius, self.lightMat)
                     yi.paramsSetInt("object", ID)
-
                 yi.paramsSetString("type", "spherelight")
                 yi.paramsSetInt("samples", lamp.yaf_samples)
                 yi.paramsSetFloat("radius", radius)
-            
+
         elif lampType == "spot":
             if self.preview and name == "Lamp.002":
                 angle = 50
@@ -147,24 +138,22 @@ class yafLight:
             yi.paramsSetFloat("shadowFuzzyness", lamp.shadow_fuzzyness)
             yi.paramsSetBool("photon_only", lamp.photon_only)
             yi.paramsSetInt("samples", lamp.yaf_samples)
-            power = 0.5 * power * power
 
         elif lampType == "sun":
             yi.paramsSetString("type", "sunlight")
             yi.paramsSetInt("samples", lamp.yaf_samples)
             yi.paramsSetFloat("angle", lamp.angle)
             yi.paramsSetPoint("direction", dir[0], dir[1], dir[2])
-            is_sunlight = True
-            
+
         elif lampType == "directional":
             yi.paramsSetString("type", "directional")
             yi.paramsSetPoint("direction", dir[0], dir[1], dir[2])
             yi.paramsSetBool("infinite", lamp.infinite)
             if not lamp.infinite:
                 yi.paramsSetFloat("radius", lamp.shadow_soft_size)
-                
+                yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
+
         elif lampType == "ies":
-            # use for IES light
             yi.paramsSetString("type", "ieslight")
             yi.paramsSetPoint("to", to[0], to[1], to[2])
             ies_file = abspath(lamp.ies_file)
@@ -173,13 +162,10 @@ class yafLight:
             yi.paramsSetString("file", ies_file)
             yi.paramsSetInt("samples", lamp.yaf_samples)
             yi.paramsSetBool("soft_shadows", lamp.ies_soft_shadows)
-            # yi.paramsSetFloat("cone_angle", degrees(lamp.spot_size))  # not used for IES, cone angle is defined in IES File?
 
         elif lampType == "area":
-
             sizeX = 1.0
             sizeY = 1.0
-
             matrix = lamp_object.matrix_world.copy()
 
             # generate an untransformed rectangle in the XY plane with
@@ -213,13 +199,16 @@ class yafLight:
 
             yi.paramsSetString("type", "arealight")
             yi.paramsSetInt("samples", lamp.yaf_samples)
-            
             yi.paramsSetPoint("corner", point[0], point[1], point[2])
             yi.paramsSetPoint("point1", corner1[0], corner1[1], corner1[2])
             yi.paramsSetPoint("point2", corner3[0], corner3[1], corner3[2])
 
-        if not is_sunlight:
-            yi.paramsSetPoint("from", pos[0], pos[1], pos[2])# 'from' is unused for sunlight
+        if lampType not in {"sun", "directional"}:
+            # "from" is not used for sunlight and infinite directional light
+            yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
+        if lampType in {"point", "spot"}:
+            power = 0.5 * power * power
+
         yi.paramsSetColor("color", color[0], color[1], color[2])
         yi.paramsSetFloat("power", power)
         yi.createLight(name)
