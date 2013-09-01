@@ -50,6 +50,12 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
                 col.prop(scene, "intg_AO_color")
                 col.prop(scene, "intg_AO_samples")
                 col.prop(scene, "intg_AO_distance")
+            # IC options
+            col = layout.column(align=True)
+            col.prop(scene, "intg_do_IC", toggle=True)
+            if scene.intg_do_IC:
+                col.prop(scene, "intg_IC_M_Divs")
+                col.prop(scene, "intg_IC_Kappa")
 
         elif scene.intg_light_method == "Photon Mapping":
             row = layout.row()
@@ -108,7 +114,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             col.prop(scene, "intg_photons", text="Photons")
             col.prop(scene, "intg_pass_num")
             col.prop(scene, "intg_bounces", text="Bounces")
-            col.prop(scene, "intg_times")
+            
             col.prop(scene, "intg_diffuse_radius")
             col.prop(scene, "intg_search")
             col.prop(scene, "intg_pm_ire")
