@@ -42,7 +42,9 @@ class yafIntegrator:
         yi.printInfo("Exporting Integrator: {0}".format(light_type))
 
         if light_type == "Direct Lighting":
-            yi.paramsSetString("type", "directlighting")
+            
+            intg_type="directlighting"
+            #yi.paramsSetString("type", "directlighting")
 
             yi.paramsSetBool("caustics", scene.intg_use_caustics)
 
@@ -59,6 +61,14 @@ class yafIntegrator:
 
                 c = scene.intg_AO_color
                 yi.paramsSetColor("AO_color", c[0], c[1], c[2])
+            if scene.intg_do_IC:
+                yi.paramsSetBool("do_IC", scene.intg_do_IC)
+                yi.paramsSetInt("IC_M_Divs", scene.intg_IC_M_Divs)
+                yi.paramsSetFloat("IC_Kappa", scene.intg_IC_Kappa)
+                #
+                intg_type = 'directIC'
+            #    
+            yi.paramsSetString("type", intg_type)
 
         elif light_type == "Photon Mapping":
             yi.paramsSetString("type", "photonmapping")
@@ -122,8 +132,8 @@ class yafIntegrator:
         elif light_type == "SPPM":
             yi.paramsSetString("type", "SPPM")
             yi.paramsSetInt("photons", scene.intg_photons)
-            yi.paramsSetFloat("diffuseRadius", scene.intg_diffuse_radius)
-            yi.paramsSetInt("search", scene.intg_search)
+            yi.paramsSetFloat("photonRadius", scene.intg_diffuse_radius)
+            yi.paramsSetInt("searchNum", scene.intg_search)
             yi.paramsSetFloat("times", scene.intg_times)
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("passNums", scene.intg_pass_num)
