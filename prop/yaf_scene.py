@@ -296,6 +296,25 @@ def register():
         name="Show radiance map",
         description="Directly show radiance map, useful to calibrate the photon map (disables final gathering step)",
         default=False)
+    
+    # IC options --------------------------
+    Scene.intg_do_IC = BoolProperty(
+        name="Use Irradiance Cache",
+        description="Enable the use of Irradiance Cache",
+        default=True)
+
+    Scene.intg_IC_M_Divs = IntProperty(
+        name="Max Samples",
+        description="Maximum number of samples per IC record",
+        min=1, max=50,
+        default=10)
+
+    Scene.intg_IC_Kappa = FloatProperty(
+        name="Accuracy",
+        description="The higher the value the smaller the IC record radius",
+        min=0.1, max=3,
+        default=1)
+    # end IC
 
     Scene.intg_caustic_method = EnumProperty(
         name="Caustic Method",
@@ -336,7 +355,7 @@ def register():
         default=False)
 
     Scene.intg_pm_ire = BoolProperty(
-        name="PM IRE",
+        name="PM Initial Radius Estimate",
         default=False)
 
     Scene.intg_pass_num = IntProperty(
@@ -347,6 +366,7 @@ def register():
     Scene.intg_times = FloatProperty(
         name="Radius factor",
         min=0.0,
+        description= "Initial radius times",
         default=1.0)
 
     Scene.intg_photon_radius = FloatProperty(
