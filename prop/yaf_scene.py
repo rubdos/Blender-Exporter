@@ -296,12 +296,12 @@ def register():
         name="Show radiance map",
         description="Directly show radiance map, useful to calibrate the photon map (disables final gathering step)",
         default=False)
-    
+
     # IC options --------------------------
     Scene.intg_do_IC = BoolProperty(
         name="Use Irradiance Cache",
         description="Enable the use of Irradiance Cache",
-        default=True)
+        default=False)
 
     Scene.intg_IC_M_Divs = IntProperty(
         name="Max Samples",
@@ -461,6 +461,11 @@ def unregister():
     Scene.intg_fg_bounces
     Scene.intg_fg_samples
     Scene.intg_show_map
+    # IC
+    Scene.intg_IC_M_Divs
+    Scene.intg_IC_Kappa
+    Scene.intg_do_IC
+    
     Scene.intg_caustic_method
     Scene.intg_path_samples
     Scene.intg_no_recursion

@@ -50,12 +50,6 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
                 col.prop(scene, "intg_AO_color")
                 col.prop(scene, "intg_AO_samples")
                 col.prop(scene, "intg_AO_distance")
-            # IC options
-            col = layout.column(align=True)
-            col.prop(scene, "intg_do_IC", toggle=True)
-            if scene.intg_do_IC:
-                col.prop(scene, "intg_IC_M_Divs")
-                col.prop(scene, "intg_IC_Kappa")
 
         elif scene.intg_light_method == "Photon Mapping":
             row = layout.row()
@@ -80,11 +74,20 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             row.prop(scene, "intg_final_gather", toggle=True, icon='FORCE_FORCE')
 
             if scene.intg_final_gather:
+                ''' Show options UI for Final Gathering. '''
                 col = layout.row()
                 col.prop(scene, "intg_fg_bounces")
                 col.prop(scene, "intg_fg_samples")
                 col = layout.row()
                 col.prop(scene, "intg_show_map", toggle=True)
+            #
+            else:
+                ''' Else, show options for Irradiance Cache. '''
+                col = layout.column(align=True)
+                col.prop(scene, "intg_do_IC", toggle=True, icon='FORCE_FORCE')
+                if scene.intg_do_IC:
+                    col.prop(scene, "intg_IC_M_Divs")
+                    col.prop(scene, "intg_IC_Kappa")
 
         elif scene.intg_light_method == "Pathtracing":
             col = layout.row()
@@ -114,7 +117,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             col.prop(scene, "intg_photons", text="Photons")
             col.prop(scene, "intg_pass_num")
             col.prop(scene, "intg_bounces", text="Bounces")
-            
+
             col.prop(scene, "intg_diffuse_radius")
             col.prop(scene, "intg_search")
             col.prop(scene, "intg_pm_ire")
