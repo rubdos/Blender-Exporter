@@ -51,6 +51,16 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
                 col.prop(scene, "intg_AO_samples")
                 col.prop(scene, "intg_AO_distance")
 
+            col = layout.row() #(align=True)
+            col.prop(scene, "intg_do_IC", toggle=True, icon='FORCE_FORCE')
+            if scene.intg_do_IC:
+                col = layout.row() #(align=True)
+                col.prop(scene, "intg_IC_M_Divs")
+                col.prop(scene, "intg_IC_Kappa")
+                col = layout.row()
+                col.prop(scene, "intg_IC_Clamp")
+                col.prop(scene, "intg_IC_DumpXml")
+
         elif scene.intg_light_method == "Photon Mapping":
             row = layout.row()
 
@@ -80,14 +90,16 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
                 col.prop(scene, "intg_fg_samples")
                 col = layout.row()
                 col.prop(scene, "intg_show_map", toggle=True)
-            #
-            else:
-                ''' Else, show options for Irradiance Cache. '''
+
+                ''' Show options for Irradiance Cache. '''
                 col = layout.column(align=True)
                 col.prop(scene, "intg_do_IC", toggle=True, icon='FORCE_FORCE')
                 if scene.intg_do_IC:
                     col.prop(scene, "intg_IC_M_Divs")
                     col.prop(scene, "intg_IC_Kappa")
+                    col = layout.row()
+                    col.prop(scene, "intg_IC_Clamp")
+                    col.prop(scene, "intg_IC_DumpXml")
 
         elif scene.intg_light_method == "Pathtracing":
             col = layout.row()

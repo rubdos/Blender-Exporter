@@ -314,6 +314,14 @@ def register():
         description="The higher the value the smaller the IC record radius",
         min=0.1, max=3,
         default=1)
+    Scene.intg_IC_DumpXml = BoolProperty(
+        name="Dump Xml",
+        description="Dump record data to .xml file",
+        default=False)
+    Scene.intg_IC_Clamp = BoolProperty(
+        name="Clamping Neighbord",
+        description="Clamping Neighbord",
+        default=False)
     # end IC
 
     Scene.intg_caustic_method = EnumProperty(
@@ -465,7 +473,9 @@ def unregister():
     Scene.intg_IC_M_Divs
     Scene.intg_IC_Kappa
     Scene.intg_do_IC
-    
+    Scene.intg_IC_Clamp
+    Scene.intg_IC_DumpXml
+
     Scene.intg_caustic_method
     Scene.intg_path_samples
     Scene.intg_no_recursion

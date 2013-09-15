@@ -44,7 +44,6 @@ class yafIntegrator:
         if light_type == "Direct Lighting":
 
             intg_type="directlighting"
-            yi.paramsSetString("type", "directlighting")
 
             yi.paramsSetBool("caustics", scene.intg_use_caustics)
 
@@ -54,12 +53,22 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
                 yi.paramsSetBool("do_AO", scene.intg_use_AO)
-                
+
             if scene.intg_use_AO:
                 yi.paramsSetInt("AO_samples", scene.intg_AO_samples)
                 yi.paramsSetFloat("AO_distance", scene.intg_AO_distance)
                 c = scene.intg_AO_color
                 yi.paramsSetColor("AO_color", c[0], c[1], c[2])
+
+            if scene.intg_do_IC:
+                yi.paramsSetBool("do_IC", scene.intg_do_IC)
+                yi.paramsSetInt("IC_M_Divs", scene.intg_IC_M_Divs)
+                yi.paramsSetFloat("IC_Kappa", scene.intg_IC_Kappa)
+                yi.paramsSetBool("IC_Clamp", scene.intg_IC_Clamp)
+                yi.paramsSetBool("IC_DumpXML", scene.intg_IC_DumpXml)
+                intg_type="directIC"
+
+            yi.paramsSetString("type", intg_type)
 
         elif light_type == "Photon Mapping":
             # integrate IrradianceCache options
@@ -73,20 +82,21 @@ class yafIntegrator:
             yi.paramsSetInt("search", scene.intg_search)
             yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
             #
-            yi.paramsSetBool("finalGather", scene.intg_final_gather)            
+            yi.paramsSetBool("finalGather", scene.intg_final_gather)
             #
             if scene.intg_final_gather:
                 yi.paramsSetInt("fg_bounces", scene.intg_fg_bounces)
                 yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
                 yi.paramsSetBool("show_map", scene.intg_show_map)
-                
-            elif scene.intg_do_IC:
-                yi.paramsSetBool("do_IC", scene.intg_do_IC)                
-                yi.paramsSetInt("IC_M_Divs", scene.intg_IC_M_Divs)
-                yi.paramsSetFloat("IC_Kappa", scene.intg_IC_Kappa)
-                #
-                intg_type = 'photonIC'
 
+                if scene.intg_do_IC:
+                    yi.paramsSetBool("do_IC", scene.intg_do_IC)
+                    yi.paramsSetInt("IC_M_Divs", scene.intg_IC_M_Divs)
+                    yi.paramsSetFloat("IC_Kappa", scene.intg_IC_Kappa)
+                    yi.paramsSetBool("IC_Clamp", scene.intg_IC_Clamp)
+                    yi.paramsSetBool("IC_DumpXML", scene.intg_IC_DumpXml)
+                    intg_type = 'photonIC'
+            #
             yi.paramsSetString("type", intg_type)
 
         elif light_type == "Pathtracing":
