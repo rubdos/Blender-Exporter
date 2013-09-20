@@ -52,16 +52,28 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
                 yi.paramsSetBool("do_AO", scene.intg_use_AO)
-                
+
             if scene.intg_use_AO:
                 yi.paramsSetInt("AO_samples", scene.intg_AO_samples)
                 yi.paramsSetFloat("AO_distance", scene.intg_AO_distance)
                 c = scene.intg_AO_color
                 yi.paramsSetColor("AO_color", c[0], c[1], c[2])
 
+            # SSS
+            yi.paramsSetBool("useSSS", scene.intg_useSSS)
+            if scene.intg_useSSS:
+                yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
+                yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
+                yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
+                yi.paramsSetFloat("sssScale", scene.intg_sssScale)
+            #
+
+
         elif light_type == "Photon Mapping":
             yi.paramsSetString("type", "photonmapping")
             yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
+            yi.paramsSetInt("bounces", scene.intg_bounces)
+
             yi.paramsSetInt("photons", scene.intg_photons)
             yi.paramsSetInt("cPhotons", scene.intg_cPhotons)
             yi.paramsSetFloat("diffuseRadius", scene.intg_diffuse_radius)
@@ -69,13 +81,21 @@ class yafIntegrator:
             yi.paramsSetInt("search", scene.intg_search)
             yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
             #
-            yi.paramsSetBool("finalGather", scene.intg_final_gather)            
+            yi.paramsSetBool("finalGather", scene.intg_final_gather)
             #
             if scene.intg_final_gather:
                 yi.paramsSetInt("fg_bounces", scene.intg_fg_bounces)
                 yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
                 yi.paramsSetBool("show_map", scene.intg_show_map)
-                
+
+            # SSS
+            yi.paramsSetBool("useSSS", scene.intg_useSSS)
+            if scene.intg_useSSS:
+                yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
+                yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
+                yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
+                yi.paramsSetFloat("sssScale", scene.intg_sssScale)
+            #
 
         elif light_type == "Pathtracing":
             yi.paramsSetString("type", "pathtracing")
@@ -100,6 +120,13 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
+            # SSS
+            yi.paramsSetBool("useSSS", scene.intg_useSSS)
+            if scene.intg_useSSS:
+                yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
+                yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
+                yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
+                yi.paramsSetFloat("sssScale", scene.intg_sssScale)
 
         elif light_type == "Bidirectional":
             yi.paramsSetString("type", "bidirectional")
@@ -131,6 +158,7 @@ class yafIntegrator:
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("passNums", scene.intg_pass_num)
             yi.paramsSetBool("pmIRE", scene.intg_pm_ire)
+        
 
         yi.createIntegrator("default")
         return True

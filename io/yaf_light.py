@@ -165,9 +165,9 @@ class yafLight:
             sizeX = lamp.size
             sizeY = lamp.size
             if lamp.shape == 'RECTANGLE':
-                sizeY = lamp.size_y                       
-            matrix = lamp_object.matrix_world.copy()           
-            
+                sizeY = lamp.size_y
+            matrix = lamp_object.matrix_world.copy()
+
 
             # generate an untransformed rectangle in the XY plane with
             # the light's position as the centerpoint and transform it
@@ -176,12 +176,12 @@ class yafLight:
             corner1 = Vector((-sizeX / 2, sizeY / 2, 0))
             corner2 = Vector((sizeX / 2, sizeY / 2, 0))
             corner3 = Vector((sizeX / 2, -sizeY / 2, 0))
-            
+
             point = matrix * point  # use reverse vector multiply order, API changed with rev. 38674
             corner1 = matrix * corner1  # use reverse vector multiply order, API changed with rev. 38674
             corner2 = matrix * corner2  # use reverse vector multiply order, API changed with rev. 38674
             corner3 = matrix * corner3  # use reverse vector multiply order, API changed with rev. 38674
-            
+
             yi.paramsClearAll()
             if lamp.create_geometry:
                 ID = yi.getNextFreeID()

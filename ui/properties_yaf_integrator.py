@@ -33,7 +33,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
         scene = context.scene
 
         layout.prop(scene, "intg_light_method")
-
+        #
         if scene.intg_light_method == "Direct Lighting":
             row = layout.row()
             col = row.column(align=True)
@@ -50,6 +50,16 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
                 col.prop(scene, "intg_AO_color")
                 col.prop(scene, "intg_AO_samples")
                 col.prop(scene, "intg_AO_distance")
+
+            # SSS
+            col = layout.column(align=True)
+            col.prop(scene, "intg_useSSS", toggle=True)
+            if scene.intg_useSSS:
+                col.prop(scene, "intg_sssPhotons")
+                col.prop(scene, "intg_sssDepth")
+                col.prop(scene, "intg_singleScatterSamples")
+                col.prop(scene, "intg_sssScale")
+            #
 
         elif scene.intg_light_method == "Photon Mapping":
             row = layout.row()
@@ -74,11 +84,22 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             row.prop(scene, "intg_final_gather", toggle=True, icon='FORCE_FORCE')
 
             if scene.intg_final_gather:
-                col = layout.row()
-                col.prop(scene, "intg_fg_bounces")
-                col.prop(scene, "intg_fg_samples")
+                ''' Show options UI for Final Gathering. '''
+                if not scene.intg_do_IC:
+                    col = layout.row()
+                    col.prop(scene, "intg_fg_bounces")
+                    col.prop(scene, "intg_fg_samples")
                 col = layout.row()
                 col.prop(scene, "intg_show_map", toggle=True)
+
+            #
+            col = layout.column(align=True)
+            col.prop(scene, "intg_useSSS", toggle=True)
+            if scene.intg_useSSS:
+                col.prop(scene, "intg_sssPhotons")
+                col.prop(scene, "intg_sssDepth")
+                col.prop(scene, "intg_singleScatterSamples")
+                col.prop(scene, "intg_sssScale")
 
         elif scene.intg_light_method == "Pathtracing":
             col = layout.row()
@@ -92,12 +113,21 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
                 col = layout.row()
                 col.prop(scene, "intg_caustic_depth", text="Caus. Depth")
                 col.prop(scene, "intg_caustic_radius", text="Caus. Radius")
-
+            #
             col = layout.row()
             col.prop(scene, "intg_path_samples")
             col.prop(scene, "intg_bounces")
             col = layout.row()
             col.prop(scene, "intg_no_recursion")
+            #
+            col = layout.column(align=True)
+            col.prop(scene, "intg_useSSS", toggle=True)
+            if scene.intg_useSSS:
+                col.prop(scene, "intg_sssPhotons")
+                col.prop(scene, "intg_sssDepth")
+                col.prop(scene, "intg_singleScatterSamples")
+                col.prop(scene, "intg_sssScale")
+            
 
         elif scene.intg_light_method == "Debug":
             layout.row().prop(scene, "intg_debug_type")
@@ -108,10 +138,11 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             col.prop(scene, "intg_photons", text="Photons")
             col.prop(scene, "intg_pass_num")
             col.prop(scene, "intg_bounces", text="Bounces")
-            col.prop(scene, "intg_times")
+
             col.prop(scene, "intg_diffuse_radius")
             col.prop(scene, "intg_search")
             col.prop(scene, "intg_pm_ire")
+
 
 
 if __name__ == "__main__":  # only for live edit.

@@ -317,6 +317,37 @@ def register():
         name="No Recursion",
         description="No recursive raytracing, only pure path tracing",
         default=False)
+    
+    # SSS settings ----------------------->
+    Scene.intg_useSSS = BoolProperty(
+        name="Use SSS",
+        description="Enable SSS photon map",
+        default=False)
+
+    Scene.intg_sssPhotons = IntProperty(
+        name="SSS Photons",
+        description="Number of SSS photons to be shot",
+        min=1, max=100000000,
+        default=100000)
+
+    Scene.intg_sssDepth = IntProperty(
+        name="SSS Depth",
+        description="Max. number of photon scattering events",
+        min=1, max=64,
+        default=5)
+
+    Scene.intg_singleScatterSamples = IntProperty(
+        name="Single Scattering Samples",
+        description="Number of samples for single scattering estimation",
+        min=0, max=256,
+        default=32)
+
+    Scene.intg_sssScale = FloatProperty(
+        name="Scale",
+        description="Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
+        min=0.0001, max=1000.0,
+        default=30.0)
+    #-------------------------------->
 
     Scene.intg_debug_type = EnumProperty(
         name="Debug type",
@@ -458,3 +489,9 @@ def unregister():
     Scene.AA_threshold
     Scene.AA_pixelwidth
     Scene.AA_filter_type
+    # SSS
+    Scene.intg_useSSS
+    Scene.intg_sssPhotons
+    Scene.intg_sssDepth
+    Scene.intg_singleScatterSamples
+    Scene.intg_sssScale
