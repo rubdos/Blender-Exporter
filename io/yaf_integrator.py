@@ -53,7 +53,7 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
                 yi.paramsSetBool("do_AO", scene.intg_use_AO)
-
+                
             if scene.intg_use_AO:
                 yi.paramsSetInt("AO_samples", scene.intg_AO_samples)
                 yi.paramsSetFloat("AO_distance", scene.intg_AO_distance)
@@ -82,12 +82,13 @@ class yafIntegrator:
             yi.paramsSetInt("search", scene.intg_search)
             yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
             #
-            yi.paramsSetBool("finalGather", scene.intg_final_gather)
+            yi.paramsSetBool("finalGather", scene.intg_final_gather)            
             #
             if scene.intg_final_gather:
                 yi.paramsSetInt("fg_bounces", scene.intg_fg_bounces)
                 yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
                 yi.paramsSetBool("show_map", scene.intg_show_map)
+                
 
                 if scene.intg_do_IC:
                     yi.paramsSetBool("do_IC", scene.intg_do_IC)
