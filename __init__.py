@@ -54,7 +54,7 @@ if sys.platform == 'win32':
         # load dll's from a MinGW installation
         else:
             dllArray = ['zlib1', 'libxml2-2', 'libgcc_s_sjlj-1', 'Half', 'Iex', 'IlmThread', 'IlmImf', 'libjpeg-8', \
-                       'libpng14', 'libtiff-3', 'libfreetype-6', 'libyafaraycore', 'libyafarayplugin']
+                       'libpng14', 'libtiff-3', 'libfreetype-6','libstdc++-6', 'libyafaraycore', 'libyafarayplugin']
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
@@ -80,6 +80,10 @@ else:
     from . import io
     from . import ui
     from . import ot
+    # test
+    import nodeitems_utils
+    from nodeitems_utils import NodeCategory, NodeItem, NodeItemCustom
+
 
 
 @persistent
@@ -104,6 +108,8 @@ def register():
     kmi = km.keymap_items.new('render.render_view', 'F12', 'PRESS', False, False, False, True)
     kmi = km.keymap_items.new('render.render_animation', 'F12', 'PRESS', False, False, True, False)
     kmi = km.keymap_items.new('render.render_still', 'F12', 'PRESS', False, False, False, False)
+    # for nodes
+    nodeitems_utils.register_node_categories("YAF_NODES", ui.yaf_custom_nodes.yaf_node_categories)
 
 
 def unregister():
@@ -116,6 +122,8 @@ def unregister():
             kma.keymap_items.remove(kmi)
     bpy.utils.unregister_module(__name__)
     bpy.app.handlers.load_post.remove(load_handler)
+    # for nodes
+    nodeitems_utils.unregister_node_categories("YAF_NODES")
 
 
 if __name__ == '__main__':
