@@ -85,10 +85,9 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
 
             if scene.intg_final_gather:
                 ''' Show options UI for Final Gathering. '''
-                if not scene.intg_do_IC:
-                    col = layout.row()
-                    col.prop(scene, "intg_fg_bounces")
-                    col.prop(scene, "intg_fg_samples")
+                col = layout.row()
+                col.prop(scene, "intg_fg_bounces")
+                col.prop(scene, "intg_fg_samples")
                 col = layout.row()
                 col.prop(scene, "intg_show_map", toggle=True)
 
