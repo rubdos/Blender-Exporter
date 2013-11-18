@@ -523,10 +523,15 @@ class yafObject(object):
                             vertex = matrix * location.co  # use reverse vector multiply order, API changed with rev. 38674
                             yi.addVertex(vertex[0], vertex[1], vertex[2])
                         #this section will be changed after the material settings been exported
+                        hairMat = "default"
                         if self.materialMap[pmaterial]:
-                            yi.endCurveMesh(self.materialMap[pmaterial], strandStart, strandEnd, strandShape)
-                        else:
-                            yi.endCurveMesh(self.materialMap["default"], strandStart, strandEnd, strandShape)
+                            hairMat = pmaterial
+                        yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
+                        
+                        #if self.materialMap[pmaterial]:
+                        #    yi.endCurveMesh(self.materialMap[pmaterial], strandStart, strandEnd, strandShape)
+                        #else:
+                        #    yi.endCurveMesh(self.materialMap["default"], strandStart, strandEnd, strandShape)
                     # TODO: keep object smooth
                     #yi.smoothMesh(0, 60.0)
                         yi.endGeometry()
