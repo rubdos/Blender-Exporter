@@ -67,7 +67,7 @@ def register():
         name="Gamma",
         description="Gamma correction applied to final output, inverse correction "
                     "of textures and colors is performed",
-        min=0, max=5, default= 1.0) #gamma)
+        min=0, max=5, default= 1.0)
 
     Scene.gs_gamma_input = FloatProperty(
         name="Gamma input",
@@ -254,7 +254,7 @@ def register():
 
     Scene.intg_bounces = IntProperty(
         name="Depth",
-        description="",
+        description="Amount of photon bounces",
         min=1,
         default=4)
 
@@ -320,8 +320,8 @@ def register():
     
     # SSS settings ----------------------->
     Scene.intg_useSSS = BoolProperty(
-        name="Use SSS",
-        description="Enable SSS photon map",
+        name="Enable SubSurface Scattering",
+        description="Enable Subsurface scattering photon map",
         default=False)
 
     Scene.intg_sssPhotons = IntProperty(
