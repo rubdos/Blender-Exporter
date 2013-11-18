@@ -86,7 +86,7 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
 
             layout.label(text="Background Texture controls")
             layout.prop(world,"bg_rotation")
-            layout.prop(world,"yaf_mapworld_type", text="Mapping Coord")
+            layout.prop(world,"bg_mapping_type", text="Mapping Coord")
             layout.separator()
 
             split = layout.split(percentage=0.33)
