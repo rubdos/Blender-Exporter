@@ -1,7 +1,7 @@
 import bpy
 scene = bpy.context.scene
 
-scene.render.use_color_management = False
+#scene.render.use_color_management = False
 scene.gs_ray_depth = 2
 scene.gs_shadow_depth = 2
 scene.gs_threads = 1
