@@ -52,9 +52,15 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
         if not hasattr(context, "texture_slot"):
             return False
 
-        return ((context.material or context.world or context.brush or context.texture \
-        or context.particle_system or isinstance(context.space_data.pin_id, ParticleSettings)) \
-        and (engine in cls.COMPAT_ENGINES))
+        return ((context.material or 
+                 context.world or 
+                 context.brush or 
+                 context.texture or 
+                 context.particle_system or 
+                 isinstance(context.space_data.pin_id, ParticleSettings)) and
+                (engine in cls.COMPAT_ENGINES))
+                #isinstance(context.space_data.pin_id, ParticleSettings) or
+                #context.texture_user) and
 
     def draw(self, context):
         layout = self.layout
@@ -64,6 +70,9 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
         tex = context.texture
         idblock = context_tex_datablock(context)
         pin_id = space.pin_id
+        
+        # povman add from blender
+        space.use_limited_texture_context = True
 
         if space.use_pin_id and not isinstance(pin_id, Texture):
             idblock = pin_id
@@ -265,31 +274,34 @@ class YAF_TEXTURE_PT_image_sampling(YAF_TextureTypePanel, Panel):
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
     COMPAT_ENGINES = {'YAFA_RENDER'}
-
+    
     def draw(self, context):
         layout = self.layout
         idblock = context_tex_datablock(context)
-
         tex = context.texture
+        
         layout.label(text="Image:")
         row = layout.row(align=True)
         if not isinstance(idblock, World):
-            '''povman: change layout to row for save space
-                and show only options in each context
-            '''
             row.prop(tex, "yaf_use_alpha", text="Use Alpha")
             row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
             layout.prop(tex, "use_flip_axis", text="Flip X/Y Axis")
         else:
             row.prop(tex, "use_interpolation", text="Use image background interpolation")
-            #row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
-
+                
+        
 
 class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
     bl_label = "Image Mapping"
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
     COMPAT_ENGINES = {'YAFA_RENDER'}
+    
+    @classmethod
+    def poll(cls, context):
+        idblock = context_tex_datablock(context)
+        if isinstance(idblock, World):
+            return False
 
     def draw(self, context):
         layout = self.layout
@@ -439,7 +451,7 @@ class YAF_TEXTURE_PT_ocean(YAF_TextureTypePanel, Panel):
 
 
 class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
-    bl_label = "YafaRay Mapping (Map Input)"
+    bl_label = "Texture Mapping "
     COMPAT_ENGINES = {'YAFA_RENDER'}
 
     @classmethod
@@ -469,7 +481,7 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
                 world = context.world
                 col.label(text="Coordinates:")
                 col = split.column()
-                col.prop(world, "yaf_mapworld_type", text="")
+                col.prop(world, "bg_mapping_type", text="")
             else:
                 split = layout.split(percentage=0.3)
                 col = split.column()
@@ -479,17 +491,13 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
 
 
             if tex.texture_coords == 'UV':
-                pass
-                #### UV layers not supported in yafaray engine ###
-                """
                 split = layout.split(percentage=0.3)
-                split.label(text="Layer:")
+                split.label(text="UV Maps:")
                 ob = context.object
                 if ob and ob.type == 'MESH':
                     split.prop_search(tex, "uv_layer", ob.data, "uv_textures", text="")
                 else:
                     split.prop(tex, "uv_layer", text="")
-                """
 
             elif tex.texture_coords == 'OBJECT':
                 split = layout.split(percentage=0.3)
@@ -534,13 +542,13 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
 
 
 class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
-    bl_label = "YafaRay Influence (Map To)"
+    bl_label = "Texture Influence"
     COMPAT_ENGINES = {'YAFA_RENDER'}
 
     @classmethod
     def poll(cls, context):
         idblock = context_tex_datablock(context)
-        if isinstance(idblock, Brush):
+        if isinstance(idblock, Brush) or isinstance(idblock, World):
             return False
 
         if not getattr(context, "texture_slot", None):
@@ -595,6 +603,7 @@ class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
                 if node == "Bump" and getattr(tex, "use_map_normal") and texture.yaf_tex_type == 'IMAGE':
                     col.prop(texture, "yaf_is_normal_map", "Use map as normal map")
 
+        '''
         elif isinstance(idblock, World):  # for setup world texture
             split = layout.split()
 
@@ -605,6 +614,7 @@ class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
             col = split.column()
             factor_but(col, "use_map_zenith_up", "zenith_up_factor", "Zenith Up")
             factor_but(col, "use_map_zenith_down", "zenith_down_factor", "Zenith Down")
+        '''
 
         if not isinstance(idblock, ParticleSettings) and not isinstance(idblock, World):
             split = layout.split()
