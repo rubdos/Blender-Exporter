@@ -36,7 +36,7 @@ bl_info = {
               "Bert Buchholz, Rodrigo Placencia (DarkTide),"
               "Alexander Smirnov (Exvion), Olaf Arnold (olaf)",
     "version": (0, 1, 5, 'Stable'),
-    "blender": (2, 6, 3),
+    "blender": (2, 6, 9),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "http://www.yafaray.org/community/forum",
     "tracker_url": "http://www.yafaray.org/development/bugtracker/yafaray",
