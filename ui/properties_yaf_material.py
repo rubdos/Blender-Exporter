@@ -330,8 +330,7 @@ class YAF_PT_blend_(MaterialTypePanel, Panel):
         col = split.column()
         col.label(text="Material two:")
         col.prop(yaf_mat, "material2", text="")
-#
-#
+
 class YAF_PT_translucent(MaterialTypePanel, Panel):
     bl_label = "Translucent (SSS) settings"
     material_type = 'translucent'
@@ -340,21 +339,25 @@ class YAF_PT_translucent(MaterialTypePanel, Panel):
         layout = self.layout
         yaf_mat = active_node_mat(context.material)
 
+        layout.prop(yaf_mat, 'sssPresets')
+        
+        #
         split = layout.split()
         col = split.column()
-        col.prop(yaf_mat, "sssColor")
-        col.prop(yaf_mat, "diffuse_reflect")
+        col.prop(yaf_mat, "diffuse_color") #col.prop(yaf_mat, "sssColor")
+        col.prop(yaf_mat, "diffuse_reflect", text="Diff. Reflect")
         col.prop(yaf_mat, "sssSpecularColor")
         col.prop(yaf_mat, "sssSigmaS")
         col.prop(yaf_mat, "sssSigmaS_factor")
+        col.prop(yaf_mat, "phaseFuction")        
         col = split.column()
-        col.prop(yaf_mat, "glossy_color")
-        col.prop(yaf_mat, "glossy_reflect")
-        col.prop(yaf_mat, "sssSigmaA")
-        col.prop(yaf_mat, "sss_transmit")
+        col.prop(yaf_mat, "glossy_color", text="Glossy color")
+        col.prop(yaf_mat, "glossy_reflect", text="Gloss. Reflect")
+        col.prop(yaf_mat, "sssSigmaA", text="Subsurface")
+        col.prop(yaf_mat, "sss_transmit", text="Transmit")
         col.prop(yaf_mat, "exponent")
         col.prop(yaf_mat, "sssIOR")
-
+        
 
 if __name__ == "__main__":  # only for live edit.
     import bpy
