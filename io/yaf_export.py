@@ -356,7 +356,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                         self.tag = args[0]
                     elif command == "progress":
                         self.prog = args[0]
-                    self.update_stats("TheBounty Render: ", "{0}".format(self.tag))
+                    self.update_stats("YafaRay Render: ", "{0}".format(self.tag))
                     # use blender's progress bar in the header to show progress of render
                     # update_progress needs float range 0.0 to 1.0, yafaray returns 0.0 to 100.0
                     self.update_progress(self.prog / 100)
@@ -383,9 +383,13 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
                 self.end_result(res)
 
-            t = threading.Thread(target=self.yi.render,
-                                 args=(self.resX, self.resY, self.bStartX, self.bStartY,
-                                    self.is_preview, drawAreaCallback, flushCallback, progressCallback)
+            t = threading.Thread(
+                                    target=self.yi.render,
+                                    args=(self.resX, self.resY, self.bStartX, self.bStartY,
+                                    self.is_preview,
+                                    drawAreaCallback,
+                                    flushCallback,
+                                    progressCallback)
                                 )
             t.start()
 
