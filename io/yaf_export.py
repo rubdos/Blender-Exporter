@@ -38,7 +38,7 @@ from .yaf_material import yafMaterial
 class YafaRayRenderEngine(bpy.types.RenderEngine):
     bl_idname = YAF_ID_NAME
     bl_use_preview = True
-    bl_label = "YafaRay Render"
+    bl_label = "TheBounty Render"
     prog = 0.0
     tag = ""
     useViewToRender = False
@@ -226,7 +226,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.printInfo("Exporter: Creating Material \"clayMat\"")
         cmat = self.yi.createMaterial("clayMat")
         self.materialMap["clay"] = cmat
-
+        # povman: first test for override all materials in 'clay render' mode
+        #if not self.scene.gs_clay_render:
         for obj in self.scene.objects:
             for mat_slot in obj.material_slots:
                 if mat_slot.material not in self.materials:

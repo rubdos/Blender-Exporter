@@ -24,6 +24,8 @@ import os
 import sys
 from bpy.path import clean_name, display_name
 from bpy_types import StructRNA, _GenericUI, RNAMeta
+# test
+
 
 
 def yaf_preset_find(name, preset_path, disp_name=False):
@@ -63,7 +65,7 @@ class YAF_AddPresetBase():
                 return {'FINISHED'}
 
             filename = clean_name(self.name)
-            target_path = os.path.join(sys.path[0], "yafaray", "presets", self.preset_subdir)
+            target_path = os.path.join(sys.path[0], "yafaray","presets", self.preset_subdir)
 
             if not target_path:
                 self.report({'WARNING'}, "Failed to create presets path")

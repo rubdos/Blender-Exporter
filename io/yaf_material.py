@@ -65,6 +65,8 @@ class yafMaterial:
 
         yi.paramsSetString("input", mapName)
 
+        #mtex is an instance of MaterialTextureSlot class
+
         switchBlendMode = {
             'MIX': 0,
             'ADD': 1,
@@ -299,7 +301,7 @@ class yafMaterial:
                 used = True
                 diffRoot = lname
             lname = "gloss_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.use_map_color_spec, glossy_color, mtex.specular_color_factor):
+            if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.use_map_color_spec, color, mtex.specular_color_factor):
                 used = True
                 glossRoot = lname
             lname = "glossref_layer%x" % i
@@ -330,6 +332,7 @@ class yafMaterial:
 
         return yi.createMaterial(self.namehash(mat))
     
+    #-->
     def writeTranslucentShader(self, mat):
         yi = self.yi
         yi.paramsClearAll()
@@ -401,6 +404,7 @@ class yafMaterial:
         if len(translRoot) > 0: yi.paramsSetString("sigmaS_shader", translRoot)
 
         return yi.createMaterial(self.namehash(mat))
+    #-------->
     
     def writeShinyDiffuseShader(self, mat):
         yi = self.yi

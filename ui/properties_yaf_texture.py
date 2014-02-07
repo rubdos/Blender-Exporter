@@ -439,7 +439,7 @@ class YAF_TEXTURE_PT_ocean(YAF_TextureTypePanel, Panel):
 
 
 class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
-    bl_label = "Texture Mapping "
+    bl_label = "YafaRay Mapping (Map Input)"
     COMPAT_ENGINES = {'YAFA_RENDER'}
 
     @classmethod
@@ -479,8 +479,11 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
 
 
             if tex.texture_coords == 'UV':
+                pass
+                #### UV layers not supported in yafaray engine ###
+                """
                 split = layout.split(percentage=0.3)
-                split.label(text="UV Maps:")
+                split.label(text="Layer:")
                 ob = context.object
                 if ob and ob.type == 'MESH':
                     split.prop_search(tex, "uv_layer", ob.data, "uv_textures", text="")
@@ -531,7 +534,7 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
 
 
 class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
-    bl_label = "Texture Influence"
+    bl_label = "YafaRay Influence (Map To)"
     COMPAT_ENGINES = {'YAFA_RENDER'}
 
     @classmethod
