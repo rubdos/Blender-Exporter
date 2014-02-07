@@ -53,7 +53,7 @@ def register():
     
     ## povman test: create a list of YafaRay mapping modes ##########
     # 
-    World.bg_mapping_type = EnumProperty(
+    World.yaf_mapworld_type = EnumProperty(
         name="Mapping Type",
         items=(
             ('SPHERE', "Spherical", "Spherical mapping"),
@@ -300,7 +300,6 @@ def unregister():
     World.bg_with_caustic
     World.bg_with_diffuse
     World.bg_ibl_samples
-    World.bg_mapping_type
     World.bg_rotation
     World.bg_turbidity
     World.bg_ds_turbidity
@@ -330,3 +329,6 @@ def unregister():
     World.v_int_scale
     World.v_int_alpha
     World.v_int_dsturbidity
+    
+    # povman test --->
+    World.yaf_mapworld_type

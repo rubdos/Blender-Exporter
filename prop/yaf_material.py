@@ -273,7 +273,7 @@ def register():
         description="Second blend material",
         items=items_mat2)
     
-    ## SSS
+    # Translucent Sub-Surface Scattering material
     Material.sssColor = FloatVectorProperty(
         name="Diffuse color",
         description="Diffuse color",
@@ -299,19 +299,19 @@ def register():
         name="Scatter color",
         description="Scatter color",
         subtype='COLOR',
-        min=0.0, max=3.0,
-        default=(1.0, 1.0, 1.0))
+        min=0.0, max=1.0,
+        default=(0.7, 0.7, 0.7))
 
     Material.sssSigmaS_factor = FloatProperty(
         name="SigmaS factor",
-        description="Index of refraction for SSS",
-        min=1.0, max=30.0,
+        description="Sigma factor for SSS",
+        min=0.1, max=100.0,
         step=0.01, precision=3,
         default=1.0)
 
     Material.sss_transmit = FloatProperty(
-        name="Transluency",
-        description="Transluency",
+        name="Transmittance",
+        description="Transmittance",
         min=0.0, max=1.0,
         step=0.01, precision=3,
         default=1.0)
@@ -319,10 +319,33 @@ def register():
     Material.sssIOR = FloatProperty(
         name="IOR",
         description="Index of refraction for SSS",
-        min=1.0, max=30.0,
+        min=0.0, max=3.0,
         step=1, precision=3,
         soft_min=1.0, soft_max=30.0,
         default=1.300)
+    #
+    Material.phaseFuction = FloatProperty(
+        name="Phase Function",
+        description="Difference between diffuse reflection (+ values) and glossy reflection (- values)",
+        min=-0.99, max=0.99,
+        step=0.01, precision=2,
+        default=0.0)
+    
+    Material.sssPresets = EnumProperty(
+        name='SSS presets', 
+        description='Subsurface Scatering presets', 
+        items=(
+               ('skinbrown',  'Skin brown',''),
+               ('skinpink',   'Skin pink',''),
+               ('skinyellow', 'Skin yellow',''),
+               ('milkskimmed','Milk skimmed',''),
+               ('milkwhole',  'Milkwhole',''),
+               ('marble',     'Marble',''),
+               ('ketchup',    'Ketchup',''),
+               ('cream',      'Cream',''),
+               ('potato',     'Potato','')
+               ),
+        default='marble')
 
 
 def unregister():
@@ -365,3 +388,5 @@ def unregister():
     del Material.sssSigmaS_factor
     del Material.sss_transmit
     del Material.sssIOR
+    del Material.phaseFuction
+    del Material.sssPresets

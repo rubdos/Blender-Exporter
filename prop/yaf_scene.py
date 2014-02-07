@@ -60,14 +60,14 @@ def register():
 
     Scene.gs_threads = IntProperty(
         name="Threads",
-        description="Number of threads to use for rendering",
-        min=1, default=1)
+        description="Number of threads to use (0 = auto)",
+        min=0, default=1)
 
     Scene.gs_gamma = FloatProperty(
         name="Gamma",
         description="Gamma correction applied to final output, inverse correction "
                     "of textures and colors is performed",
-        min=0, max=5, default= 1.0)
+        min=0, max=5, default= 1.0) #gamma)
 
     Scene.gs_gamma_input = FloatProperty(
         name="Gamma input",
@@ -187,17 +187,18 @@ def register():
         default='PNG', update=call_update_fileformat)
 
     ########### YafaRays integrator properties #############
+    # pov: sync variable names by core 'registerFactory' values
     Scene.intg_light_method = EnumProperty(
         name="Lighting Method",
         items=(
-            ('Direct Lighting', "Direct Lighting", ""),
-            ('Photon Mapping', "Photon Mapping", ""),
-            ('Pathtracing', "Pathtracing", ""),
-            ('Debug', "Debug", ""),
-            ('Bidirectional', "Bidirectional", ""),
-            ('SPPM', "SPPM", "")
+            ('directlighting', "Direct Lighting", ""),
+            ('photonmapping', "Photon Mapping", ""),
+            ('pathtracing', "Pathtracing", ""),
+            ('DebugIntegrator', "Debug Integrator", ""),
+            ('bidirectional', "Bidirectional PathTracing", ""),
+            ('SPPM', "St. Progressive PM", "")
         ),
-        default='Direct Lighting')
+        default='directlighting')
 
     Scene.intg_use_caustics = BoolProperty(
         name="Caustic Photons",
@@ -254,7 +255,7 @@ def register():
 
     Scene.intg_bounces = IntProperty(
         name="Depth",
-        description="Amount of photon bounces",
+        description="",
         min=1,
         default=4)
 
@@ -300,12 +301,12 @@ def register():
     Scene.intg_caustic_method = EnumProperty(
         name="Caustic Method",
         items=(
-            ('None', "None", ""),
-            ('Path', "Path", ""),
-            ('Path+Photon', "Path+Photon", ""),
-            ('Photon', "Photon", "")),
+            ('none', "None", ""),
+            ('path', "Path", ""),
+            ('both', "Path+Photon", ""),
+            ('photon', "Photon", "")),
         description="Choose caustic rendering method",
-        default='None')
+        default='none')
 
     Scene.intg_path_samples = IntProperty(
         name="Path Samples",
@@ -320,12 +321,12 @@ def register():
     
     # SSS settings ----------------------->
     Scene.intg_useSSS = BoolProperty(
-        name="Enable SubSurface Scattering",
-        description="Enable Subsurface scattering photon map",
+        name="SubSurface Scattering",
+        description="Enable photonmapping for SSS materials",
         default=False)
 
     Scene.intg_sssPhotons = IntProperty(
-        name="SSS Photons",
+        name="Amount of SSS Photons",
         description="Number of SSS photons to be shot",
         min=1, max=100000000,
         default=100000)
@@ -346,7 +347,7 @@ def register():
         name="Scale",
         description="Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
         min=0.0001, max=1000.0,
-        default=30.0)
+        default=10.0)
     #-------------------------------->
 
     Scene.intg_debug_type = EnumProperty(
