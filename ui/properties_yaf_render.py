@@ -134,6 +134,9 @@ class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
         split = layout.split(percentage=0.6)
         col = split.column()
         col.prop(sc, "img_output", text="", icon='IMAGE_DATA')
+        # povman test: add more out options..
+        col.prop(sc, "gs_gamma")
+        # end
         col = split.column()
         col.row().prop(image_settings, "color_mode", text="Color", expand=True)
 
