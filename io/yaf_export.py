@@ -24,8 +24,8 @@ import os
 import threading
 import time
 import yafrayinterface
-from yafaray import PLUGIN_PATH
-from yafaray import YAF_ID_NAME
+from thebounty import PLUGIN_PATH
+from thebounty import YAF_ID_NAME
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -227,11 +227,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         cmat = self.yi.createMaterial("clayMat")
         self.materialMap["clay"] = cmat
         # povman: first test for override all materials in 'clay render' mode
-        #if not self.scene.gs_clay_render:
-        for obj in self.scene.objects:
-            for mat_slot in obj.material_slots:
-                if mat_slot.material not in self.materials:
-                    self.exportMaterial(mat_slot.material)
+        if not self.scene.gs_clay_render:
+            for obj in self.scene.objects:
+                for mat_slot in obj.material_slots:
+                    if mat_slot.material not in self.materials:
+                        self.exportMaterial(mat_slot.material)
 
     def exportMaterial(self, material):
         if material:
