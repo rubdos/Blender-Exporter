@@ -274,12 +274,14 @@ def register():
         items=items_mat2)
     
     # Translucent Sub-Surface Scattering material
+    
     Material.sssColor = FloatVectorProperty(
         name="Diffuse color",
         description="Diffuse color",
         subtype='COLOR',
         min=0.0, max=1.0,
         default=(1.0, 1.0, 1.0))
+    
         
     Material.sssSpecularColor = FloatVectorProperty(
         name="Specular Color",
@@ -339,7 +341,7 @@ def register():
                ('skinpink',   'Skin pink',''),
                ('skinyellow', 'Skin yellow',''),
                ('milkskimmed','Milk skimmed',''),
-               ('milkwhole',  'Milkwhole',''),
+               ('milkwhole',  'Milk whole',''),
                ('marble',     'Marble',''),
                ('ketchup',    'Ketchup',''),
                ('cream',      'Cream',''),

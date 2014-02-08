@@ -19,15 +19,21 @@
 # <pep8 compliant>
 
 import bpy
-from bl_ui.properties_material import active_node_mat
+from bl_ui.properties_material import active_node_mat # unused ??
 from bl_ui.properties_texture import context_tex_datablock
 from bpy.types import (Panel,
                        Texture,
                        Brush,
                        Material,
                        World,
+                       Object,
                        ParticleSettings)
 
+def id_tex_datablock(bid):
+    if isinstance(bid, Object):
+        return bid.active_material
+
+    return bid
 
 class YAF_TextureButtonsPanel():
     bl_space_type = 'PROPERTIES'
@@ -52,9 +58,14 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
         if not hasattr(context, "texture_slot"):
             return False
 
-        return ((context.material or context.world or context.brush or context.texture \
-        or context.particle_system or isinstance(context.space_data.pin_id, ParticleSettings)) \
-        and (engine in cls.COMPAT_ENGINES))
+        return ((context.material or 
+                 context.world or 
+                 context.brush or 
+                 context.texture or 
+                 context.particle_system or
+                 isinstance(context.space_data.pin_id, ParticleSettings) or
+                 context.texture_user) and
+                 (engine in cls.COMPAT_ENGINES))
 
     def draw(self, context):
         layout = self.layout
@@ -64,13 +75,16 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
         tex = context.texture
         idblock = context_tex_datablock(context)
         pin_id = space.pin_id
+        
+        space.use_limited_texture_context = True # copy from Blender
 
         if space.use_pin_id and not isinstance(pin_id, Texture):
-            idblock = pin_id
+            idblock = id_tex_datablock(pin_id) #pin_id
             pin_id = None
 
         if not space.use_pin_id:
             layout.prop(space, "texture_context", expand=True)
+            pin_id = None # povman: add from Blender
 
         tex_collection = (pin_id is None) and (node is None) and (not isinstance(idblock, Brush))
 
@@ -103,13 +117,10 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
 
         if tex:
             split = layout.split(percentage=0.2)
-
             if tex.use_nodes:
-
                 if slot:
                     split.label(text="Output:")
                     split.prop(slot, "output_node", text="")
-
             else:
                 split.label(text="Type:")
                 split.prop(tex, "yaf_tex_type", text="")
