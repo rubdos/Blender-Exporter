@@ -22,7 +22,6 @@ import bpy
 import mathutils
 from bpy.types import Operator
 
-
 class OBJECT_OT_get_position(Operator):
     bl_label = "From( get position )"
     bl_idname = "world.get_position"
@@ -115,11 +114,12 @@ def sunPosAngle(mode="get", val="position"):
 
 def checkSceneLights():
     scene = bpy.context.scene
-    world = scene.world
+    world = scene.world.bounty
     
-    # expand fuction for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
+    # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
     haveLights = False
-    if world.bg_add_sun or world.bg_background_light: # use light create with sunsky or sunsky2
+    # use light create with sunsky, sunsky2 or with use ibl ON
+    if world.bg_add_sun or world.bg_background_light or world.bg_use_ibl:
         return True
     # if above is true, this 'for' is not used
     for sceneObj in scene.objects:
@@ -158,7 +158,7 @@ class RENDER_OT_render_view(Operator):
             bpy.types.YAFA_RENDER.useViewToRender = False
             return {'CANCELLED'}
 
-        elif not sceneLights and scene.intg_light_method == "Bidirectional":
+        elif not sceneLights and scene.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             bpy.types.YAFA_RENDER.useViewToRender = False
             return {'CANCELLED'}
@@ -183,7 +183,7 @@ class RENDER_OT_render_animation(Operator):
         sceneLights = checkSceneLights()
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "Bidirectional":
+        if not sceneLights and scene.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             return {'CANCELLED'}
 
@@ -206,7 +206,7 @@ class RENDER_OT_render_still(Operator):
         sceneLights = checkSceneLights()
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "Bidirectional":
+        if not sceneLights and scene.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             return {'CANCELLED'}
 
