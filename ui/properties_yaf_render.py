@@ -76,7 +76,7 @@ class YAFRENDER_PT_layers(RenderButtonsPanel, Panel):
         # TODO: Implement render layers
         #col.prop(rl, "layers", text="Layer")
 
-
+    
 class YAFRENDER_PT_dimensions(RenderButtonsPanel, Panel):
     bl_label = "Dimensions"
     bl_options = {'DEFAULT_CLOSED'}
@@ -127,13 +127,17 @@ class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
 
         rd = context.scene.render
         sc = context.scene
+        scene = context.scene.bounty
         image_settings = rd.image_settings
 
         layout.prop(rd, "filepath", text="")
 
         split = layout.split(percentage=0.6)
         col = split.column()
-        col.prop(sc, "img_output", text="", icon='IMAGE_DATA')
+        col.prop(scene, "img_output", text="", icon='IMAGE_DATA')
+        # povman test: add more out options..
+        #col.prop(sc, "gs_gamma", text="Gamma out")
+        # end
         col = split.column()
         col.row().prop(image_settings, "color_mode", text="Color", expand=True)
 
