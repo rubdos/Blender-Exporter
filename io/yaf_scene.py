@@ -91,7 +91,9 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetString("camera_name", "cam")
     yi.paramsSetString("integrator_name", "default")
     yi.paramsSetString("volintegrator_name", "volintegr")
-
+    
+    # use exporter params from UI
+    scene = scene.bounty
     yi.paramsSetFloat("gamma", scene.gs_gamma)
 
     exportAA(yi, scene)
@@ -109,7 +111,7 @@ def exportRenderSettings(yi, scene):
 
     yi.paramsSetBool("clamp_rgb", scene.gs_clamp_rgb)
     yi.paramsSetBool("show_sam_pix", scene.gs_show_sam_pix)
-    yi.paramsSetBool("premult", scene.gs_premult)
+    yi.paramsSetBool("premult", scene.gs_premult)# unused..?
 
     yi.paramsSetInt("tile_size", scene.gs_tile_size)
     yi.paramsSetString("tiles_order", scene.gs_tile_order)
@@ -122,9 +124,11 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetBool("drawParams", scene.gs_draw_params)
     yi.paramsSetString("customString", scene.gs_custom_string)
 
-    if scene.gs_auto_threads:
-        yi.paramsSetInt("threads", -1)
-    else:
-        yi.paramsSetInt("threads", scene.gs_threads)
+    # change to new mode without 'threads auto' option
+    # set to '-1' value for use 'auto'
+    threads = -1
+    if scene.gs_threads > 0:
+        threads = scene.gs_threads
+    yi.paramsSetInt("threads", threads)
 
     yi.paramsSetString("background_name", "world_background")

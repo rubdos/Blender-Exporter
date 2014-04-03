@@ -29,14 +29,11 @@ YAF_ID_NAME = "YAFA_RENDER"
 sys.path.append(BIN_PATH)
 
 bl_info = {
-    "name": "YafaRay Exporter",
-    "description": "YafaRay integration for blender",
-    "author": "Shuvro Sarker, Kim Skoglund (Kerbox), Pedro Alcaide (povmaniaco),"
-              "Paulo Gomes (tuga3d), Michele Castigliego (subcomandante),"
-              "Bert Buchholz, Rodrigo Placencia (DarkTide),"
-              "Alexander Smirnov (Exvion), Olaf Arnold (olaf)",
-    "version": (0, 1, 5, 'Stable'),
-    "blender": (2, 6, 3),
+    "name": "TheBounty",
+    "description": "TheBounty Renderer for Blender (based on YafaRay Exporter)",
+    "author": "Pedro Alcaide (povmaniaco)",
+    "version": (0, 1, 6, 'Transitional'),
+    "blender": (2, 7, 0),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "http://www.yafaray.org/community/forum",
     "tracker_url": "http://www.yafaray.org/development/bugtracker/yafaray",
@@ -80,11 +77,8 @@ else:
     from . import io
     from . import ui
     from . import ot
-    # test
-    import nodeitems_utils
-    from nodeitems_utils import NodeCategory, NodeItem, NodeItemCustom
-
-
+# for nodes
+import nodeitems_utils
 
 @persistent
 def load_handler(dummy):
@@ -95,8 +89,8 @@ def load_handler(dummy):
             print("Load Handler: Convert Yafaray texture \"{0}\" with texture type: \"{1}\" to \"{2}\"".format(tex.name, tex.yaf_tex_type, tex.type))
             tex.yaf_tex_type = tex.type
     # convert image output file type setting from blender to yafaray's file type setting on file load, so that both are the same...
-    if bpy.context.scene.render.image_settings.file_format is not bpy.context.scene.img_output:
-        bpy.context.scene.img_output = bpy.context.scene.render.image_settings.file_format
+    if bpy.context.scene.render.image_settings.file_format is not bpy.context.scene.bounty.img_output:
+        bpy.context.scene.bounty.img_output = bpy.context.scene.render.image_settings.file_format
 
 
 def register():
@@ -110,7 +104,7 @@ def register():
     kmi = km.keymap_items.new('render.render_still', 'F12', 'PRESS', False, False, False, False)
     # for nodes
     nodeitems_utils.register_node_categories("YAF_NODES", ui.yaf_custom_nodes.yaf_node_categories)
-
+    
 
 def unregister():
     prop.unregister()

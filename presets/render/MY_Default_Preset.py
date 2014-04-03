@@ -1,7 +1,7 @@
 import bpy
 scene = bpy.context.scene
 
-scene.render.use_color_management = False
+#scene.render.use_color_management = False
 scene.gs_ray_depth = 2
 scene.gs_shadow_depth = 2
 scene.gs_threads = 1
@@ -19,7 +19,7 @@ scene.gs_clamp_rgb = False
 scene.gs_show_sam_pix = True
 scene.gs_z_channel = False
 scene.gs_type_render = 'into_blender'
-scene.intg_light_method = 'Direct Lighting'
+scene.intg_light_method = 'directlighting'
 scene.intg_use_caustics = False
 scene.intg_photons = 500000
 scene.intg_caustic_mix = 100
@@ -37,7 +37,7 @@ scene.intg_final_gather = True
 scene.intg_fg_bounces = 3
 scene.intg_fg_samples = 16
 scene.intg_show_map = False
-scene.intg_caustic_method = 'None'
+scene.intg_caustic_method = 'none'
 scene.intg_path_samples = 32
 scene.intg_no_recursion = False
 scene.intg_debug_type = 'dSdV'
