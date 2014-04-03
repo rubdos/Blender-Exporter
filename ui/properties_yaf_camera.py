@@ -27,11 +27,21 @@ CameraButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
 
 class YAF_PT_lens(CameraButtonsPanel, Panel):
     bl_label = "Lens"
-
+    #povman add
+    bl_context = "data"
+    
+    @classmethod
+    def poll(cls, context):
+        return context.camera and CameraButtonsPanel.poll(context)
+    #end
+    
     def draw(self, context):
         layout = self.layout
 
-        camera = context.camera
+        # re-used Blender properties 
+        blcam = context.camera
+        # yafaray camera declared properties
+        camera = context.camera.bounty
 
         layout.prop(camera, "camera_type", expand=True)
 
@@ -44,21 +54,21 @@ class YAF_PT_lens(CameraButtonsPanel, Panel):
             layout.prop(camera, "circular")
 
         elif camera.camera_type == 'orthographic':
-            layout.prop(camera, "ortho_scale")
+            layout.prop(blcam, "ortho_scale")
 
         elif camera.camera_type in {'perspective', 'architect'}:
-            layout.prop(camera, "lens")
+            layout.prop(blcam, "lens")
 
             layout.separator()
 
             layout.label("Depth of Field:")
             layout.prop(camera, "aperture")
             split = layout.split()
-            split.prop(camera, "dof_object", text="")
+            split.prop(blcam, "dof_object", text="")
             col = split.column()
-            if camera.dof_object is not None:
+            if blcam.dof_object is not None:
                 col.enabled = False
-            col.prop(camera, "dof_distance", text="Distance")
+            col.prop(blcam, "dof_distance", text="Distance")
 
             layout.prop(camera, "bokeh_type")
             layout.prop(camera, "bokeh_bias")
@@ -68,19 +78,26 @@ class YAF_PT_lens(CameraButtonsPanel, Panel):
         split = layout.split()
         col = split.column(align=True)
         col.label(text="Shift:")
-        col.prop(camera, "shift_x", text="X")
-        col.prop(camera, "shift_y", text="Y")
+        col.prop(blcam, "shift_x", text="X")
+        col.prop(blcam, "shift_y", text="Y")
 
         col = split.column(align=True)
         col.prop(camera, "use_clipping")
         sub = col.column()
         sub.active = camera.use_clipping
-        sub.prop(camera, "clip_start", text="Start")
-        sub.prop(camera, "clip_end", text="End")
+        sub.prop(blcam, "clip_start", text="Start")
+        sub.prop(blcam, "clip_end", text="End")
 
 
 class YAF_PT_camera(CameraButtonsPanel, Panel):
     bl_label = "Camera"
+    #povman add
+    bl_context = "data"
+    
+    @classmethod
+    def poll(cls, context):
+        return context.camera and CameraButtonsPanel.poll(context)
+    #end
 
     def draw(self, context):
         layout = self.layout
@@ -110,7 +127,14 @@ class YAF_PT_camera(CameraButtonsPanel, Panel):
 
 class YAF_PT_camera_display(CameraButtonsPanel, Panel):
     bl_label = "Display"
-
+    #povman add
+    bl_context = "data"
+    
+    @classmethod
+    def poll(cls, context):
+        return context.camera and CameraButtonsPanel.poll(context)
+    #end
+    
     def draw(self, context):
         layout = self.layout
 

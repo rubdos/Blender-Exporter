@@ -18,9 +18,9 @@
 
 # <pep8 compliant>
 
-import bpy
-from bpy.types import Panel
+#import bpy
 from bl_ui.properties_render import RenderButtonsPanel
+from bpy.types import Panel
 
 RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
 
@@ -30,11 +30,21 @@ class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
 
     def draw(self, context):
 
-        scene = context.scene
+        scene = context.scene.bounty
         layout = self.layout
 
         split = layout.split()
         col = split.column()
+        '''
+        params = ["AA_filter_type", "AA_min_samples", "AA_pixelwidth"]
+        params1 = ["AA_passes", "AA_inc_samples", "AA_threshold"]
+        for p in params:
+            col.prop(scene, p)
+        col = split.column()
+        for p in params1:
+            col.prop(scene, p)
+            
+        '''
         col.prop(scene, "AA_filter_type")
         col.prop(scene, "AA_min_samples")
         col.prop(scene, "AA_pixelwidth")
@@ -50,8 +60,8 @@ class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
         spp.prop(scene, "AA_passes")
         sub.prop(scene, "AA_inc_samples")
         sub.prop(scene, "AA_threshold")
-
-
+        
+        
 if __name__ == "__main__":  # only for live edit.
     import bpy
     bpy.utils.register_module(__name__)

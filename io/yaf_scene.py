@@ -91,7 +91,9 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetString("camera_name", "cam")
     yi.paramsSetString("integrator_name", "default")
     yi.paramsSetString("volintegrator_name", "volintegr")
-
+    
+    # use exporter params from UI
+    scene = scene.bounty
     yi.paramsSetFloat("gamma", scene.gs_gamma)
 
     exportAA(yi, scene)
@@ -123,6 +125,7 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetString("customString", scene.gs_custom_string)
 
     # change to new mode without 'threads auto' option
+    # set to '-1' value for use 'auto'
     threads = -1
     if scene.gs_threads > 0:
         threads = scene.gs_threads

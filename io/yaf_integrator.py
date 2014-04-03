@@ -38,13 +38,12 @@ class yafIntegrator:
         yi.paramsSetInt("shadowDepth", scene.gs_shadow_depth)
         yi.paramsSetBool("transpShad", scene.gs_transp_shad)
 
-        light_type = scene.intg_light_method
+        lightIntegrator = scene.intg_light_method
         # pov: sync variable names by core 'registerFactory' values (btw.. review some names!)
         # directlighting, photonmapping, pathtracing, DebugIntegrator, bidirectional, SPPM        
-        yi.printInfo("Exporting Integrator: {0}".format(light_type))
+        yi.printInfo("Exporting Integrator: {0}".format(lightIntegrator))
 
-        if light_type == "directlighting":
-            #yi.paramsSetString("type", "directlighting")
+        if lightIntegrator == "directlighting":
             yi.paramsSetBool("caustics", scene.intg_use_caustics)
 
             if scene.intg_use_caustics:
@@ -64,8 +63,7 @@ class yafIntegrator:
             # SSS
             yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
-        elif light_type == "photonmapping":
-            #yi.paramsSetString("type", "photonmapping")
+        elif lightIntegrator == "photonmapping":
             yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
             yi.paramsSetInt("bounces", scene.intg_bounces)
 
@@ -85,8 +83,7 @@ class yafIntegrator:
             # SSS
             yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
-        elif light_type == "pathtracing":
-            #yi.paramsSetString("type", "pathtracing")
+        elif lightIntegrator == "pathtracing":
             yi.paramsSetInt("path_samples", scene.intg_path_samples)
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetBool("no_recursive", scene.intg_no_recursion)
@@ -106,10 +103,10 @@ class yafIntegrator:
         #elif light_type == "bidirectional":
             #yi.paramsSetString("type", "bidirectional")
 
-        elif light_type == "DebugIntegrator":
-            yi.paramsSetString("type", "DebugIntegrator")
+        elif lightIntegrator == "DebugIntegrator":
+            #yi.paramsSetString("type", "DebugIntegrator")
 
-            debugTypeStr = scene.intg_debug_type
+            debugTypeStr = scene.intg_debug_type            
             switchDebugType = {
                 'N': 1,
                 'dPdU': 2,
@@ -119,12 +116,12 @@ class yafIntegrator:
                 'dSdU': 6,
                 'dSdV': 7,
             }
-
-            debugType = switchDebugType.get(debugTypeStr)
+            debugType = switchDebugType.get(debugTypeStr, 1)
+            
             yi.paramsSetInt("debugType", debugType)
             yi.paramsSetBool("showPN", scene.intg_show_perturbed_normals)
 
-        elif light_type == "SPPM":
+        elif lightIntegrator == "SPPM":
             yi.paramsSetString("type", "SPPM")
             yi.paramsSetInt("photons", scene.intg_photons)
             yi.paramsSetFloat("photonRadius", scene.intg_diffuse_radius)
@@ -132,8 +129,7 @@ class yafIntegrator:
             yi.paramsSetFloat("times", scene.intg_times)
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("passNums", scene.intg_pass_num)
-            yi.paramsSetBool("pmIRE", scene.intg_pm_ire)
-        
+            yi.paramsSetBool("pmIRE", scene.intg_pm_ire)        
 
         #
         if scene.intg_useSSS:
@@ -142,7 +138,7 @@ class yafIntegrator:
             yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
             yi.paramsSetFloat("sssScale", scene.intg_sssScale)
         
-        yi.paramsSetString("type", light_type)
+        yi.paramsSetString("type", lightIntegrator)
         yi.createIntegrator("default")
         return True
 
@@ -150,19 +146,21 @@ class yafIntegrator:
         yi = self.yi
         yi.paramsClearAll()
 
-        world = scene.world
+        scn_world = scene.world        
 
-        if world:
-            vint_type = world.v_int_type
-            yi.printInfo("Exporting Volume Integrator: {0}".format(vint_type))
+        if scn_world:
+            # use exporter UI properties
+            world = scene.world.bounty
+            volIntegratorType = world.v_int_type
+            yi.printInfo("Exporting Volume Integrator: {0}".format(volIntegratorType))
 
-            if vint_type == 'Single Scatter':
+            if volIntegratorType == 'Single Scatter':
                 yi.paramsSetString("type", "SingleScatterIntegrator")
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetBool("adaptive", world.v_int_adaptive)
                 yi.paramsSetBool("optimize", world.v_int_optimize)
 
-            elif vint_type == 'Sky':
+            elif volIntegratorType == 'Sky':
                 yi.paramsSetString("type", "SkyIntegrator")
                 yi.paramsSetFloat("turbidity", world.v_int_dsturbidity)
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)

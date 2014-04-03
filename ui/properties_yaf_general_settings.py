@@ -25,12 +25,13 @@ from bpy.types import Panel, Menu
 
 RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
 
-
-class YAFARAY_MT_presets_render(Menu):
-    bl_label = "Yafaray Render Presets"
-    preset_subdir = "render"
+   
+class YAFARAY_MT_render_presets(Menu):
+    bl_label = "Render Presets"
+    preset_subdir = "yafaray/render"
     preset_operator = "script.execute_preset"
-    draw = yafaray_presets.Yafaray_Menu.draw_preset
+    COMPAT_ENGINES = {'YAFA_RENDER'}
+    draw = Menu.draw_preset
 
 # povman: test for next panel distribution
 class YAF_PT_pass_settings(RenderButtonsPanel, Panel):
@@ -38,18 +39,14 @@ class YAF_PT_pass_settings(RenderButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
-        render = scene.render
+        scene = context.scene.bounty
+        #render = scene.render
         #
         split = layout.split()
         col = split.column()
         col.prop(scene, "gs_transp_shad", toggle=True)
         col.prop(scene, "gs_clay_render", toggle=True)
         col.prop(scene, "gs_z_channel", toggle=True)
-        #col.label('Stamp:')
-        #col.prop(scene, "gs_draw_params", toggle=True)
-        #
-        #split = layout.split()
         col = split.column()
         sub = col.column()
         sub.enabled = scene.gs_transp_shad
@@ -63,13 +60,14 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
-        render = scene.render
+        render = context.scene.render
+        scene = context.scene.bounty
+        
 
         row = layout.row(align=True)
-        row.menu("YAFARAY_MT_presets_render", text=bpy.types.YAFARAY_MT_presets_render.bl_label)
-        row.operator("yafaray.preset_add", text="", icon='ZOOMIN')
-        row.operator("yafaray.preset_add", text="", icon='ZOOMOUT').remove_active = True
+        row.menu("YAFARAY_MT_render_presets", text=bpy.types.YAFARAY_MT_render_presets.bl_label)
+        row.operator("yafaray.render_preset_add", text="", icon='ZOOMIN')
+        row.operator("yafaray.render_preset_add", text="", icon='ZOOMOUT').remove_active = True
 
         layout.separator()
         
@@ -115,16 +113,15 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         sub.prop(scene, "bg_transp_refract", toggle=True)
         
         split = layout.split(percentage=0.58)
-        col = layout.column() #split.column()
+        col = layout.column()
         col.label('Stamp:')
-        col.prop(scene, "gs_draw_params", text="Draw params and custom string")#, toggle=True)
+        col.prop(scene, "gs_draw_params", text="Draw params and custom string")
         
         col = layout.column()
         col.enabled = scene.gs_draw_params
-        col.prop(scene, "gs_custom_string", text="")
-        
+        col.prop(scene, "gs_custom_string", text="")        
 
 
 if __name__ == "__main__":  # only for live edit.
-    import bpy
+    #import bpy
     bpy.utils.register_module(__name__)

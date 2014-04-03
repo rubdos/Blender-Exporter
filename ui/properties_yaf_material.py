@@ -27,6 +27,15 @@ from bl_ui.properties_material import (MaterialButtonsPanel,
 
 MaterialButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
 
+## test
+class YAFARAY_MT_material_presets(Menu):
+    bl_label = "Material Presets"
+    preset_subdir = "yafaray/material"
+    preset_operator = "script.execute_preset"
+    COMPAT_ENGINES = {'YAFA_RENDER'}
+    draw = Menu.draw_preset
+##
+
 
 class MaterialTypePanel(MaterialButtonsPanel):
     COMPAT_ENGINES = {'YAFA_RENDER'}
@@ -42,7 +51,7 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
     bl_label = ""
     bl_options = {'HIDE_HEADER'}
     COMPAT_ENGINES = {'YAFA_RENDER'}
-
+    
     @classmethod
     def poll(cls, context):
         # An exception, dont call the parent poll func because
@@ -83,6 +92,11 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
         if ob:
             split.template_ID(ob, "active_material", new="material.new")
             row = split.row()
+            #### test for nodes
+            mat = context.material
+            if mat:
+                row.prop(mat, "use_nodes", icon='NODETREE', text="")
+            ####
             if slot:
                 row.prop(slot, "link", text="")
             else:
@@ -94,7 +108,20 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
 
         if yaf_mat:
             layout.separator()
-            layout.prop(yaf_mat, "mat_type")
+            layout.prop(yaf_mat, "mat_type") # expand true..
+            ###### test for nodes
+            if mat.use_nodes:
+                row = layout.row()
+                row.label(text="", icon='NODETREE')
+                if mat.active_node_material:
+                    row.prop(mat.active_node_material, "name", text="")
+                else:
+                    row.label(text="No material node selected")
+            ###
+        row = layout.row(align=True)
+        row.menu("YAFARAY_MT_material_presets", text=bpy.types.YAFARAY_MT_material_presets.bl_label)
+        row.operator("yafaray.material_preset_add", text="", icon='ZOOMIN')
+        #row.operator("yafaray.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
 
 
 class YAF_MATERIAL_PT_preview(MaterialButtonsPanel, Panel):
@@ -182,7 +209,7 @@ class YAF_PT_shinydiffuse_specular(MaterialTypePanel, Panel):
     def draw(self, context):
         layout = self.layout
         yaf_mat = active_node_mat(context.material)
-
+        
         split = layout.split()
         col = split.column()
         col.label(text="Mirror color:")
@@ -331,30 +358,43 @@ class YAF_PT_blend_(MaterialTypePanel, Panel):
         col.label(text="Material two:")
         col.prop(yaf_mat, "material2", text="")
 
+class YAF_MT_sss_presets(Menu):
+    bl_label = "Scattering Presets"
+    preset_subdir = "yafaray/sss"
+    preset_operator = "script.execute_preset"
+    COMPAT_ENGINES = {'YAFA_RENDER'}
+    draw = Menu.draw_preset
+    
 class YAF_PT_translucent(MaterialTypePanel, Panel):
-    bl_label = "Translucent (SSS) settings"
+    bl_label = "Translucent"
     material_type = 'translucent'
 
     def draw(self, context):
         layout = self.layout
         yaf_mat = active_node_mat(context.material)
-
-        layout.prop(yaf_mat, 'sssPresets')
+        
+        ##
+        row = layout.row()#(align=True)
+        row.label("SubSurface Scattering Presets")
+        row.menu("YAF_MT_sss_presets", text=bpy.types.YAF_MT_sss_presets.bl_label)
+        # this operator's is not need, you can use material presets for save SSS presets
+        #row.operator("yafaray.preset_add", text="", icon='ZOOMIN')
+        #row.operator("yafaray.preset_add", text="", icon='ZOOMOUT').remove_active = True
         
         #
         split = layout.split()
         col = split.column()
-        col.prop(yaf_mat, "sssColor")
+        col.prop(yaf_mat, "diffuse_color")
         col.prop(yaf_mat, "diffuse_reflect", text="Diff. Reflect")
-        col.prop(yaf_mat, "sssSigmaA", text="Subsurface")
+        col.prop(yaf_mat, "sssSpecularColor")
         col.prop(yaf_mat, "sssSigmaS")
         col.prop(yaf_mat, "sssSigmaS_factor")
         col.prop(yaf_mat, "phaseFuction")        
         col = split.column()
         col.prop(yaf_mat, "glossy_color", text="Glossy color")
         col.prop(yaf_mat, "glossy_reflect", text="Gloss. Reflect")
-        col.prop(yaf_mat, "sssSpecularColor")
-        col.prop(yaf_mat, "sss_transmit", text="Transmittance")
+        col.prop(yaf_mat, "sssSigmaA", text="Subsurface")
+        col.prop(yaf_mat, "sss_transmit", text="Transmit")
         col.prop(yaf_mat, "exponent")
         col.prop(yaf_mat, "sssIOR")
         

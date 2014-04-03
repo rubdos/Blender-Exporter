@@ -22,7 +22,6 @@ import bpy
 import mathutils
 from bpy.types import Operator
 
-
 class OBJECT_OT_get_position(Operator):
     bl_label = "From( get position )"
     bl_idname = "world.get_position"
@@ -115,11 +114,11 @@ def sunPosAngle(mode="get", val="position"):
 
 def checkSceneLights():
     scene = bpy.context.scene
-    world = scene.world
+    world = scene.world.bounty
     
-    # expand fuction for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
+    # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
     haveLights = False
-     # use light create with sunsky, sunsky2 or with use ibl ON
+    # use light create with sunsky, sunsky2 or with use ibl ON
     if world.bg_add_sun or world.bg_background_light or world.bg_use_ibl:
         return True
     # if above is true, this 'for' is not used

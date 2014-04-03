@@ -30,9 +30,9 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
+        scene = context.scene.bounty
 
-        # pov: sync integrator names by yafaray core 'registerFactory' values
+        # povman: sync integrator names by yafaray core 'registerFactory' values
         # directlighting, photonmapping, pathtracing, DebugIntegrator, bidirectional, SPPM
         integrator = scene.intg_light_method
         layout.prop(scene, "intg_light_method")
@@ -57,7 +57,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
         elif integrator == "photonmapping":
             row = layout.row()
 
-            row.prop(scene, "intg_bounces", text="Photons depth bounces")
+            row.prop(scene, "intg_bounces", text="Photons bounces depth")
 
             row = layout.row()
 
@@ -75,7 +75,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
 
             row = layout.row()
             row.prop(scene, "intg_final_gather", toggle=True, icon='FORCE_FORCE')
-
+            
             if scene.intg_final_gather:
                 ''' Show UI options for Final Gathering. '''
                 col = layout.row()
@@ -106,16 +106,22 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
         elif integrator == "DebugIntegrator":
             layout.row().prop(scene, "intg_debug_type")
             layout.row().prop(scene, "intg_show_perturbed_normals")
+            
+        elif integrator == "bidirectional":
+            layout.label("Use a high number of AA samples to reduce the noise")
 
         elif integrator == "SPPM":
             col = layout.column()
             col.prop(scene, "intg_photons", text="Photons")
             col.prop(scene, "intg_pass_num")
             col.prop(scene, "intg_bounces", text="Bounces")
-
-            col.prop(scene, "intg_diffuse_radius")
             col.prop(scene, "intg_search")
-            col.prop(scene, "intg_pm_ire")
+            col.prop(scene, "intg_pm_ire", toggle=True)
+            sub = layout.column()
+            sub.enabled = True
+            if scene.intg_pm_ire:
+                sub.enabled = False
+            sub.prop(scene, "intg_diffuse_radius")
         
         ''' SubSurface integrator '''
         if integrator in {'directlighting', 'photonmapping', 'pathtracing'}:

@@ -17,15 +17,14 @@
 # ##### END GPL LICENSE BLOCK #####
 
 # <pep8 compliant>
-
-#TODO: Use Blender enumerators if any
+'''
 import bpy
 import os
 import threading
 import time
 import yafrayinterface
-from thebounty import PLUGIN_PATH
-from thebounty import YAF_ID_NAME
+from yafaray import PLUGIN_PATH
+from yafaray import YAF_ID_NAME
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -33,6 +32,23 @@ from .yaf_integrator import yafIntegrator
 from . import yaf_scene
 from .yaf_texture import yafTexture
 from .yaf_material import yafMaterial
+'''
+#TODO: Use Blender enumerators if any
+from . import yaf_scene
+from .yaf_integrator import yafIntegrator
+from .yaf_light  import yafLight
+from .yaf_material import yafMaterial
+from .yaf_object import yafObject
+from .yaf_texture import yafTexture
+from .yaf_world  import yafWorld
+from yafaray import PLUGIN_PATH
+from yafaray import YAF_ID_NAME
+import bpy
+import os
+import threading
+import time
+import yafrayinterface
+# povman: reordered import's using Eclipse Pydev
 
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
@@ -43,6 +59,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     tag = ""
     useViewToRender = False
     viewMatrix = None
+    
+    ''' test
+    def verbositylevel(self, level):
+        if level =='info':
+            self.yi.setVerbosityInfo()
+    '''            
 
     def setInterface(self, yi):
         self.materialMap = {}
@@ -51,10 +73,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         if self.is_preview:
             self.yi.setVerbosityMute()
-            self.scene.bg_transp = False #to correct alpha problems in preview roughglass
-            self.scene.bg_transp_refract = False #to correct alpha problems in preview roughglass
-        elif self.scene.gs_verbose:
+            self.scene.bounty.bg_transp = False #to correct alpha problems in preview roughglass
+            self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
+        elif self.scene.bounty.gs_verbose:
+            #self.verbositylevel('info')
             self.yi.setVerbosityInfo()
+            # TODO: add verbosity levels
         else:
             self.yi.setVerbosityMute()
 
@@ -221,13 +245,13 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # create a shiny diffuse material for "Clay Render" option in general settings
         self.yi.paramsClearAll()
         self.yi.paramsSetString("type", "shinydiffusemat")
-        cCol = self.scene.gs_clay_col
+        cCol = self.scene.bounty.gs_clay_col
         self.yi.paramsSetColor("color", cCol[0], cCol[1], cCol[2])
         self.yi.printInfo("Exporter: Creating Material \"clayMat\"")
         cmat = self.yi.createMaterial("clayMat")
         self.materialMap["clay"] = cmat
         # povman: first test for override all materials in 'clay render' mode
-        if not self.scene.gs_clay_render:
+        if not self.scene.bounty.gs_clay_render:
             for obj in self.scene.objects:
                 for mat_slot in obj.material_slots:
                     if mat_slot.material not in self.materials:
@@ -292,7 +316,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         else:
             self.resX = self.sizeX
             self.resY = self.sizeY
-
+        #
+        scene = scene.bounty
         if scene.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
             self.yi.setInputGamma(scene.gs_gamma_input, True)
@@ -320,7 +345,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         self.yi.startScene()
         self.exportScene()
-        self.yaf_integrator.exportIntegrator(self.scene)
+        self.yaf_integrator.exportIntegrator(self.scene.bounty)
         self.yaf_integrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
@@ -328,6 +353,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     # callback to render scene
     def render(self, scene):
+        scene = scene.bounty
         self.bl_use_postprocess = False
 
         if scene.gs_type_render == "file":
@@ -377,30 +403,31 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 w, h, tile = args
                 res = self.begin_result(0, 0, w, h)
                 try:
-                    l = res.layers[0]
-                    l.rect, l.passes[0].rect = tile
+                    lay = res.layers[0]
+                    lay.rect, lay.passes[0].rect = tile
                 except BaseException as e:
                     pass
 
                 self.end_result(res)
+            # define thread
+            thread = threading.Thread(target=self.yi.render,
+                                 args=(self.resX, self.resY, 
+                                       self.bStartX, self.bStartY,
+                                       self.is_preview,
+                                       drawAreaCallback,
+                                       flushCallback,
+                                       progressCallback)
+                                 )
+            # run..
+            thread.start()
 
-            t = threading.Thread(
-                                    target=self.yi.render,
-                                    args=(self.resX, self.resY, self.bStartX, self.bStartY,
-                                    self.is_preview,
-                                    drawAreaCallback,
-                                    flushCallback,
-                                    progressCallback)
-                                )
-            t.start()
-
-            while t.isAlive() and not self.test_break():
+            while thread.isAlive() and not self.test_break():
                 time.sleep(0.2)
 
-            if t.isAlive():
+            if thread.isAlive():
                 self.update_stats("", "Aborting...")
                 self.yi.abort()
-                t.join()
+                thread.join()
 
         self.yi.clearAll()
         del self.yi

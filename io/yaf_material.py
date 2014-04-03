@@ -301,7 +301,7 @@ class yafMaterial:
                 used = True
                 diffRoot = lname
             lname = "gloss_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.use_map_color_spec, color, mtex.specular_color_factor):
+            if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.use_map_color_spec, glossy_color, mtex.specular_color_factor):
                 used = True
                 glossRoot = lname
             lname = "glossref_layer%x" % i
@@ -337,28 +337,24 @@ class yafMaterial:
         yi = self.yi
         yi.paramsClearAll()
         yi.paramsSetString("type", "translucent")
+        yi.paramsSetFloat("IOR", mat.sssIOR)
         
+        diffColor   = mat.diffuse_color #sssColor
+        glossyColor = mat.glossy_color;
+        specColor   = mat.sssSpecularColor
+        sigmaA      = mat.sssSigmaA
+        sigmaS      = mat.sssSigmaS
         
-        color = mat.sssColor #diffuse_color
-        glossyColor=mat.glossy_color;
-        specColor = mat.sssSpecularColor
-        sigA = mat.sssSigmaA
-        sigS = mat.sssSigmaS
-        phase = mat.phaseFuction
-        #mG = mat.glossy_reflect
-        
-        yi.paramsSetColor("color", color[0], color[1], color[2])
+        yi.paramsSetColor("color", diffColor[0], diffColor[1], diffColor[2])
         yi.paramsSetColor("glossy_color", glossyColor[0], glossyColor[1], glossyColor[2])
         yi.paramsSetColor("specular_color", specColor[0], specColor[1], specColor[2])
-        yi.paramsSetColor("sigmaA", sigA[0], sigA[1], sigA[2])
-        yi.paramsSetColor("sigmaS", sigS[0], sigS[1], sigS[2])
+        yi.paramsSetColor("sigmaA", sigmaA[0], sigmaA[1], sigmaA[2])
+        yi.paramsSetColor("sigmaS", sigmaS[0], sigmaS[1], sigmaS[2])
         yi.paramsSetFloat("sigmaS_factor", mat.sssSigmaS_factor)
         yi.paramsSetFloat("diffuse_reflect", mat.diffuse_reflect)
         yi.paramsSetFloat("glossy_reflect", mat.glossy_reflect)
         yi.paramsSetFloat("sss_transmit", mat.sss_transmit)
         yi.paramsSetFloat("exponent", mat.exponent)
-        yi.paramsSetFloat("IOR", mat.sssIOR)
-        yi.paramsSetFloat("g", mat.phaseFuction)
         
         # init shader values..
         diffRoot = glossRoot = glRefRoot = transpRoot = translRoot = bumpRoot = ''
@@ -371,7 +367,7 @@ class yafMaterial:
             mappername = "map%x" %i
             
             lname = "diff_layer%x" % i
-            if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.use_map_color_diffuse, color, mtex.diffuse_color_factor):
+            if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.use_map_color_diffuse, diffColor, mtex.diffuse_color_factor):
                 used = True
                 diffRoot = lname
             lname = "gloss_layer%x" % i
@@ -379,15 +375,15 @@ class yafMaterial:
                 used = True
                 glossRoot = lname
             lname = "glossref_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.glossy_reflect], mtex.specular_color_factor):
+            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.glossy_reflect], mtex.specular_factor):
                 used = True
                 glRefRoot = lname
             lname = "transp_layer%x" % i
-            if self.writeTexLayer(lname, mappername, transpRoot, mtex, mtex.use_map_alpha, sigA, mtex.alpha_factor):
+            if self.writeTexLayer(lname, mappername, transpRoot, mtex, mtex.use_map_alpha, sigmaA, mtex.alpha_factor):
                 used = True
                 transpRoot = lname
             lname = "translu_layer%x" % i
-            if self.writeTexLayer(lname, mappername, translRoot, mtex, mtex.use_map_translucency, sigS, mtex.translucency_factor):
+            if self.writeTexLayer(lname, mappername, translRoot, mtex, mtex.use_map_translucency, sigmaS, mtex.translucency_factor):
                 used = True
                 translRoot = lname
             lname = "bump_layer%x" % i
