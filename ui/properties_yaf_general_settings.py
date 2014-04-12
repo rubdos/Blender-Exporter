@@ -19,7 +19,7 @@
 # <pep8 compliant>
 
 import bpy
-from yafaray.ot import yafaray_presets
+from ..ot import yafaray_presets
 from bl_ui.properties_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
@@ -61,8 +61,7 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
     def draw(self, context):
         layout = self.layout
         render = context.scene.render
-        scene = context.scene.bounty
-        
+        scene = context.scene.bounty        
 
         row = layout.row(align=True)
         row.menu("YAFARAY_MT_render_presets", text=bpy.types.YAFARAY_MT_render_presets.bl_label)
@@ -86,8 +85,9 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         #sub.prop(scene, "gs_shadow_depth")
         col.prop(scene, "gs_gamma_input")
         sub = col.column()
-        #sub.enabled = scene.gs_auto_threads == False
-        col.prop(scene, "gs_threads")
+        #test..
+        threadMode ="Auto Threads" if scene.gs_threads == 0 else "Use Threads"
+        col.prop(scene, "gs_threads", text= threadMode)
         sub = col.column()
         sub.enabled = scene.gs_type_render == "into_blender"
         sub.prop(scene, "gs_tile_size")

@@ -19,7 +19,8 @@
 # <pep8 compliant>
 
 import bpy
-from yafaray.ui.ior_values import ior_list
+#from yafaray.ui.ior_values import ior_list
+from ..ui.ior_values import ior_list
 from bpy.types import Panel, Menu
 from bl_ui.properties_material import (MaterialButtonsPanel,
                                        active_node_mat,
@@ -121,11 +122,14 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
         row = layout.row(align=True)
         row.menu("YAFARAY_MT_material_presets", text=bpy.types.YAFARAY_MT_material_presets.bl_label)
         row.operator("yafaray.material_preset_add", text="", icon='ZOOMIN')
-        #row.operator("yafaray.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
+        row.operator("yafaray.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
+        
+        
 
 
 class YAF_MATERIAL_PT_preview(MaterialButtonsPanel, Panel):
     bl_label = "Preview"
+    #bl_options = ""
 
     def draw(self, context):
         self.layout.template_preview(context.material)
@@ -375,7 +379,7 @@ class YAF_PT_translucent(MaterialTypePanel, Panel):
         
         ##
         row = layout.row()#(align=True)
-        row.label("SubSurface Scattering Presets")
+        row.label("SSS Presets")
         row.menu("YAF_MT_sss_presets", text=bpy.types.YAF_MT_sss_presets.bl_label)
         # this operator's is not need, you can use material presets for save SSS presets
         #row.operator("yafaray.preset_add", text="", icon='ZOOMIN')
@@ -384,20 +388,38 @@ class YAF_PT_translucent(MaterialTypePanel, Panel):
         #
         split = layout.split()
         col = split.column()
+        #col = layout.box()
         col.prop(yaf_mat, "diffuse_color")
-        col.prop(yaf_mat, "diffuse_reflect", text="Diff. Reflect")
-        col.prop(yaf_mat, "sssSpecularColor")
-        col.prop(yaf_mat, "sssSigmaS")
-        col.prop(yaf_mat, "sssSigmaS_factor")
-        col.prop(yaf_mat, "phaseFuction")        
-        col = split.column()
-        col.prop(yaf_mat, "glossy_color", text="Glossy color")
-        col.prop(yaf_mat, "glossy_reflect", text="Gloss. Reflect")
-        col.prop(yaf_mat, "sssSigmaA", text="Subsurface")
-        col.prop(yaf_mat, "sss_transmit", text="Transmit")
-        col.prop(yaf_mat, "exponent")
-        col.prop(yaf_mat, "sssIOR")
+        col.prop(yaf_mat, "diffuse_reflect", text="Diff. Reflect",slider=True)
+        col = split.column()     
+        col.prop(yaf_mat, "glossy_color")#Glossy color")
+        col.prop(yaf_mat, "glossy_reflect", text="Gloss. Reflect",slider=True)
+        row= layout.row()
+        row.prop(yaf_mat, "sssSpecularColor")
+        layout.prop(yaf_mat, "exponent")
         
+        
+class YAF_PT_sss(MaterialTypePanel, Panel):
+    bl_label = "SubSurface"
+    material_type = 'translucent'
+
+    def draw(self, context):
+        layout = self.layout
+        yaf_mat = active_node_mat(context.material)
+        #
+        split = layout.split()
+        #col = split.column()        
+        col = split.column()        
+        
+        col.prop(yaf_mat, "sssSigmaS", text="Scatter color")
+        col.prop(yaf_mat, "sssSigmaS_factor")
+        col.prop(yaf_mat, "phaseFuction")
+                
+        col = split.column()
+        col.prop(yaf_mat, "sssSigmaA", text="Absorption color")
+        col.prop(yaf_mat, "sss_transmit", text="Transmit")
+        col.prop(yaf_mat, "sssIOR")
+              
 
 if __name__ == "__main__":  # only for live edit.
     import bpy
