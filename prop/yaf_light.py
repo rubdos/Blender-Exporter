@@ -79,6 +79,11 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             description="Intensity multiplier for color",
             min=0.0, max=10000.0,
             default=1.0
+        )
+        cls.use_sphere = BoolProperty(
+            name="Use Sphere",
+            description="Use sphere object for light",
+            default=False
         )    
         cls.yaf_sphere_radius = FloatProperty(
             name="Radius",

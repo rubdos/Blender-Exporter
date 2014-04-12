@@ -158,7 +158,7 @@ class RENDER_OT_render_view(Operator):
             bpy.types.YAFA_RENDER.useViewToRender = False
             return {'CANCELLED'}
 
-        elif not sceneLights and scene.intg_light_method == "bidirectional":
+        elif not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             bpy.types.YAFA_RENDER.useViewToRender = False
             return {'CANCELLED'}
@@ -183,7 +183,7 @@ class RENDER_OT_render_animation(Operator):
         sceneLights = checkSceneLights()
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "bidirectional":
+        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             return {'CANCELLED'}
 
@@ -206,7 +206,7 @@ class RENDER_OT_render_still(Operator):
         sceneLights = checkSceneLights()
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "bidirectional":
+        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             return {'CANCELLED'}
 
