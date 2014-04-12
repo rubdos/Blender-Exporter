@@ -328,7 +328,7 @@ class yafObject(object):
 
         yi.paramsSetFloat("sigma_a", obj.vol_absorp)
         yi.paramsSetFloat("sigma_s", obj.vol_scatter)
-        yi.paramsSetInt("attgridScale", self.scene.world.v_int_attgridres)
+        yi.paramsSetInt("attgridScale", self.scene.world.bounty.v_int_attgridres)
 
         # Calculate BoundingBox: get the low corner (minx, miny, minz)
         # and the up corner (maxx, maxy, maxz) then apply object scale,
