@@ -33,12 +33,11 @@ from . import yaf_scene
 from .yaf_texture import yafTexture
 from .yaf_material import yafMaterial
 
-
-
+prev = True
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
     bl_idname = YAF_ID_NAME
-    bl_use_preview = True
+    bl_use_preview = prev
     bl_label = "TheBounty Render"
     prog = 0.0
     tag = ""
@@ -52,6 +51,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.setVerbosityInfo()
         else:
             self.yi.setVerbosityMute()
+    
+    ##-----------------------------------------------------
      
 
     def setInterface(self, yi):
@@ -65,7 +66,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
         else:
             self.verbositylevel('info')
-            
+        #   
         # export go.. load plugins
         self.yi.loadPlugins(PLUGIN_PATH)        
         # process geometry
@@ -335,7 +336,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.setOutfile(self.outputFile)
 
         else:
-            # declaramos
+            #
             self.setInterface(yafrayinterface.yafrayInterface_t()) # to line 68
             self.yi.setInputGamma(scene.gs_gamma_input, True)
         
@@ -350,8 +351,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     # callback to render scene
     def render(self, scene):
+        self.is_preview = False # test
         scene = scene.bounty
         self.bl_use_postprocess = False
+        
 
         if scene.gs_type_render == "file":
             self.yi.printInfo("Exporter: Rendering to file {0}".format(self.outputFile))

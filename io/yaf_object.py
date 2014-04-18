@@ -532,10 +532,6 @@ class yafObject(object):
                             hairMat = pmaterial
                         yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
                         
-                        #if self.materialMap[pmaterial]:
-                        #    yi.endCurveMesh(self.materialMap[pmaterial], strandStart, strandEnd, strandShape)
-                        #else:
-                        #    yi.endCurveMesh(self.materialMap["default"], strandStart, strandEnd, strandShape)
                     # TODO: keep object smooth
                     #yi.smoothMesh(0, 60.0)
                         yi.endGeometry()
