@@ -149,7 +149,6 @@ class RENDER_OT_render_view(Operator):
         view3d = context.region_data
         bpy.types.YAFA_RENDER.useViewToRender = True
         sceneLights = checkSceneLights()
-        # povman test
         sssMats = checkSSS()
         
         scene = context.scene
@@ -193,7 +192,6 @@ class RENDER_OT_render_animation(Operator):
 
     def execute(self, context):
         sceneLights = checkSceneLights()
-        # povman test
         sssMats = checkSSS()
         scene = context.scene
 

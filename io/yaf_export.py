@@ -33,11 +33,10 @@ from . import yaf_scene
 from .yaf_texture import yafTexture
 from .yaf_material import yafMaterial
 
-prev = True
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
     bl_idname = YAF_ID_NAME
-    bl_use_preview = prev
+    bl_use_preview = True
     bl_label = "TheBounty Render"
     prog = 0.0
     tag = ""
@@ -313,7 +312,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.resY = self.sizeY
         #
         scene = scene.bounty
-        # aqui solo especificamos los valores para cada tipo de render
+        # render type setup
         if scene.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
             self.yi.setInputGamma(scene.gs_gamma_input, True)

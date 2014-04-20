@@ -332,7 +332,6 @@ class yafMaterial:
 
         return yi.createMaterial(self.namehash(mat))
     
-    #-->
     def writeTranslucentShader(self, mat):
         yi = self.yi
         yi.paramsClearAll()

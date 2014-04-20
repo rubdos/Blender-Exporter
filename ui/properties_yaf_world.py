@@ -32,17 +32,7 @@ del WORLD_PT_context_world
 from bl_ui.properties_world import WORLD_PT_preview
 WORLD_PT_preview.COMPAT_ENGINES.add('YAFA_RENDER')
 del WORLD_PT_preview
-'''
-class WorldButtonsPanel():
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "world"
-    # COMPAT_ENGINES must be defined in each subclass, external engines can add themselves here
 
-    @classmethod
-    def poll(cls, context):
-        return (context.world and context.scene.render.engine in cls.COMPAT_ENGINES)
-'''
    
 class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
     bl_label = "Background Settings"
@@ -115,10 +105,10 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
                 row = layout.row()
                 row.prop(world, "bg_with_diffuse")
                 row.prop(world, "bg_with_caustic")
-            else:
-                col = layout.column()
-                col.label(text=" ")
-                col.label(text=" ")
+            #else:
+            #    col = layout.column()
+            #    col.label(text=" ")
+            #    col.label(text=" ")
 
         elif world.bg_type == "Sunsky1":
             self.ibl = False

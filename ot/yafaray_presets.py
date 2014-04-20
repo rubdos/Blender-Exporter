@@ -24,7 +24,7 @@
 #from bpy.types import Operator
 
 import os
-import sys
+#import sys
 from bpy.props import StringProperty, EnumProperty, BoolProperty
 from bpy.types import Menu, Operator
 import bpy
@@ -278,6 +278,7 @@ class YAFARAY_OT_presets_materials(YafPresetBase, bpy.types.Operator):
     ]    
     preset_values = [    
         "mat.absorption",
+        "mat.diffuse_color",
         "mat.absorption_dist",
         "mat.anisotropic",
         "mat.as_diffuse",
