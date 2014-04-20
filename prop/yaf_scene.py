@@ -353,8 +353,8 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
             default=False)
     
         cls.intg_sssPhotons = IntProperty(
-            name="Amount of SSS Photons",
-            description="Number of SSS photons to be shot",
+            name="Amount of SSS Photons Search",
+            description="Amount of SSS photons search for unit (10000 x 1 BU)",
             min=1, max=10000000,
             default=100000)
     

@@ -118,7 +118,6 @@ from . import properties_yaf_general_settings
 from . import properties_yaf_integrator
 from . import properties_yaf_AA_settings
 
-
 class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
     bl_label = "Output"
 
@@ -170,5 +169,5 @@ class YAF_PT_convert(RenderButtonsPanel, Panel):
 
 
 if __name__ == "__main__":  # only for live edit.
-    import bpy
+    #import bpy
     bpy.utils.register_module(__name__)

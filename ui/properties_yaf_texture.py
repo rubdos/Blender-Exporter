@@ -21,12 +21,7 @@
 import bpy
 from bl_ui.properties_material import active_node_mat
 from bl_ui.properties_texture import context_tex_datablock, id_tex_datablock
-from bpy.types import (Panel,
-                       Texture,
-                       Brush,
-                       Material,
-                       World,
-                       ParticleSettings)
+from bpy.types import (Panel, Texture, Brush, Material, World, ParticleSettings)
 
 
 class YAF_TextureButtonsPanel():
@@ -196,7 +191,9 @@ class YAF_TextureTypePanel(YAF_TextureButtonsPanel):
     def poll(cls, context):
         tex = context.texture
         engine = context.scene.render.engine
-        return tex and ((tex.yaf_tex_type == cls.tex_type and not tex.use_nodes) and (engine in cls.COMPAT_ENGINES))
+        return tex and ((tex.yaf_tex_type == cls.tex_type and 
+                         not tex.use_nodes) and 
+                        (engine in cls.COMPAT_ENGINES))
 
 
 # --- YafaRay's own Texture Type Panels --- #
@@ -300,24 +297,32 @@ class YAF_TEXTURE_PT_image(YAF_TextureTypePanel, Panel):
         tex = context.texture
         layout.template_image(tex, "image", tex.image_user)
         
+def imageTexturePoll(cls, context):
+    idblock = context_tex_datablock(context)
+    engine = context.scene.render.engine
+    tex = context.texture
+    return tex and (tex.yaf_tex_type == cls.tex_type and not isinstance(idblock, World) and (engine in cls.COMPAT_ENGINES))
 
 class YAF_TEXTURE_PT_image_sampling(YAF_TextureTypePanel, Panel):
     bl_label = "Image Sampling"
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
     COMPAT_ENGINES = {'YAFA_RENDER'}
-    
-
+    # test
+    @classmethod
+    def poll(cls, context):
+        return imageTexturePoll(cls, context)
+    # end
     def draw(self, context):
         layout = self.layout
         tex = context.texture
         #
-        idblock = context_tex_datablock(context)
-        if not isinstance(idblock, World):
-            row = layout.row(align=True)
-            row.prop(tex, "yaf_use_alpha", text="Use Alpha")
-            row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
-            layout.prop(tex, "use_flip_axis", text="Flip X/Y Axis")
+        #idblock = context_tex_datablock(context)
+        #if not isinstance(idblock, World):
+        row = layout.row(align=True)
+        row.prop(tex, "yaf_use_alpha", text="Use Alpha")
+        row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
+        layout.prop(tex, "use_flip_axis", text="Flip X/Y Axis")
         
 
 class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
@@ -325,66 +330,51 @@ class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
     COMPAT_ENGINES = {'YAFA_RENDER'}
-    '''
+    
+    # test
     @classmethod
-    def poll(cls, context):        
-        idblock = context_tex_datablock(context)
-        engine = context.scene.render.engine
-        tex = context.texture
-        #
-        if ( isinstance(idblock, World) or context.lamp): # or tex.yaf_tex_type != 'IMAGE'):
-            return False        
-        return (engine in cls.COMPAT_ENGINES)
-    '''
+    def poll(cls, context):
+        return imageTexturePoll(cls, context)
+        
+    
     def draw(self, context):
         idblock = context_tex_datablock(context)
-        if not isinstance(idblock, World):
-            self.drawMapping(context)
-        else:
-            self.drawIBL(context)
-            
-    def drawIBL(self, context):
-        layout = self.layout
-        layout.label("Add IBL support(wip)")
-        self.bl_label = "IBL Mapping"
+        if not isinstance(idblock, World):            
+            tex = context.texture
+            layout = self.layout
+            layout.prop(tex, "extension")
         
-    def drawMapping(self, context):
-        self.bl_label = "Image Mapping"
-        tex = context.texture
-        layout = self.layout
-        layout.prop(tex, "extension")
-    
-        split = layout.split()
-    
-        if tex.extension == 'REPEAT':
-            row = layout.row(align=True)
-            row.prop(tex, "repeat_x", text="X Repeat")
-            row.prop(tex, "repeat_y", text="Y Repeat")
-    
-            layout.separator()
-    
-        elif tex.extension == 'CHECKER':
-            col = split.column(align=True)
-            row = col.row()
-            row.prop(tex, "use_checker_even", text="Even")
-            row.prop(tex, "use_checker_odd", text="Odd")
-    
-            col = split.column()
-            col.prop(tex, "checker_distance", text="Distance")
-    
-            layout.separator()
-    
             split = layout.split()
-    
-            col = split.column(align=True)
-            col.label(text="Crop Minimum:")
-            col.prop(tex, "crop_min_x", text="X")
-            col.prop(tex, "crop_min_y", text="Y")
-    
-            col = split.column(align=True)
-            col.label(text="Crop Maximum:")
-            col.prop(tex, "crop_max_x", text="X")
-            col.prop(tex, "crop_max_y", text="Y")
+        
+            if tex.extension == 'REPEAT':
+                row = layout.row(align=True)
+                row.prop(tex, "repeat_x", text="X Repeat")
+                row.prop(tex, "repeat_y", text="Y Repeat")
+        
+                layout.separator()
+        
+            elif tex.extension == 'CHECKER':
+                col = split.column(align=True)
+                row = col.row()
+                row.prop(tex, "use_checker_even", text="Even")
+                row.prop(tex, "use_checker_odd", text="Odd")
+        
+                col = split.column()
+                col.prop(tex, "checker_distance", text="Distance")
+        
+                layout.separator()
+        
+                split = layout.split()
+        
+                col = split.column(align=True)
+                col.label(text="Crop Minimum:")
+                col.prop(tex, "crop_min_x", text="X")
+                col.prop(tex, "crop_min_y", text="Y")
+        
+                col = split.column(align=True)
+                col.label(text="Crop Maximum:")
+                col.prop(tex, "crop_max_x", text="X")
+                col.prop(tex, "crop_max_y", text="Y")
 
 
 class YAF_TEXTURE_PT_musgrave(YAF_TextureTypePanel, Panel):
@@ -495,7 +485,7 @@ class YAF_TEXTURE_PT_ocean(YAF_TextureTypePanel, Panel):
 
 
 class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
-    bl_label = "YafaRay Mapping (Map Input)"
+    bl_label = "Texture Mapping"
     COMPAT_ENGINES = {'YAFA_RENDER'}
 
     @classmethod

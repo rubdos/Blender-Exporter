@@ -38,9 +38,8 @@ class YAF_PT_lens(CameraButtonsPanel, Panel):
     def draw(self, context):
         layout = self.layout
 
-        # re-used Blender properties 
-        blcam = context.camera
-        # yafaray camera declared properties
+        cam = context.camera
+        # exporter camera properties
         camera = context.camera.bounty
 
         layout.prop(camera, "camera_type", expand=True)
@@ -54,21 +53,21 @@ class YAF_PT_lens(CameraButtonsPanel, Panel):
             layout.prop(camera, "circular")
 
         elif camera.camera_type == 'orthographic':
-            layout.prop(blcam, "ortho_scale")
+            layout.prop(cam, "ortho_scale")
 
         elif camera.camera_type in {'perspective', 'architect'}:
-            layout.prop(blcam, "lens")
+            layout.prop(cam, "lens")
 
             layout.separator()
 
             layout.label("Depth of Field:")
             layout.prop(camera, "aperture")
             split = layout.split()
-            split.prop(blcam, "dof_object", text="")
+            split.prop(cam, "dof_object", text="")
             col = split.column()
-            if blcam.dof_object is not None:
+            if cam.dof_object is not None:
                 col.enabled = False
-            col.prop(blcam, "dof_distance", text="Distance")
+            col.prop(cam, "dof_distance", text="Distance")
 
             layout.prop(camera, "bokeh_type")
             layout.prop(camera, "bokeh_bias")
@@ -78,15 +77,15 @@ class YAF_PT_lens(CameraButtonsPanel, Panel):
         split = layout.split()
         col = split.column(align=True)
         col.label(text="Shift:")
-        col.prop(blcam, "shift_x", text="X")
-        col.prop(blcam, "shift_y", text="Y")
+        col.prop(cam, "shift_x", text="X")
+        col.prop(cam, "shift_y", text="Y")
 
         col = split.column(align=True)
         col.prop(camera, "use_clipping")
         sub = col.column()
         sub.active = camera.use_clipping
-        sub.prop(blcam, "clip_start", text="Start")
-        sub.prop(blcam, "clip_end", text="End")
+        sub.prop(cam, "clip_start", text="Start")
+        sub.prop(cam, "clip_end", text="End")
 
 
 class YAF_PT_camera(CameraButtonsPanel, Panel):
@@ -158,5 +157,5 @@ class YAF_PT_camera_display(CameraButtonsPanel, Panel):
 
 
 if __name__ == "__main__":  # only for live edit.
-    import bpy
+    #import bpy
     bpy.utils.register_module(__name__)

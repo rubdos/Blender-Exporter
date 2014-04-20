@@ -111,6 +111,11 @@ def sunPosAngle(mode="get", val="position"):
     else:
         return "No selected LAMP object in the scene!"
 
+def checkSSS():
+    for mat in [m for m in bpy.data.materials]:
+        if mat.mat_type == 'translucent':
+            return True
+    return False
 
 def checkSceneLights():
     scene = bpy.context.scene
@@ -144,6 +149,9 @@ class RENDER_OT_render_view(Operator):
         view3d = context.region_data
         bpy.types.YAFA_RENDER.useViewToRender = True
         sceneLights = checkSceneLights()
+        # povman test
+        sssMats = checkSSS()
+        
         scene = context.scene
         # Get the 3d view under the mouse cursor
         # if the region is not a 3d view
@@ -158,9 +166,13 @@ class RENDER_OT_render_view(Operator):
             bpy.types.YAFA_RENDER.useViewToRender = False
             return {'CANCELLED'}
 
-        elif not sceneLights and scene.intg_light_method == "bidirectional":
+        elif not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             bpy.types.YAFA_RENDER.useViewToRender = False
+            return {'CANCELLED'}
+        
+        elif not sssMats and scene.bounty.intg_useSSS == True:
+            self.report({'WARNING'}, ("No SSS materials in the scene and SSS integrator is activate!"))
             return {'CANCELLED'}
 
         else:
@@ -181,10 +193,16 @@ class RENDER_OT_render_animation(Operator):
 
     def execute(self, context):
         sceneLights = checkSceneLights()
+        # povman test
+        sssMats = checkSSS()
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "bidirectional":
+        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
+            return {'CANCELLED'}
+        
+        elif not sssMats and scene.bounty.intg_useSSS == True:
+            self.report({'WARNING'}, ("No SSS materials in the scene and SSS integrator is activate!"))
             return {'CANCELLED'}
 
         else:
@@ -204,10 +222,16 @@ class RENDER_OT_render_still(Operator):
 
     def execute(self, context):
         sceneLights = checkSceneLights()
+        # povman test
+        sssMats = checkSSS()        
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "bidirectional":
+        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
+            return {'CANCELLED'}
+        
+        elif not sssMats and scene.bounty.intg_useSSS == True:
+            self.report({'WARNING'}, ("No SSS materials in the scene and SSS integrator is activate!"))
             return {'CANCELLED'}
 
         else:

@@ -81,8 +81,8 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
 
         elif lamp.lamp_type == "point":
             col = layout.column(align=True)
-            col.prop(context.lamp, "use_sphere", toggle=True)
-            if context.lamp.use_sphere:
+            col.prop(lamp, "use_sphere", toggle=True)
+            if lamp.use_sphere:
                 col.prop(lamp, "yaf_sphere_radius")
                 col.prop(lamp, "yaf_samples")
                 col.prop(lamp, "create_geometry", toggle=True)

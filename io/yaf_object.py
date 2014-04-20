@@ -328,7 +328,7 @@ class yafObject(object):
 
         yi.paramsSetFloat("sigma_a", obj.vol_absorp)
         yi.paramsSetFloat("sigma_s", obj.vol_scatter)
-        yi.paramsSetInt("attgridScale", self.scene.world.v_int_attgridres)
+        yi.paramsSetInt("attgridScale", self.scene.world.bounty.v_int_attgridres)
 
         # Calculate BoundingBox: get the low corner (minx, miny, minz)
         # and the up corner (maxx, maxy, maxz) then apply object scale,
@@ -532,10 +532,6 @@ class yafObject(object):
                             hairMat = pmaterial
                         yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
                         
-                        #if self.materialMap[pmaterial]:
-                        #    yi.endCurveMesh(self.materialMap[pmaterial], strandStart, strandEnd, strandShape)
-                        #else:
-                        #    yi.endCurveMesh(self.materialMap["default"], strandStart, strandEnd, strandShape)
                     # TODO: keep object smooth
                     #yi.smoothMesh(0, 60.0)
                         yi.endGeometry()
