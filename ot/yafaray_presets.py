@@ -209,9 +209,12 @@ class YAFARAY_OT_presets_renderset(YafPresetBase, bpy.types.Operator):
     preset_menu = "YAFARAY_MT_render_presets"
     
     preset_defines = [
-        "scene = bpy.context.scene.bounty"
+        "scene = bpy.context.scene.bounty",
+        "render = bpy.context.scene.render"
     ]
     preset_values = [
+        "render.resolution_x",
+        "render.resolution_y",
         "scene.gs_ray_depth",
         "scene.gs_shadow_depth",
         "scene.gs_threads",
