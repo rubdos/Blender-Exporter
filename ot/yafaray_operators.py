@@ -67,7 +67,7 @@ class OBJECT_OT_update_sun(Operator):
 def sunPosAngle(mode="get", val="position"):
     active_object = bpy.context.active_object
     scene = bpy.context.scene
-    world = scene.world
+    world = scene.world.bounty
 
     if active_object and active_object.type == "LAMP":
 
