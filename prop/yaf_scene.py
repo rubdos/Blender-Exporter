@@ -114,7 +114,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         cls.gs_threads = IntProperty(
             name="Threads",
             description="Number of threads to use (0 = auto)",
-            min=0, default=2)
+            min=0, default=0)
         
         cls.gs_gamma = FloatProperty(
             name="Gamma",
