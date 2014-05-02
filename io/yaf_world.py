@@ -27,81 +27,69 @@ class yafWorld:
         self.yi = interface
 
     def exportWorld(self, scene):
-        yi = self.yi
-
-        world = scene.world
-
-        if world:
+        yi = self.yi  
+        
+        if scene.world:
+            # exporter properties
+            world = scene.world.bounty
             bg_type = world.bg_type
+            c = world.bg_single_color
             useIBL = world.bg_use_ibl
             iblSamples = world.bg_ibl_samples
             bgPower = world.bg_power
-            with_caustic = world.bg_with_caustic
-            with_diffuse = world.bg_with_diffuse
-            c = world.bg_single_color
         else:
+            world = scene.world
             bg_type = "Single Color"
             c = (0.0, 0.0, 0.0)
             useIBL = False
             iblSamples = 16
             bgPower = 1
-
+        
         self.yi.printInfo("Exporting World, type: {0}".format(bg_type))
+    
         yi.paramsClearAll()
 
         if bg_type == 'Texture':
-            if world.active_texture is not None:
-                worldTex = world.active_texture
-                self.yi.printInfo("World Texture, name: {0}".format(worldTex.name))
+            if scene.world.active_texture is not None:
+                worldTexture = scene.world.active_texture
+                self.yi.printInfo("World Texture, name: {0}".format(worldTexture.name))
             else:
-                worldTex = None
+                worldTexture = None
 
-            if worldTex is not None:
+            if worldTexture is not None:
 
-                if worldTex.type == "IMAGE" and (worldTex.image is not None):
+                if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
 
                     yi.paramsSetString("type", "image")
 
-                    image_file = abspath(worldTex.image.filepath)
+                    image_file = abspath(worldTexture.image.filepath)
                     image_file = realpath(image_file)
                     image_file = normpath(image_file)
-
                     yi.paramsSetString("filename", image_file)
 
-                    # exposure_adjust not restricted to integer range anymore
-                    #yi.paramsSetFloat("exposure_adjust", world.exposure) #bg_exposure)
-
                     interpolate = 'none'
-                    if worldTex.use_interpolation == True:
+                    if worldTexture.use_interpolation:
                         interpolate = 'bilinear'
-                    #
                     yi.paramsSetString("interpolate", interpolate)
                     
                     yi.createTexture("world_texture")
 
-                    # Export the actual background
+                    # Export background
                     #texco = world.texture_slots[world.active_texture_index].texture_coords
-                    textcoord = world.yaf_mapworld_type
                     yi.paramsClearAll()
                     #
-                    mappingType = {'ANGMAP': 'angular',
-                                   'SPHERE': 'sphere'}                    
-                    texco = mappingType.get(textcoord, "angular")
-                    yi.paramsSetString("mapping", texco)
-                    
-                    # now, this msg is not need , but....
-                    if textcoord not in {'ANGMAP', 'SPHERE'}:
-                        yi.printWarning("World texture mapping neither Sphere or AngMap, set it to AngMap now by default!")
+                    worldMapCoord = "angular"
+                    if world.bg_mapping_type == "SPHERE":
+                        worldMapCoord = "spherical"
+                    yi.paramsSetString("mapping", worldMapCoord)                    
                         
                     yi.paramsSetString("type", "textureback")
                     yi.paramsSetString("texture", "world_texture")
-                    yi.paramsSetBool("ibl", useIBL)
-                    # 'with_caustic' and 'with_diffuse' settings gets checked in textureback.cc,
-                    # so if IBL enabled when they are used...
-                    yi.paramsSetBool("with_caustic", with_caustic)
-                    yi.paramsSetBool("with_diffuse", with_diffuse)
-                    yi.paramsSetInt("ibl_samples", iblSamples)
-                    yi.paramsSetFloat("power", bgPower)
+                    yi.paramsSetBool("ibl", world.bg_use_ibl)
+                    yi.paramsSetBool("with_caustic", world.bg_with_caustic)
+                    yi.paramsSetBool("with_diffuse", world.bg_with_diffuse)
+                    yi.paramsSetInt("ibl_samples", world.bg_ibl_samples)
+                    yi.paramsSetFloat("power", world.bg_power)
                     yi.paramsSetFloat("rotation", world.bg_rotation)
 
         elif bg_type == 'Gradient':
@@ -117,9 +105,9 @@ class yafWorld:
             c = world.bg_zenith_ground_color
             yi.paramsSetColor("zenith_ground_color", c[0], c[1], c[2])
 
-            yi.paramsSetFloat("power", bgPower)
-            yi.paramsSetBool("ibl", useIBL)
-            yi.paramsSetInt("ibl_samples", iblSamples)
+            yi.paramsSetFloat("power", world.bg_power)
+            yi.paramsSetBool("ibl", world.bg_use_ibl)
+            yi.paramsSetInt("ibl_samples", world.bg_ibl_samples)
             yi.paramsSetString("type", "gradientback")
 
         elif bg_type == 'Sunsky1':
@@ -160,8 +148,6 @@ class yafWorld:
             yi.paramsSetFloat("bright", world.bg_dsbright)
             yi.paramsSetBool("night", world.bg_dsnight)
             yi.paramsSetFloat("exposure", world.bg_exposure)
-            yi.paramsSetBool("clamp_rgb", world.bg_clamp_rgb)
-            yi.paramsSetBool("gamma_enc", world.bg_gamma_enc)
             yi.paramsSetString("color_space", world.bg_color_space)
             yi.paramsSetString("type", "darksky")
 

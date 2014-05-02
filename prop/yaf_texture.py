@@ -34,21 +34,22 @@ def call_tex_type_update(self, context):
     except:
         pass
 
+enum_texture_type = (
+    ('NONE', "None", ""),
+    ('BLEND', "Blend", ""),
+    ('CLOUDS', "Clouds", ""),
+    ('WOOD', "Wood", ""),
+    ('MARBLE', "Marble", ""),
+    ('VORONOI', "Voronoi", ""),
+    ('MUSGRAVE', "Musgrave", ""),
+    ('DISTORTED_NOISE', "Distorted Noise", ""),
+    ('IMAGE', "Image", ""),
+)
 
 def register():
     Texture.yaf_tex_type = EnumProperty(
         name="Type",
-        items=(
-            ('NONE', "None", ""),
-            ('BLEND', "Blend", ""),
-            ('CLOUDS', "Clouds", ""),
-            ('WOOD', "Wood", ""),
-            ('MARBLE', "Marble", ""),
-            ('VORONOI', "Voronoi", ""),
-            ('MUSGRAVE', "Musgrave", ""),
-            ('DISTORTED_NOISE', "Distorted Noise", ""),
-            ('IMAGE', "Image", "")
-        ),
+        items=enum_texture_type,
         update=call_tex_type_update,
         default='NONE')
 

@@ -21,95 +21,109 @@
 import bpy
 from bpy.props import (FloatProperty,
                        EnumProperty,
-                       BoolProperty)
+                       BoolProperty,
+                       PointerProperty)
 
-Camera = bpy.types.Camera
+enum_camera_types =(
+    ('perspective', "Perspective", ""),
+    ('architect', "Architect", ""),
+    ('angular', "Angular", ""),
+    ('orthographic', "Ortho", ""),
+    )
 
+enum_bokeh_types =(
+    ('disk1', "Disk1", ""),
+    ('disk2', "Disk2", ""),
+    ('triangle', "Triangle", ""),
+    ('square', "Square", ""),
+    ('pentagon', "Pentagon", ""),
+    ('hexagon', "Hexagon", ""),
+    ('ring', "Ring", ""),
+    )
+
+enum_bokeh_bias = (
+    ('uniform', "Uniform", ""),
+    ('center', "Center", ""),
+    ('edge', "Edge", ""),
+    )
 
 def call_camera_update(self, context):
-    camera = context.camera
-    if camera is not None:
+    cam = context.camera
+    camera = context.camera.bounty
+    if cam is not None:
         if camera.camera_type == 'orthographic':
-            camera.type = 'ORTHO'
+            cam.type = 'ORTHO'
+        elif camera.camera_type == 'angular':
+            cam.type = 'PANO'
         else:
-            camera.type = 'PERSP'
+            cam.type = 'PERSP'
 
-
+class TheBountyCameraSettings(bpy.types.PropertyGroup):
+    @classmethod
+    def register(cls):
+        bpy.types.Camera.bounty = PointerProperty(
+            name="",
+            description="YafaRay Camera settings",
+            type=cls,
+        )
+        cls.camera_type = EnumProperty(
+            name="Camera Type",
+            items=enum_camera_types,
+            update=call_camera_update,
+            default='perspective'
+        )        
+        cls.angular_angle = FloatProperty(
+            name="Angle",
+            min=0.0, max=180.0, precision=3,
+            default=90.0
+        )
+        cls.max_angle = FloatProperty(
+            name="Max Angle",
+            min=0.0, max=180.0, precision=3,
+            default=90.0
+        )
+        cls.mirrored = BoolProperty(
+            name="Mirrored",
+            default=False
+        )
+        cls.circular = BoolProperty(
+            name="Circular",
+            default=False
+        )
+        cls.use_clipping = BoolProperty(
+            name="Use clipping",
+            default=False
+        )
+        cls.bokeh_type = EnumProperty(
+            name="Bokeh type",
+            items=enum_bokeh_types,
+            default='disk1'
+        )
+        cls.aperture = FloatProperty(
+            name="Aperture",
+            min=0.0, max=20.0, precision=5,
+            default=0.0
+        )
+        cls.bokeh_rotation = FloatProperty(
+            name="Bokeh rotation",
+            min=0.0, max=180, precision=3,
+            default=0.0
+        )
+        cls.bokeh_bias = EnumProperty(
+            name="Bokeh bias",
+            items= enum_bokeh_bias,
+            default='uniform'
+        )
+            
+    @classmethod
+    def unregister(cls):
+        del bpy.types.Camera.bounty
+        
 def register():
-    Camera.camera_type = EnumProperty(
-        name="Camera Type",
-        items=(
-            ('perspective', "Perspective", ""),
-            ('architect', "Architect", ""),
-            ('angular', "Angular", ""),
-            ('orthographic', "Ortho", "")
-        ),
-        update=call_camera_update,
-        default='perspective')
-
-    Camera.angular_angle = FloatProperty(
-        name="Angle",
-        min=0.0, max=180.0, precision=3,
-        default=90.0)
-
-    Camera.max_angle = FloatProperty(
-        name="Max Angle",
-        min=0.0, max=180.0, precision=3,
-        default=90.0)
-
-    Camera.mirrored = BoolProperty(
-        name="Mirrored",
-        default=False)
-
-    Camera.circular = BoolProperty(
-        name="Circular",
-        default=False)
-
-    Camera.use_clipping = BoolProperty(
-        name="Use clipping",
-        default=False)
-
-    Camera.bokeh_type = EnumProperty(
-        name="Bokeh type",
-        items=(
-            ('disk1', "Disk1", ""),
-            ('disk2', "Disk2", ""),
-            ('triangle', "Triangle", ""),
-            ('square', "Square", ""),
-            ('pentagon', "Pentagon", ""),
-            ('hexagon', "Hexagon", ""),
-            ('ring', "Ring", "")
-        ),
-        default='disk1')
-
-    Camera.aperture = FloatProperty(
-        name="Aperture",
-        min=0.0, max=20.0, precision=5,
-        default=0.0)
-
-    Camera.bokeh_rotation = FloatProperty(
-        name="Bokeh rotation",
-        min=0.0, max=180, precision=3,
-        default=0.0)
-
-    Camera.bokeh_bias = EnumProperty(
-        name="Bokeh bias",
-        items=(
-            ('uniform', "Uniform", ""),
-            ('center', "Center", ""),
-            ('edge', "Edge", "")
-        ),
-        default='uniform')
-
+    bpy.utils.register_class(TheBountyCameraSettings)
 
 def unregister():
-    Camera.camera_type
-    Camera.angular_angle
-    Camera.max_angle
-    Camera.mirrored
-    Camera.circular
-    Camera.use_clipping
-    Camera.bokeh_type
-    Camera.aperture
-    Camera.bokeh_rotation
-    Camera.bokeh_bias
+    bpy.utils.unregister_class(TheBountyCameraSettings)
+            
+            
+            

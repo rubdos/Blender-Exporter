@@ -1,1 +1,7 @@
-*.pyc
+/__pycache*
+__pycache*
+/bin
+.project
+.pydevproject
+.settings
+*.rar
