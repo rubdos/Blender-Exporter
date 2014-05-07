@@ -51,14 +51,14 @@ class yafObject(object):
         camera = self.scene.camera
         render = self.scene.render
 
-        if bpy.types.YAFA_RENDER.useViewToRender and bpy.types.YAFA_RENDER.viewMatrix:
+        if bpy.types.THEBOUNTY.useViewToRender and bpy.types.THEBOUNTY.viewMatrix:
             # use the view matrix to calculate the inverted transformed
             # points cam pos (0,0,0), front (0,0,1) and up (0,1,0)
             # view matrix works like the opengl view part of the
             # projection matrix, i.e. transforms everything so camera is
             # at 0,0,0 looking towards 0,0,1 (y axis being up)
 
-            m = bpy.types.YAFA_RENDER.viewMatrix
+            m = bpy.types.THEBOUNTY.viewMatrix
             # m.transpose() --> not needed anymore: matrix indexing changed with Blender rev.42816
             inv = m.inverted()
 
@@ -66,7 +66,7 @@ class yafObject(object):
             aboveCam = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 1, 0, 1)))
             frontCam = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 0, 1, 1)))
 
-            dir = frontCam - pos
+            direction = frontCam - pos
             up = aboveCam
 
         else:
@@ -75,24 +75,24 @@ class yafObject(object):
             # matrix indexing (row, colums) changed in Blender rev.42816, for explanation see also:
             # http://wiki.blender.org/index.php/User:TrumanBlending/Matrix_Indexing
             pos = matrix.col[3]
-            dir = matrix.col[2]
+            direction = matrix.col[2]
             up = pos + matrix.col[1]
 
-        to = pos - dir
+        to = pos - direction
 
         x = int(render.resolution_x * render.resolution_percentage * 0.01)
         y = int(render.resolution_y * render.resolution_percentage * 0.01)
 
         yi.paramsClearAll()
 
-        if bpy.types.YAFA_RENDER.useViewToRender:
+        if bpy.types.THEBOUNTY.useViewToRender:
             yi.paramsSetString("type", "perspective")
             yi.paramsSetFloat("focal", 0.7)
-            bpy.types.YAFA_RENDER.useViewToRender = False
+            bpy.types.THEBOUNTY.useViewToRender = False
 
         else:
-            # reuse Blender camera properties
-            blcam = camera.data 
+            # use Blender camera properties
+            cam = camera.data 
             # exporter camera specific properties
             camera = camera.data.bounty
             
@@ -101,41 +101,41 @@ class yafObject(object):
             yi.paramsSetString("type", camType)
 
             if camera.use_clipping:
-                yi.paramsSetFloat("nearClip", blcam.clip_start)
-                yi.paramsSetFloat("farClip", blcam.clip_end)
+                yi.paramsSetFloat("nearClip", cam.clip_start)
+                yi.paramsSetFloat("farClip", cam.clip_end)
 
             if camType == "orthographic":
-                yi.paramsSetFloat("scale", blcam.ortho_scale)
+                yi.paramsSetFloat("scale", cam.ortho_scale)
 
             elif camType in {"perspective", "architect"}:
                 # Blenders GSOC 2011 project "tomato branch" merged into trunk.
                 # Check for sensor settings and use them in yafaray exporter also.
-                if blcam.sensor_fit == 'AUTO':
+                if cam.sensor_fit == 'AUTO':
                     horizontal_fit = (x > y)
-                    sensor_size = blcam.sensor_width
-                elif blcam.sensor_fit == 'HORIZONTAL':
+                    sensor_size = cam.sensor_width
+                elif cam.sensor_fit == 'HORIZONTAL':
                     horizontal_fit = True
-                    sensor_size = blcam.sensor_width
+                    sensor_size = cam.sensor_width
                 else:
                     horizontal_fit = False
-                    sensor_size = blcam.sensor_height
+                    sensor_size = cam.sensor_height
 
                 if horizontal_fit:
                     f_aspect = 1.0
                 else:
                     f_aspect = x / y
 
-                yi.paramsSetFloat("focal", blcam.lens / (f_aspect * sensor_size))
+                yi.paramsSetFloat("focal", cam.lens / (f_aspect * sensor_size))
 
                 # DOF params, only valid for real camera
                 # use DOF object distance if present or fixed DOF
-                if blcam.dof_object is not None:
+                if cam.dof_object is not None:
                     # use DOF object distance
-                    dist = (pos.xyz - blcam.dof_object.location.xyz).length
+                    dist = (pos.xyz - cam.dof_object.location.xyz).length
                     dof_distance = dist
                 else:
                     # use fixed DOF distance
-                    dof_distance = blcam.dof_distance
+                    dof_distance = cam.dof_distance
 
                 yi.paramsSetFloat("dof_distance", dof_distance)
                 yi.paramsSetFloat("aperture", camera.aperture)
@@ -483,48 +483,51 @@ class yafObject(object):
 
         return ymaterial
 
-    def writeParticleStrands(self, object, matrix):
+    def writeParticleStrands(self, obj, matrix):
 
         yi = self.yi
         renderEmitter = False
-        if hasattr(object, 'particle_systems') == False:
+        if hasattr(obj, 'particle_systems') == False:
             return
-
+        # test
+        def partStrandmaterial(pmaterial):
+            if pmaterial.strand.use_blender_units:
+                strandStart = pmaterial.strand.root_size
+                strandEnd = pmaterial.strand.tip_size
+                strandShape = pmaterial.strand.shape
+            else:  # Blender unit conversion
+                strandStart = pmaterial.strand.root_size / 100
+                strandEnd = pmaterial.strand.tip_size / 100
+                strandShape = pmaterial.strand.shape
+            return strandStart, strandEnd, strandShape
+        
         # Check for hair particles:
-        for pSys in object.particle_systems:
-            for mod in [m for m in object.modifiers if (m is not None) and (m.type == 'PARTICLE_SYSTEM')]:
+        for pSys in obj.particle_systems:
+            for mod in [m for m in obj.modifiers if (m is not None) and (m.type == 'PARTICLE_SYSTEM')]:
                 if (pSys.settings.render_type == 'PATH') and mod.show_render and (pSys.name == mod.particle_system.name):
                     yi.printInfo("Exporter: Creating Hair Particle System {!r}".format(pSys.name))
                     tstart = time.time()
                     # TODO: clay particles uses at least materials thikness?
-                    if object.active_material is not None:
-                        pmaterial = object.active_material
-
-                        if pmaterial.strand.use_blender_units:
-                            strandStart = pmaterial.strand.root_size
-                            strandEnd = pmaterial.strand.tip_size
-                            strandShape = pmaterial.strand.shape
-                        else:  # Blender unit conversion
-                            strandStart = pmaterial.strand.root_size / 100
-                            strandEnd = pmaterial.strand.tip_size / 100
-                            strandShape = pmaterial.strand.shape
-                    else:
-                        pmaterial = "default"  # No material assigned in blender, use default one
-                        strandStart = 0.01
-                        strandEnd = 0.01
-                        strandShape = 0.0
-
+                    pmaterial = "default"  # No material assigned in blender, use default one
+                    strandStart = 0.01
+                    strandEnd = 0.01
+                    strandShape = 0.0
+                    if obj.active_material is not None:
+                        #pmaterial = obj.active_material
+                        strandStart, strandEnd, strandShape = partStrandmaterial(obj.active_material)
+                    #
                     for particle in pSys.particles:
+                        prtvis = False
                         if particle.is_exist and particle.is_visible:
-                            p = True
-                        else:
-                            p = False
+                            prtvis = True
+                            
                         CID = yi.getNextFreeID()
                         yi.paramsClearAll()
                         yi.startGeometry()
-                        yi.startCurveMesh(CID, p)
+                        yi.startCurveMesh(CID, prtvis)
+                        #for vertex in ppoints:
                         for location in particle.hair_keys:
-                            vertex = matrix * location.co  # use reverse vector multiply order, API changed with rev. 38674
+                            vertex = matrix * location .co # use reverse vector multiply order, API changed with rev. 38674
                             yi.addVertex(vertex[0], vertex[1], vertex[2])
                         #this section will be changed after the material settings been exported
                         hairMat = "default"
@@ -532,17 +535,17 @@ class yafObject(object):
                             hairMat = pmaterial
                         yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
                         
-                    # TODO: keep object smooth
-                    #yi.smoothMesh(0, 60.0)
+                        # TODO: keep object smooth
+                        #yi.smoothMesh(0, 60.0)
                         yi.endGeometry()
                     yi.printInfo("Exporter: Particle creation time: {0:.3f}".format(time.time() - tstart))
 
                     if pSys.settings.use_render_emitter:
                         renderEmitter = True
                 else:
-                    self.writeMesh(object, matrix)
+                    self.writeMesh(obj, matrix)
 
         # We only need to render emitter object once
         if renderEmitter:
             # ymat = self.materialMap["default"]  /* UNUSED */
-            self.writeMesh(object, matrix)
+            self.writeMesh(obj, matrix)
