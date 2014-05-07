@@ -68,7 +68,7 @@ class yafWorld:
                     yi.paramsSetString("filename", image_file)
 
                     interpolate = 'none'
-                    if worldTexture.use_interpolation == True:
+                    if worldTexture.use_interpolation:
                         interpolate = 'bilinear'
                     yi.paramsSetString("interpolate", interpolate)
                     

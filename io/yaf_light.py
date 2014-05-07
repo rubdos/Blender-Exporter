@@ -97,7 +97,7 @@ class yafLight:
                 to = (-0.0062182024121284485, 0.6771485209465027, 1.8015732765197754, 1.0)
                 power = 5
             elif lamp_name == "Lamp.008":
-                lampType = "sun"
+                lampType = "SUN"
                 power = 0.8
 
         yi.paramsClearAll()
@@ -111,9 +111,11 @@ class yafLight:
             self.lightMat = self.yi.createMaterial(lamp_name)
             self.yi.paramsClearAll()
 
-        if lampType == "point":
+        if lampType == "POINT":
             yi.paramsSetString("type", "pointlight")
-            if getattr(lamp_data, "use_sphere", False):
+            #povman test
+            yi.paramsSetBool("useGeometry", lamp.create_geometry)
+            if lamp.use_sphere:
                 if lamp.create_geometry:
                     ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
                     yi.paramsSetInt("object", ID)
@@ -121,7 +123,7 @@ class yafLight:
                 yi.paramsSetInt("samples", lamp.yaf_samples)
                 yi.paramsSetFloat("radius", lamp.yaf_sphere_radius)
 
-        elif lampType == "spot":
+        elif lampType == "SPOT":
             if self.preview and lamp_name == "Lamp.002":
                 angle = 50
             else:
@@ -139,7 +141,7 @@ class yafLight:
             yi.paramsSetBool("photon_only", lamp.photon_only)
             yi.paramsSetInt("samples", lamp.yaf_samples)
 
-        elif lampType == "sun":
+        elif lampType == "SUN":
             yi.paramsSetString("type", "sunlight")
             yi.paramsSetInt("samples", lamp.yaf_samples)
             yi.paramsSetFloat("angle", lamp.angle)
@@ -164,7 +166,7 @@ class yafLight:
             yi.paramsSetInt("samples", lamp.yaf_samples)
             yi.paramsSetBool("soft_shadows", lamp.ies_soft_shadows)
 
-        elif lampType == "area":
+        elif lampType == "AREA":
             sizeX = lamp_data.size
             sizeY = lamp_data.size
             if lamp_data.shape == 'RECTANGLE':
@@ -207,12 +209,12 @@ class yafLight:
             yi.paramsSetPoint("point1", corner1[0], corner1[1], corner1[2])
             yi.paramsSetPoint("point2", corner3[0], corner3[1], corner3[2])
 
-        if lampType not in {"sun", "directional"}:
+        if lampType not in {"SUN", "directional"}:
             # "from" is not used for sunlight and infinite directional light
             yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
-        if lampType in {"point", "spot"}:
+        if lampType in {"POINT", "SPOT"}:
             if getattr(lamp, "use_sphere", False) and lampType == "point":
-                power = 0.5 * power * power / (lamp.yaf_sphere_radius * lamp.yaf_sphere_radius)
+                power = power # 0.5 * power * power / (lamp.yaf_sphere_radius * lamp.yaf_sphere_radius)
             else:
                 power = 0.5 * power * power
 

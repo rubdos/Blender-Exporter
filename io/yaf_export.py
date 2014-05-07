@@ -23,8 +23,8 @@ import os
 import threading
 import time
 import yafrayinterface
+
 from thebounty import PLUGIN_PATH
-from thebounty import YAF_ID_NAME
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -35,7 +35,7 @@ from .yaf_material import yafMaterial
 
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
-    bl_idname = YAF_ID_NAME
+    bl_idname = 'THEBOUNTY'
     bl_use_preview = True
     bl_label = "TheBounty Render"
     prog = 0.0
@@ -49,10 +49,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         if level =='info':
             self.yi.setVerbosityInfo()
         else:
-            self.yi.setVerbosityMute()
+            self.yi.setVerbosityMute()   
     
-    ##-----------------------------------------------------
-     
+    ##-----------------------------------------------------     
 
     def setInterface(self, yi):
         self.materialMap = {}
@@ -60,12 +59,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi = yi
         # setup specific values for render preview mode
         if self.is_preview:
-            self.yi.setVerbosityMute()
+            #self.yi.setVerbosityMute()
             self.scene.bounty.bg_transp = False         #to correct alpha problems in preview roughglass
             self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
         else:
             self.verbositylevel('info')
-        #   
+        
         # export go.. load plugins
         self.yi.loadPlugins(PLUGIN_PATH)        
         # process geometry
@@ -289,8 +288,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         return outputFile, output, filetype
 
-    # callback to export the scene
+    
     def update(self, data, scene):
+        # callback to export the scene
         self.update_stats("", "Setting up render")
         if not self.is_preview:
             scene.frame_set(scene.frame_current)
@@ -348,9 +348,72 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # must be called last as the params from here will be used by render()
         yaf_scene.exportRenderSettings(self.yi, self.scene)
 
-    # callback to render scene
-    def render(self, scene):
-        self.is_preview = False # test
+    def render_preview(self, scene):
+        # callback to render scene
+        #self.is_preview = True
+        #scene = scene.bounty
+        self.bl_use_postprocess = False
+        #
+        
+        def progressCallback(command, *args):
+            #
+            if not self.test_break():
+                if command == "tag":
+                    self.tag = args[0]
+                elif command == "progress":
+                    self.prog = args[0]
+                self.update_stats("TheBounty Render: ", "{0}".format(self.tag))
+                #
+                self.update_progress(self.prog)
+        
+        def drawAreaCallback(*args):
+            x, y, w, h, tile = args
+            res = self.begin_result(x, y, w, h)
+            try:
+                lay = res.layers[0]
+                lay.rect, lay.passes[0].rect = tile
+            except:
+                pass
+
+            self.end_result(res)
+
+        def flushCallback(*args):
+            w, h, tile = args
+            res = self.begin_result(0, 0, w, h)
+            try:
+                lay = res.layers[0]
+                lay.rect, lay.passes[0].rect = tile
+            except BaseException as e:
+                pass
+
+            self.end_result(res)
+                
+        # define thread
+        thread = threading.Thread(target=self.yi.render,
+                                  args=(self.resX, self.resY, self.bStartX, self.bStartY, self.is_preview,
+                                        drawAreaCallback, flushCallback, progressCallback)
+                                  )
+        # run..
+        thread.start()
+        
+        #while thread.isAlive() and not self.test_break():
+        while thread.is_alive() and not self.test_break():
+            time.sleep(0.5) #2)
+            
+        #if thread.isAlive():
+        if thread.is_alive():
+            self.update_stats("", "Aborting...")
+            self.yi.abort()
+            thread.join()
+    
+        self.yi.clearAll()
+        del self.yi
+        self.update_stats("", "Done!")
+        self.bl_use_postprocess = True
+    
+    def render_scene(self, scene):
+        # callback to render scene
+        self.is_preview = False
         scene = scene.bounty
         self.bl_use_postprocess = False
         
@@ -388,7 +451,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
             def drawAreaCallback(*args):
                 x, y, w, h, tile = args
-                res = self.begin_result(x, y, w, h)
+                layer = ""
+                res = self.begin_result(x, y, w, h, layer)
                 try:
                     lay = res.layers[0]
                     lay.rect, lay.passes[0].rect = tile
@@ -399,7 +463,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
             def flushCallback(*args):
                 w, h, tile = args
-                res = self.begin_result(0, 0, w, h)
+                layer = ""
+                res = self.begin_result(0, 0, w, h, layer)
                 try:
                     lay = res.layers[0]
                     lay.rect, lay.passes[0].rect = tile
@@ -432,3 +497,14 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         del self.yi
         self.update_stats("", "Done!")
         self.bl_use_postprocess = True
+
+    def render(self, scene):
+        #
+        if not scene.name == 'preview':
+            #self.bl_use_preview = False
+            self.render_scene(scene)
+        else:
+            #self.bl_use_preview = False
+            if self.resX > 120: #
+                #self.bl_use_preview = True
+                self.render_preview(scene)
