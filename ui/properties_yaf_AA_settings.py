@@ -22,7 +22,7 @@
 from bl_ui.properties_render import RenderButtonsPanel
 from bpy.types import Panel
 
-RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
@@ -35,17 +35,8 @@ class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
 
         split = layout.split()
         col = split.column()
-        '''
-        params = ["AA_filter_type", "AA_min_samples", "AA_pixelwidth"]
-        params1 = ["AA_passes", "AA_inc_samples", "AA_threshold"]
-        for p in params:
-            col.prop(scene, p)
-        col = split.column()
-        for p in params1:
-            col.prop(scene, p)
-            
-        '''
-        col.prop(scene, "AA_filter_type")
+        
+        col.prop(scene, "AA_filter_type", text="")
         col.prop(scene, "AA_min_samples")
         col.prop(scene, "AA_pixelwidth")
         # fix suggest by 'samo' in http://www.yafaray.org/node/581

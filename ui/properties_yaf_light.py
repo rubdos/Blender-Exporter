@@ -23,7 +23,7 @@ from bl_ui.properties_data_lamp import DataButtonsPanel
 
 # Inherit Lamp data block
 from bl_ui.properties_data_lamp import DATA_PT_context_lamp
-DATA_PT_context_lamp.COMPAT_ENGINES.add('YAFA_RENDER')
+DATA_PT_context_lamp.COMPAT_ENGINES.add('THEBOUNTY')
 del DATA_PT_context_lamp
 
 class YAF_PT_preview(Panel):
@@ -31,7 +31,7 @@ class YAF_PT_preview(Panel):
     bl_region_type = 'WINDOW'
     bl_context = "data"
     bl_label = "Preview"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -44,7 +44,7 @@ class YAF_PT_preview(Panel):
 
 class YAF_PT_lamp(DataButtonsPanel, Panel):
     bl_label = "Lamp"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -57,11 +57,11 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
         layout.prop(context.lamp, "color")
         layout.prop(lamp, "yaf_energy", text="Power")
 
-        if lamp.lamp_type == "area":
+        if lamp.lamp_type == "AREA":
             layout.prop(lamp, "yaf_samples")
             layout.prop(lamp, "create_geometry", toggle=True)
 
-        elif lamp.lamp_type == "spot":
+        elif lamp.lamp_type == "SPOT":
             layout.prop(lamp, "photon_only", toggle=True)
             col = layout.column(align=True)
             if not lamp.photon_only:
@@ -70,7 +70,7 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
                     col.prop(lamp, "yaf_samples")
                     col.prop(lamp, "shadow_fuzzyness")            
 
-        elif lamp.lamp_type == "sun":
+        elif lamp.lamp_type == "SUN":
             layout.prop(lamp, "yaf_samples")
             layout.prop(lamp, "angle")
 
@@ -79,7 +79,7 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
             if not lamp.infinite:
                 layout.prop(context.lamp, "shadow_soft_size", text="Radius of directional cone")
 
-        elif lamp.lamp_type == "point":
+        elif lamp.lamp_type == "POINT":
             col = layout.column(align=True)
             col.prop(lamp, "use_sphere", toggle=True)
             if lamp.use_sphere:
@@ -97,7 +97,7 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
 # povman test
 class YAF_PT_area(DataButtonsPanel, Panel):
     bl_label = "Area Shape"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -124,7 +124,7 @@ class YAF_PT_area(DataButtonsPanel, Panel):
 
 class YAF_PT_spot(DataButtonsPanel, Panel):
     bl_label = "Spot Shape"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):

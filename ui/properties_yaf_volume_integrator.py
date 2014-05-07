@@ -22,7 +22,7 @@ import bpy
 from bpy.types import Panel
 from bl_ui.properties_world import WorldButtonsPanel
 
-WorldButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):

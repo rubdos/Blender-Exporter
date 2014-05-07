@@ -28,7 +28,7 @@ class YAF_TextureButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "texture"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -39,7 +39,7 @@ class YAF_TextureButtonsPanel():
 class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
     bl_label = "YafaRay Textures"
     bl_options = {'HIDE_HEADER'}
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -153,7 +153,7 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
 
 class YAF_TEXTURE_PT_preview(YAF_TextureButtonsPanel, Panel):
     bl_label = "Preview"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -173,7 +173,7 @@ class YAF_TEXTURE_PT_preview(YAF_TextureButtonsPanel, Panel):
 
 
 class YAF_TextureSlotPanel(YAF_TextureButtonsPanel):
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -185,7 +185,7 @@ class YAF_TextureSlotPanel(YAF_TextureButtonsPanel):
 
 
 class YAF_TextureTypePanel(YAF_TextureButtonsPanel):
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -200,7 +200,7 @@ class YAF_TextureTypePanel(YAF_TextureButtonsPanel):
 class YAF_TEXTURE_PT_clouds(YAF_TextureTypePanel, Panel):
     bl_label = "Clouds"
     tex_type = 'CLOUDS'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -222,7 +222,7 @@ class YAF_TEXTURE_PT_clouds(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_wood(YAF_TextureTypePanel, Panel):
     bl_label = "Wood"
     tex_type = 'WOOD'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -249,7 +249,7 @@ class YAF_TEXTURE_PT_wood(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_marble(YAF_TextureTypePanel, Panel):
     bl_label = "Marble"
     tex_type = 'MARBLE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -273,7 +273,7 @@ class YAF_TEXTURE_PT_marble(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_blend(YAF_TextureTypePanel, Panel):
     bl_label = "Blend"
     tex_type = 'BLEND'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -289,7 +289,7 @@ class YAF_TEXTURE_PT_blend(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_image(YAF_TextureTypePanel, Panel):
     bl_label = "Map Image"
     tex_type = 'IMAGE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -307,7 +307,7 @@ class YAF_TEXTURE_PT_image_sampling(YAF_TextureTypePanel, Panel):
     bl_label = "Image Sampling"
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
     # test
     @classmethod
     def poll(cls, context):
@@ -329,7 +329,7 @@ class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
     bl_label = "Image Mapping"
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
     
     # test
     @classmethod
@@ -380,7 +380,7 @@ class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_musgrave(YAF_TextureTypePanel, Panel):
     bl_label = "Musgrave"
     tex_type = 'MUSGRAVE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -416,7 +416,7 @@ class YAF_TEXTURE_PT_musgrave(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_voronoi(YAF_TextureTypePanel, Panel):
     bl_label = "Voronoi"
     tex_type = 'VORONOI'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -451,7 +451,7 @@ class YAF_TEXTURE_PT_voronoi(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_distortednoise(YAF_TextureTypePanel, Panel):
     bl_label = "Distorted Noise"
     tex_type = 'DISTORTED_NOISE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -471,7 +471,7 @@ class YAF_TEXTURE_PT_distortednoise(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_ocean(YAF_TextureTypePanel, Panel):
     bl_label = "Ocean"
     tex_type = 'OCEAN'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -486,7 +486,7 @@ class YAF_TEXTURE_PT_ocean(YAF_TextureTypePanel, Panel):
 
 class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
     bl_label = "Texture Mapping"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -582,7 +582,7 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
 
 class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
     bl_label = "YafaRay Influence (Map To)"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):

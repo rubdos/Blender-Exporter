@@ -22,7 +22,7 @@ import bpy
 from bpy.types import Panel
 from bl_ui.properties_data_camera import CameraButtonsPanel
 
-CameraButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+CameraButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class YAF_PT_lens(CameraButtonsPanel, Panel):

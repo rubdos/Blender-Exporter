@@ -21,16 +21,16 @@
 from bpy.types import Panel
 from bl_ui.properties_world import WorldButtonsPanel
 
-WorldButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 # Inherit World data block
 from bl_ui.properties_world import WORLD_PT_context_world
-WORLD_PT_context_world.COMPAT_ENGINES.add('YAFA_RENDER')
+WORLD_PT_context_world.COMPAT_ENGINES.add('THEBOUNTY')
 del WORLD_PT_context_world
 
 # Inherit World Preview Panel
 from bl_ui.properties_world import WORLD_PT_preview
-WORLD_PT_preview.COMPAT_ENGINES.add('YAFA_RENDER')
+WORLD_PT_preview.COMPAT_ENGINES.add('THEBOUNTY')
 del WORLD_PT_preview
 
    
@@ -237,7 +237,7 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
 class WorldTexture(WorldButtonsPanel, Panel):
     bl_label = "Image Based Lighting Options"
     bl_context = "world"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
     
     @classmethod
     def poll(cls, context):
