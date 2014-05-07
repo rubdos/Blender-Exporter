@@ -64,13 +64,11 @@ class yafIntegrator:
             yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
         elif lightIntegrator == "photonmapping":
-            yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
-            yi.paramsSetInt("bounces", scene.intg_bounces)
-
             yi.paramsSetInt("photons", scene.intg_photons)
             yi.paramsSetInt("cPhotons", scene.intg_cPhotons)
             yi.paramsSetFloat("diffuseRadius", scene.intg_diffuse_radius)
             yi.paramsSetFloat("causticRadius", scene.intg_caustic_radius)
+            yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("search", scene.intg_search)
             yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
             yi.paramsSetBool("finalGather", scene.intg_final_gather)
@@ -100,8 +98,7 @@ class yafIntegrator:
             # SSS
             yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
-        #elif light_type == "bidirectional":
-            #yi.paramsSetString("type", "bidirectional")
+        #elif lightIntegrator == "bidirectional":
 
         elif lightIntegrator == "DebugIntegrator":
             #yi.paramsSetString("type", "DebugIntegrator")
@@ -120,18 +117,22 @@ class yafIntegrator:
             
             yi.paramsSetInt("debugType", debugType)
             yi.paramsSetBool("showPN", scene.intg_show_perturbed_normals)
-
+        #----------------------------------
+        # SPPM integrator
+        #----------------------------------
         elif lightIntegrator == "SPPM":
-            yi.paramsSetString("type", "SPPM")
             yi.paramsSetInt("photons", scene.intg_photons)
-            yi.paramsSetFloat("photonRadius", scene.intg_diffuse_radius)
+            yi.paramsSetFloat("photonRadius", scene.intg_accurate_radius)
             yi.paramsSetInt("searchNum", scene.intg_search)
-            yi.paramsSetFloat("times", scene.intg_times)
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("passNums", scene.intg_pass_num)
-            yi.paramsSetBool("pmIRE", scene.intg_pm_ire)        
+            yi.paramsSetBool("pmIRE", scene.intg_pm_ire)
+            #if not scene.intg_pm_ire:
+            yi.paramsSetFloat("times", scene.intg_times)             
 
-        #
+        #----------------------------------
+        # Sub-Surface Scattering integrator
+        #----------------------------------
         if scene.intg_useSSS:
             yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
             yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
