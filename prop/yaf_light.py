@@ -28,23 +28,23 @@ from bpy.props import (EnumProperty,
                        )
 
 enum_lamp_type = (
-    ('point', "Point", "Omnidirectional point light source"),
-    ('sun',   "Sun",   "Constant direction parallel ray light source"),
-    ('spot',  "Spot",  "Directional cone light source"),
+    ('POINT', "Point", "Omnidirectional point light source"),
+    ('SUN',   "Sun",   "Constant direction parallel ray light source"),
+    ('SPOT',  "Spot",  "Directional cone light source"),
     ('ies',   "IES",   "Directional cone light source from ies file"),
-    ('area',  "Area",  "Directional area light source"),
+    ('AREA',  "Area",  "Directional area light source"),
     ('directional', "Directional", "Directional Sun light"),
 )
 
-#Lamp = bpy.types.Lamp
-
-
 def call_lighttype_update(self, context):
     lamp = context.lamp
+    bounty = context.lamp.bounty
     if lamp is not None:
-        switchLampType = {'area': 'AREA','spot': 'SPOT','sun': 'SUN','point': 'POINT','ies': 'SPOT','directional': 'SUN'}
-        lamp.type = switchLampType.get(context.lamp.bounty.lamp_type)
-
+        if bounty.lamp_type in {'ies','directional'}:
+            switchLampType = {'ies': 'SPOT','directional': 'SUN'}
+            lamp.type = switchLampType.get(bounty.lamp_type)
+        else:
+            lamp.type = bounty.lamp_type
 
 def set_shadow_method(self, context):
     lamp = context.lamp
@@ -53,6 +53,12 @@ def set_shadow_method(self, context):
     else:
         lamp.shadow_method = 'RAY_SHADOW'
 
+def call_update_sphere(self, context):
+    lamp = context.lamp
+    if context.lamp.bounty.use_sphere:
+        lamp.use_sphere = True
+    else:
+        lamp.use_sphere = False
 
 def sync_with_distance(self, context):
     #lamp = context.lamp
@@ -72,7 +78,8 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             name="Light type",
             description="Type of lamp",
             items=enum_lamp_type,
-            default="point", update=call_lighttype_update
+            default="POINT", 
+            update=call_lighttype_update
         )    
         cls.yaf_energy = FloatProperty(
             name="Power",
@@ -83,7 +90,8 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
         cls.use_sphere = BoolProperty(
             name="Use Sphere",
             description="Use sphere object for light",
-            default=False
+            default=False,
+            update = call_update_sphere
         )    
         cls.yaf_sphere_radius = FloatProperty(
             name="Radius",

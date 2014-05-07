@@ -19,7 +19,7 @@
 # <pep8 compliant>
 
 import bpy
-from sys import platform
+#from sys import platform
 from bpy.props import (IntProperty,
                        FloatProperty,
                        FloatVectorProperty,
@@ -29,9 +29,9 @@ from bpy.props import (IntProperty,
                        StringProperty)
 #
 enum_render_output_mode =(
-    ('file', "Image file", "Render the Scene and write it to an Image File when finished"),
-    ('into_blender', "Into Blender", "Render the Scene into Blender Renderbuffer"),
-    ('xml', "XML file", "Export the Scene to a XML File"),
+    ('file', "Render to Image file", "Render the Scene and write it to an Image File when finished"),
+    ('into_blender', "Render Into Blender", "Render the Scene into Blender Renderbuffer"),
+    ('xml', "Write to XML file", "Export scene to a XML File"),
 )
 
 enum_render_output_format =(
@@ -48,8 +48,8 @@ enum_lighting_integrator_method =(
     ('photonmapping', "Photon Mapping", ""),
     ('pathtracing', "Pathtracing", ""),
     ('DebugIntegrator', "Debug Integrator", ""),
-    ('bidirectional', "Bidirectional PathTracing", ""),
-    ('SPPM', "St. Progressive PhotonMap", ""),
+    ('bidirectional', "Bidirectional PathTracing(WIP)", ""),
+    ('SPPM', "Stochastic Progressive Photon Mapping", ""),
 )
 
 enum_caustic_method =(
@@ -70,18 +70,19 @@ enum_debug_integrator_type =(
 )
 
 enum_filter_type =(
-    ('box', "Box", "AA filter type"),
-    ('mitchell', "Mitchell", "AA filter type"),
-    ('gauss', "Gauss", "AA filter type"),
-    ('lanczos', "Lanczos", "AA filter type"),
+    ('box', "AA Filter Box", "Anti-Aliasing filter type Box"),
+    ('mitchell', "AA Filter Mitchell", "Anti-Aliasing filter type Michel-Netravali"),
+    ('gauss', "AA Filter Gauss", "Anti-Aliasing filter type Gaussian"),
+    ('lanczos', "AA Filter Lanczos", "Anti-Aliasing filter type Lanczos"),
 )
 
 enum_tile_order = (
-    ('linear', "Linear", ""),
-    ('random', "Random", ""),
+    ('linear', "Linear Tiles", ""),
+    ('random', "Random Tiles", ""),
 )
 
 # set fileformat for image saving on same format as in YafaRay, both have default PNG
+# TODO: need review
 def call_update_fileformat(self, context):
     render = context.scene.render
     scene = context.scene.bounty
@@ -100,26 +101,28 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
             description="",
             type=cls,
         )
-        ########### YafaRays general settings properties #############
+        #-----------------------------
+        # General settings properties 
+        #-----------------------------
         cls.gs_ray_depth = IntProperty(
-            name="Ray depth",
+            name="Recursive Raytracing depth",
             description="Maximum depth for recursive raytracing",
             min=0, max=64, default=2
         )    
         cls.gs_shadow_depth = IntProperty(
             name="Shadow depth",
             description="Max. depth for transparent shadows calculation (if enabled)",
-            min=0, max=64, default=2)
-    
+            min=0, max=64, default=2
+        )    
         cls.gs_threads = IntProperty(
             name="Threads",
             description="Number of threads to use (0 = auto)",
-            min=0, default=2)
-        
+            min=0, default=0
+        )        
         cls.gs_gamma = FloatProperty(
             name="Gamma",
-            description="Gamma correction applied to final output, inverse correction "
-                        "of textures and colors is performed",
+            description="Gamma correction applied to final output,"
+                        " inverse correction of textures and colors is performed",
             min=1.0, max=5.0, 
             default= 2.2
         )    
@@ -135,10 +138,10 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         )    
         cls.gs_tile_order = EnumProperty(
             name="Tile order",
-            description="Selects tiles order type",
+            description="Selects tiles order render type",
             items=enum_tile_order,
             default='random'
-        )    
+        )# TODO: Review auto threads, atm seems unused   
         cls.gs_auto_threads = BoolProperty(
             name="Auto threads",
             description="Activate thread number auto detection",
@@ -174,271 +177,284 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         cls.bg_transp_refract = BoolProperty(
             name="Materials transp. refraction",
             description="Materials refract the background as transparent",
-            default=False)
-    
+            default=False
+        )    
         cls.gs_custom_string = StringProperty(
             name="Custom string",
-            description="Custom string will be added to the info bar, "
-                        "use it for CPU, RAM etc",
-            default="")
-    
+            description="Custom string will be added to the info bar, use it for CPU, RAM etc",
+            default=""
+        )# TODO: Atm, is unused. Review!!    
         cls.gs_premult = BoolProperty(
             name="Premultiply",
             description="Premultipy Alpha channel for renders with transparent background",
-            default=True)
-    
+            default=True
+        )    
         cls.gs_transp_shad = BoolProperty(
             name="Transparent shadows",
             description="Compute transparent shadows",
-            default=False)
-    
+            default=False
+        )    
         cls.gs_clamp_rgb = BoolProperty(
             name="Clamp RGB",
             description="Reduce the color's brightness to a low dynamic range",
-            default=False)
-    
+            default=False
+        )    
         cls.gs_show_sam_pix = BoolProperty(
             name="Show sample pixels",
             description="Masks pixels marked for resampling during adaptive passes",
-            default=True)
-    
+            default=True
+        )    
         cls.gs_z_channel = BoolProperty(
             name="Render depth map",
             description="Render depth map (Z-Buffer)",
-            default=False)
-    
+            default=False
+        )    
         cls.gs_verbose = BoolProperty(
             name="Log info to console",
-            description="Print YafaRay engine log messages in console window",
-            default=True)
-    
+            description="Print engine log messages in console window",
+            default=True
+        )    
         cls.gs_type_render = EnumProperty(
             name="Render",
             description="Choose the render output method",
             items=enum_render_output_mode,
-            default='into_blender')
-    
-        ######### YafaRays own image output property ############
+            default='into_blender'
+        )    
         cls.img_output = EnumProperty(
             name="Image File Type",
             description="Image will be saved in this file format",
             items=enum_render_output_format,
-            default='PNG', update=call_update_fileformat)
-    
-        ########### YafaRays integrator properties #############
+            default='PNG', 
+            update=call_update_fileformat
+        )    
+        #--------------------------
+        # Integrator properties 
+        #--------------------------
         cls.intg_light_method = EnumProperty(
             name="Lighting Method",
             items=enum_lighting_integrator_method,
-            default='directlighting')
-    
+            default='directlighting'
+        )    
         cls.intg_use_caustics = BoolProperty(
             name="Caustic Photons",
             description="Enable photon map for caustics only",
-            default=False)
-    
+            default=False
+        )    
         cls.intg_photons = IntProperty(
             name="Photons",
             description="Number of photons to be shot",
             min=1, max=100000000,
-            default=500000)
-    
+            default=500000
+        )    
         cls.intg_caustic_mix = IntProperty(
             name="Caustic Mix",
             description="Max. number of photons to mix (blur)",
             min=1, max=10000,
-            default=100)
-    
+            default=100
+        )    
         cls.intg_caustic_depth = IntProperty(
             name="Caustic Depth",
             description="Max. number of scatter events for photons",
             min=0, max=50,
-            default=10)
-    
+            default=10
+        )    
         cls.intg_caustic_radius = FloatProperty(
             name="Caustic Radius",
             description="Max. radius to search for photons",
             min=0.0001, max=100.0,
-            default=1.0)
-    
+            default=1.0
+        )    
         cls.intg_use_AO = BoolProperty(
             name="Ambient Occlusion",
             description="Enable ambient occlusion",
-            default=False)
-    
+            default=False
+        )    
         cls.intg_AO_samples = IntProperty(
             name="Samples",
             description="Number of samples for ambient occlusion",
             min=1, max=1000,
-            default=32)
-    
+            default=32
+        )    
         cls.intg_AO_distance = FloatProperty(
             name="Distance",
-            description=("Max. occlusion distance,"
-                         " Surfaces further away do not occlude ambient light"),
+            description=("Max. occlusion distance, Surfaces further away do not occlude ambient light"),
             min=0.0, max=10000.0,
-            default=1.0)
-    
+            default=1.0
+        )    
         cls.intg_AO_color = FloatVectorProperty(
             name="AO Color",
             description="Color Settings", subtype='COLOR',
             min=0.0, max=1.0,
-            default=(0.9, 0.9, 0.9))
-    
+            default=(0.9, 0.9, 0.9)
+        )    
         cls.intg_bounces = IntProperty(
             name="Depth",
             description="",
             min=1,
-            default=4)
-    
+            default=4
+        )    
         cls.intg_diffuse_radius = FloatProperty(
             name="Search radius",
             description="Radius to search for diffuse photons",
             min=0.001,
-            default=1.0)
-    
+            default=1.0
+        )    
         cls.intg_cPhotons = IntProperty(
             name="Count",
             description="Number of caustic photons to be shot",
-            min=1, default=500000)
-    
+            min=1, default=500000
+        )    
         cls.intg_search = IntProperty(
             name="Search count",
             description="Maximum number of diffuse photons to be filtered",
             min=1, max=10000,
-            default=100)
-    
+            default=100
+        )    
         cls.intg_final_gather = BoolProperty(
             name="Final Gather",
             description="Use final gathering (recommended)",
-            default=True)
-    
+            default=True
+        )    
         cls.intg_fg_bounces = IntProperty(
             name="Bounces",
             description="Allow gather rays to extend to paths of this length",
             min=1, max=20,
-            default=3)
-    
+            default=3
+        )    
         cls.intg_fg_samples = IntProperty(
             name="Samples",
             description="Number of samples for final gathering",
             min=1,
-            default=16)
-    
+            default=16
+        )    
         cls.intg_show_map = BoolProperty(
             name="Show radiance map",
-            description="Directly show radiance map, useful to calibrate the photon map (disables final gathering step)",
-            default=False)
-    
+            description="Show radiance map, useful to calibrate the photon map (disables final gathering step)",
+            default=False
+        )    
         cls.intg_caustic_method = EnumProperty(
             name="Caustic Method",
             items=enum_caustic_method,
             description="Choose caustic rendering method",
-            default='none')
-        
+            default='none'
+        )        
         cls.intg_path_samples = IntProperty(
             name="Path Samples",
             description="Number of path samples per pixel sample",
             min=1,
-            default=32)
-    
+            default=32
+        )    
         cls.intg_no_recursion = BoolProperty(
             name="No Recursion",
             description="No recursive raytracing, only pure path tracing",
-            default=False)
-        
-        # SSS settings ----------------------->
+            default=False
+        )
+        #------------------------------
+        # SSS settings
+        #------------------------------
         cls.intg_useSSS = BoolProperty(
             name="SubSurface Scattering",
             description="Enable photonmapping for SSS materials",
-            default=False)
-    
+            default=False
+        )    
         cls.intg_sssPhotons = IntProperty(
             name="Amount of SSS Photons Search",
             description="Amount of SSS photons search for unit (10000 x 1 BU)",
             min=1, max=10000000,
-            default=100000)
-    
+            default=100000
+        )    
         cls.intg_sssDepth = IntProperty(
             name="SSS Depth",
             description="Max. number of photon scattering events",
             min=1, max=64,
-            default=5)
-    
+            default=5
+        )    
         cls.intg_singleScatterSamples = IntProperty(
             name="Single Scattering Samples",
             description="Number of samples for single scattering estimation",
             min=0, max=256,
-            default=32)
-    
+            default=32
+        )    
         cls.intg_sssScale = FloatProperty(
             name="Scale",
             description="Scale factor that helps fixing the unit scale, in case 1 blender is not equal to 1 meter",
             min=0.0001, max=1000.0,
-            default=10.0)
-        #-------------------------------->
-    
+            default=10.0
+        )
         cls.intg_debug_type = EnumProperty(
             name="Debug type",
             items=enum_debug_integrator_type,
-            default="N")
-    
+            default="N"
+        )    
         cls.intg_show_perturbed_normals = BoolProperty(
             name="Show perturbed normals",
             description="Show the normals perturbed by bump and normal maps",
-            default=False)
-    
+            default=False
+        )
+        #-------------------------
+        # SPPM properties
+        #-------------------------    
         cls.intg_pm_ire = BoolProperty(
-            name="PM Initial Radius Estimate",
-            default=False)
-    
+            name="PhotonMap Initial Radius Estimate (IRE)",
+            description="Automatic Initial Radius Estimate for PhotonMap",
+            default=False
+        )    
         cls.intg_pass_num = IntProperty(
-            name="Passes",
+            name="Render Passes",
+            description= "Progressive rendering passes",
             min=1,
-            default=1000)
-    
+            default=100
+        )    
         cls.intg_times = FloatProperty(
-            name="Radius factor",
+            name="Initial Radius factor",
             min=0.0,
-            description= "Initial radius times",
-            default=1.0)
-    
+            description= "Size of the initial radius for photon map (when IRE is OFF)",
+            default=1.0
+        )    
         cls.intg_photon_radius = FloatProperty(
             name="Search radius",
             min=0.0,
-            default=1.0)
-    
-        ######### YafaRays anti-aliasing properties ###########
+            default=1.0
+        )        
+        cls.intg_accurate_radius = FloatProperty(
+            name="Accurate caustic radius",
+            description="Accurate radius for search caustic photons",
+            min=0.0,
+            default=1.0
+        )
+        #--------------------------
+        # Anti-aliasing properties
+        #--------------------------
         cls.AA_min_samples = IntProperty(
             name="Samples",
             description="Number of samples for first AA pass",
             min=1,
-            default=1)
-    
+            default=1
+        )    
         cls.AA_inc_samples = IntProperty(
             name="Additional Samples",
             description="Number of samples for additional AA passes",
             min=1,
-            default=1)
-    
+            default=1
+        )    
         cls.AA_passes = IntProperty(
             name="Passes",
-            description=("Number of anti-aliasing passes,"
-                         " Adaptive sampling (passes > 1) uses different pattern"),
+            description=("Number of anti-aliasing passes, Adaptive sampling (passes > 1) uses different pattern"),
             min=1,
-            default=1)
-    
+            default=1
+        )    
         cls.AA_threshold = FloatProperty(
             name="Threshold",
             description="Color threshold for additional AA samples in next pass",
             min=0.0, max=1.0, precision=4,
-            default=0.05)
-    
+            default=0.05
+        )    
         cls.AA_pixelwidth = FloatProperty(
             name="Pixelwidth",
             description="AA filter size",
             min=1.0, max=20.0, precision=3,
-            default=1.5)
-    
+            default=1.5
+        )    
         cls.AA_filter_type = EnumProperty(
             name="Filter",
             description="Antialising filter type",
