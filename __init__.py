@@ -24,7 +24,8 @@ import ctypes
 
 PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
 BIN_PATH = os.path.join(__path__[0], 'bin')
-YAF_ID_NAME = "YAFA_RENDER"
+#YAF_ID_NAME = "THEBOUNTY"
+
 
 sys.path.append(BIN_PATH)
 
@@ -35,8 +36,8 @@ bl_info = {
     "version": (0, 1, 6, 'Transitional'),
     "blender": (2, 7, 0),
     "location": "Info Header > Engine dropdown menu",
-    "wiki_url": "http://www.yafaray.org/community/forum",
-    "tracker_url": "http://www.yafaray.org/development/bugtracker/yafaray",
+    "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
+    "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
     "category": "Render"
     }
 
@@ -50,8 +51,9 @@ if sys.platform == 'win32':
             break
         # load dll's from a MinGW installation
         else:
-            dllArray = ['zlib1', 'libxml2-2', 'libgcc_s_sjlj-1', 'Half', 'Iex', 'IlmThread', 'IlmImf', 'libjpeg-8', \
-                       'libpng14', 'libtiff-3', 'libfreetype-6','libstdc++-6', 'libyafaraycore', 'libyafarayplugin']
+            dllArray = ['zlib', 'libxml2-2', 'libgcc_s_sjlj-1', 'libHalf', 'libIex-2_1', 'libImath-2_1', \
+                        'libIlmThread-2_1', 'libIlmImf-2_1', 'libjpeg-8', 'libpng14', 'libtiff-3', \
+                        'libfreetype-6', 'libstdc++-6', 'libyafaraycore', 'libyafarayplugin']
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
@@ -72,14 +74,14 @@ if "bpy" in locals():
     imp.reload(ot)
 else:
     import bpy
-    from bpy.app.handlers import persistent
+    #from bpy.app.handlers import persistent
     from . import prop
     from . import io
     from . import ui
     from . import ot
 # for nodes
-import nodeitems_utils
-
+#import nodeitems_utils
+'''
 @persistent
 def load_handler(dummy):
     for tex in bpy.data.textures:
@@ -91,23 +93,26 @@ def load_handler(dummy):
     # convert image output file type setting from blender to yafaray's file type setting on file load, so that both are the same...
     if bpy.context.scene.render.image_settings.file_format is not bpy.context.scene.bounty.img_output:
         bpy.context.scene.bounty.img_output = bpy.context.scene.render.image_settings.file_format
-
+'''
 
 def register():
     prop.register()
     bpy.utils.register_module(__name__)
+    '''
     bpy.app.handlers.load_post.append(load_handler)
     # register keys for 'render 3d view', 'render still' and 'render animation'
     km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='Screen')
     kmi = km.keymap_items.new('render.render_view', 'F12', 'PRESS', False, False, False, True)
     kmi = km.keymap_items.new('render.render_animation', 'F12', 'PRESS', False, False, True, False)
     kmi = km.keymap_items.new('render.render_still', 'F12', 'PRESS', False, False, False, False)
+    '''
     # for nodes
-    nodeitems_utils.register_node_categories("YAF_NODES", ui.yaf_custom_nodes.yaf_node_categories)
+    #nodeitems_utils.register_node_categories("YAF_NODES", ui.prop_custom_nodes.yaf_node_categories)
     
 
 def unregister():
     prop.unregister()
+    '''
     # unregister keys for 'render 3d view', 'render still' and 'render animation'
     kma = bpy.context.window_manager.keyconfigs.addon.keymaps['Screen']
     for kmi in kma.keymap_items:
@@ -116,8 +121,9 @@ def unregister():
             kma.keymap_items.remove(kmi)
     bpy.utils.unregister_module(__name__)
     bpy.app.handlers.load_post.remove(load_handler)
+    '''
     # for nodes
-    nodeitems_utils.unregister_node_categories("YAF_NODES")
+    #nodeitems_utils.unregister_node_categories("YAF_NODES")
 
 
 if __name__ == '__main__':
