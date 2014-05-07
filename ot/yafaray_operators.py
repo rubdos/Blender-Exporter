@@ -143,11 +143,11 @@ class RENDER_OT_render_view(Operator):
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
         view3d = context.region_data
-        bpy.types.YAFA_RENDER.useViewToRender = True
+        bpy.types.THEBOUNTY.useViewToRender = True
         sceneLights = checkSceneLights()
         sssMats = checkSSS()
         
@@ -162,12 +162,12 @@ class RENDER_OT_render_view(Operator):
 
         if not view3d or view3d.view_perspective == "ORTHO":
             self.report({'WARNING'}, ("The selected view is not in perspective mode or there was no 3d view available to render."))
-            bpy.types.YAFA_RENDER.useViewToRender = False
+            bpy.types.THEBOUNTY.useViewToRender = False
             return {'CANCELLED'}
 
         elif not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            bpy.types.YAFA_RENDER.useViewToRender = False
+            bpy.types.THEBOUNTY.useViewToRender = False
             return {'CANCELLED'}
         
         elif not sssMats and scene.bounty.intg_useSSS == True:
@@ -175,7 +175,7 @@ class RENDER_OT_render_view(Operator):
             return {'CANCELLED'}
 
         else:
-            bpy.types.YAFA_RENDER.viewMatrix = view3d.view_matrix.copy()
+            bpy.types.THEBOUNTY.viewMatrix = view3d.view_matrix.copy()
             bpy.ops.render.render('INVOKE_DEFAULT')
             return {'FINISHED'}
 
@@ -188,7 +188,7 @@ class RENDER_OT_render_animation(Operator):
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
         sceneLights = checkSceneLights()
@@ -216,7 +216,7 @@ class RENDER_OT_render_still(Operator):
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
         sceneLights = checkSceneLights()

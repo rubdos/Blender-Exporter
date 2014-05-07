@@ -35,9 +35,7 @@ def updatePath(target):
     ver2 = str(bpy.app.version[1])
     version = ver1 +'.'+ ver2
     target_path = os.path.join(os.getcwd(),version,"scripts", target)
-    # result is...
-    # H:\blender\2.70\scripts\presets\<presets subdir data>
-    
+    #fix missings paths, you only needs create an new presets    
     if not os.path.exists(target_path):
         os.mkdir(target_path)
     #
@@ -204,9 +202,9 @@ class YafPresetBase():
 
 class YAFARAY_OT_presets_renderset(YafPresetBase, bpy.types.Operator):
     # Add render presets
-    bl_idname = "yafaray.render_preset_add"
-    bl_label = "Yafaray Render Presets"
-    preset_menu = "YAFARAY_MT_render_presets"
+    bl_idname = "bounty.render_preset_add"
+    bl_label = "TheBounty Settings Presets"
+    preset_menu = "THEBOUNTY_MT_render_presets"
     
     preset_defines = [
         "scene = bpy.context.scene.bounty",
@@ -267,14 +265,14 @@ class YAFARAY_OT_presets_renderset(YafPresetBase, bpy.types.Operator):
         "scene.AA_filter_type"
     ]
 
-    preset_subdir = "yafaray/render"
+    preset_subdir = "thebounty/render"
 
     
 class YAFARAY_OT_presets_materials(YafPresetBase, bpy.types.Operator):
     # Add material presets
-    bl_idname = "yafaray.material_preset_add"
-    bl_label = "Yafaray Material Presets"
-    preset_menu = "YAFARAY_MT_material_presets"
+    bl_idname = "bounty.material_preset_add"
+    bl_label = "Material Presets"
+    preset_menu = "THEBOUNTY_MT_material_presets"
     
     preset_defines = [
         "mat = bpy.context.object.active_material"
@@ -322,7 +320,7 @@ class YAFARAY_OT_presets_materials(YafPresetBase, bpy.types.Operator):
         "mat.sssSigmaS_factor",
         "mat.sssSpecularColor"
     ]
-    preset_subdir = "yafaray/material"    
+    preset_subdir = "thebounty/material"    
                 
     
 def register():
