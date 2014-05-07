@@ -38,7 +38,7 @@ class TheBountyShaderTree(NodeTree): #YAF_MT_MaterialNodeTree(NodeTree):
 
         @classmethod
         def poll(cls, context):
-            return context.scene.render.engine == 'YAFA_RENDER'
+            return context.scene.render.engine == 'THEBOUNTY'
         '''
         @classmethod
         def get_from_context(cls, context):
