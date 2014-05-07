@@ -22,7 +22,7 @@ import bpy
 from bpy.types import Panel
 from bl_ui.properties_render import RenderButtonsPanel
 
-RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class YAFRENDER_PT_render(RenderButtonsPanel, Panel):
@@ -120,12 +120,18 @@ from . import properties_yaf_AA_settings
 
 class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
     bl_label = "Output"
+    
+    @classmethod
+    def poll(cls, context):
+        if  bpy.context.scene.bounty.gs_type_render == 'into_blender':
+            return False
+        return True
 
     def draw(self, context):
         layout = self.layout
 
         rd = context.scene.render
-        sc = context.scene
+        #sc = context.scene
         scene = context.scene.bounty
         image_settings = rd.image_settings
 
@@ -139,6 +145,11 @@ class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
         # end
         col = split.column()
         col.row().prop(image_settings, "color_mode", text="Color", expand=True)
+        if scene.img_output == 'OPEN_EXR':
+            row = layout.row()
+            row.label("Color Depth")
+            row.prop(image_settings, "color_depth", expand=True)
+            layout.prop(image_settings, "exr_codec")
 
 
 class YAFRENDER_PT_post_processing(RenderButtonsPanel, Panel):
