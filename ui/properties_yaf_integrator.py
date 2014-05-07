@@ -22,11 +22,11 @@ import bpy
 from bpy.types import Panel
 from bl_ui.properties_render import RenderButtonsPanel
 
-RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class YAF_PT_render(RenderButtonsPanel, Panel):
-    bl_label = "Integrator"
+    bl_label = "Lighting Integrator Method"
 
     def draw(self, context):
         layout = self.layout
@@ -35,7 +35,9 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
         # povman: sync integrator names by yafaray core 'registerFactory' values
         # directlighting, photonmapping, pathtracing, DebugIntegrator, bidirectional, SPPM
         integrator = scene.intg_light_method
-        layout.prop(scene, "intg_light_method")
+        layout.prop(scene, "intg_light_method", text="")
+        # for recursive raytracing..
+        layout.prop(scene, "gs_ray_depth")
         #
         if integrator == "directlighting":
             row = layout.row()
@@ -112,21 +114,23 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
 
         elif integrator == "SPPM":
             col = layout.column()
-            col.prop(scene, "intg_photons", text="Photons")
+            col.prop(scene, "intg_photons", text="Photons per pass")
             col.prop(scene, "intg_pass_num")
             col.prop(scene, "intg_bounces", text="Bounces")
+            col = layout.column()
             col.prop(scene, "intg_search")
             col.prop(scene, "intg_pm_ire", toggle=True)
-            sub = layout.column()
-            sub.enabled = True
-            if scene.intg_pm_ire:
-                sub.enabled = False
-            sub.prop(scene, "intg_diffuse_radius")
+            #sub = layout.column()
+            #sub.enabled = True
+            if not scene.intg_pm_ire:
+                col.prop(scene, "intg_times")
+            else:
+                col.prop(scene, "intg_accurate_radius")
         
         ''' SubSurface integrator '''
         if integrator in {'directlighting', 'photonmapping', 'pathtracing'}:
             col = layout.column(align=True)
-            col.prop(scene, "intg_useSSS",text = "Subsurface Scattering integrator", toggle=True)
+            col.prop(scene, "intg_useSSS", text = "Subsurface Scattering integrator", toggle=True)
             if scene.intg_useSSS:
                 col.prop(scene, "intg_sssPhotons")
                 col.prop(scene, "intg_sssDepth")

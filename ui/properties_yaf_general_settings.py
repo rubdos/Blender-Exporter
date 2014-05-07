@@ -23,14 +23,14 @@ from ..ot import yafaray_presets
 from bl_ui.properties_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
-RenderButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
    
-class YAFARAY_MT_render_presets(Menu):
-    bl_label = "Render Presets"
-    preset_subdir = "yafaray/render"
+class THEBOUNTY_MT_render_presets(Menu):
+    bl_label = "Settings Presets"
+    preset_subdir = "thebounty/render"
     preset_operator = "script.execute_preset"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
     draw = Menu.draw_preset
 
 # povman: test for next panel distribution
@@ -64,35 +64,31 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         scene = context.scene.bounty        
 
         row = layout.row(align=True)
-        row.menu("YAFARAY_MT_render_presets", text=bpy.types.YAFARAY_MT_render_presets.bl_label)
-        row.operator("yafaray.render_preset_add", text="", icon='ZOOMIN')
-        row.operator("yafaray.render_preset_add", text="", icon='ZOOMOUT').remove_active = True
+        row.menu("THEBOUNTY_MT_render_presets", text=bpy.types.THEBOUNTY_MT_render_presets.bl_label)
+        row.operator("bounty.render_preset_add", text="", icon='ZOOMIN')
+        row.operator("bounty.render_preset_add", text="", icon='ZOOMOUT').remove_active = True
 
         layout.separator()
-        
-        split = layout.split(percentage=0.58)
+        #layout.prop(scene, "gs_ray_depth")
+        split = layout.split()
         col = split.column()
-        col.prop(scene, "gs_ray_depth")
-        #col.prop(scene, "gs_gamma", text="Gamma out")
-        col.prop(scene, "gs_type_render")
+        col.prop(scene, "gs_type_render", text="")
         sub = col.column()
         sub.enabled = scene.gs_type_render == "into_blender"
-        sub.prop(scene, "gs_tile_order")
+        sub.prop(scene, "gs_tile_order", text="")
 
         col = split.column()
         sub = col.column()
         sub.enabled = scene.gs_transp_shad
-        #sub.prop(scene, "gs_shadow_depth")
-        col.prop(scene, "gs_gamma_input")
         sub = col.column()
         #test..
-        threadMode ="Auto Threads" if scene.gs_threads == 0 else "Use Threads"
+        threadMode ="Threads (0=Auto)" if scene.gs_threads == 0 else "Threads used"
         col.prop(scene, "gs_threads", text= threadMode)
         sub = col.column()
         sub.enabled = scene.gs_type_render == "into_blender"
         sub.prop(scene, "gs_tile_size")
 
-        layout.separator()
+        #layout.separator()
 
         split = layout.split()
         col = split.column()
@@ -102,8 +98,7 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         col = split.column()
         col.prop(render, "use_instances", text="Use instances", toggle=True)
         col.prop(scene, "gs_show_sam_pix", toggle=True)
-        #col.prop(scene, "gs_verbose", toggle=True)
-
+        
         split = layout.split(percentage=0.5)
         col = split.column()
         col.prop(scene, "bg_transp", toggle=True)
@@ -114,8 +109,7 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         
         split = layout.split(percentage=0.58)
         col = layout.column()
-        col.label('Stamp:')
-        col.prop(scene, "gs_draw_params", text="Draw params and custom string")
+        col.prop(scene, "gs_draw_params", text="Draw params and custom string", expand=True)
         
         col = layout.column()
         col.enabled = scene.gs_draw_params
