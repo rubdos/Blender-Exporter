@@ -25,17 +25,28 @@ from bl_ui.properties_material import (MaterialButtonsPanel,
                                        active_node_mat,
                                        check_material)
 
-MaterialButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+#MaterialButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
-class YAFARAY_MT_material_presets(Menu):
+class THEBOUNTY_MaterialButtonsPanel():
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "material"
+    # COMPAT_ENGINES must be defined in each subclass, external engines can add themselves here
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    
+    @classmethod
+    def poll(cls, context):
+        return context.material and (context.scene.render.engine in cls.COMPAT_ENGINES)
+
+class THEBOUNTY_MT_material_presets(Menu):
     bl_label = "Material Presets"
-    preset_subdir = "yafaray/material"
+    preset_subdir = "thebounty/material"
     preset_operator = "script.execute_preset"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
     draw = Menu.draw_preset
 
-class MaterialTypePanel(MaterialButtonsPanel):
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+class MaterialTypePanel(THEBOUNTY_MaterialButtonsPanel):
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -44,10 +55,10 @@ class MaterialTypePanel(MaterialButtonsPanel):
         return check_material(yaf_mat) and (yaf_mat.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
 
 
-class YAF_PT_context_material(MaterialButtonsPanel, Panel):
+class MAT_PT_context_material(THEBOUNTY_MaterialButtonsPanel, Panel):
     bl_label = "Material"
     bl_options = {'HIDE_HEADER'}
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
     
     @classmethod
     def poll(cls, context):
@@ -109,9 +120,9 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
             layout.separator()
             layout.prop(yaf_mat, "mat_type") # expand true..
             row = layout.row(align=True)
-            row.menu("YAFARAY_MT_material_presets", text=bpy.types.YAFARAY_MT_material_presets.bl_label)
-            row.operator("yafaray.material_preset_add", text="", icon='ZOOMIN')
-            row.operator("yafaray.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
+            row.menu("THEBOUNTY_MT_material_presets", text=bpy.types.THEBOUNTY_MT_material_presets.bl_label)
+            row.operator("bounty.material_preset_add", text="", icon='ZOOMIN')
+            row.operator("bounty.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
             #-------------------
             # test for nodes
             #-------------------
@@ -125,9 +136,13 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
             #-------------------
         
 
-class YAF_MATERIAL_PT_preview(MaterialButtonsPanel, Panel):
+class YAF_MATERIAL_PT_preview(THEBOUNTY_MaterialButtonsPanel, Panel):
     bl_label = "Preview" 
     bl_options = {"DEFAULT_CLOSED"} 
+    
+    @classmethod
+    def poll(cls, context):
+        return context.material and THEBOUNTY_MaterialButtonsPanel.poll(context)
 
     def draw(self, context):
         self.layout.template_preview(context.material)
@@ -362,9 +377,9 @@ class YAF_PT_blend_(MaterialTypePanel, Panel):
 
 class YAF_MT_sss_presets(Menu):
     bl_label = "Scattering Presets"
-    preset_subdir = "yafaray/sss"
+    preset_subdir = "thebounty/sss"
     preset_operator = "script.execute_preset"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
     draw = Menu.draw_preset
     
 class YAF_PT_translucent(MaterialTypePanel, Panel):
@@ -397,7 +412,7 @@ class YAF_PT_sss(MaterialTypePanel, Panel):
         layout = self.layout
         yaf_mat = active_node_mat(context.material)
         ##
-        row = layout.row()#(align=True)
+        row = layout.row()
         row.label("SSS Presets")
         row.menu("YAF_MT_sss_presets", text=bpy.types.YAF_MT_sss_presets.bl_label)
         # this operator's is not need, you can use material presets for save SSS presets
