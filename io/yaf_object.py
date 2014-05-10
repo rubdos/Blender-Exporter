@@ -513,7 +513,7 @@ class yafObject(object):
                     strandEnd = 0.01
                     strandShape = 0.0
                     if obj.active_material is not None:
-                        #pmaterial = obj.active_material
+                        pmaterial = obj.active_material
                         strandStart, strandEnd, strandShape = partStrandmaterial(obj.active_material)
                     #
                     for particle in pSys.particles:
@@ -527,7 +527,7 @@ class yafObject(object):
                         yi.startCurveMesh(CID, prtvis)
                         #for vertex in ppoints:
                         for location in particle.hair_keys:
-                            vertex = matrix * location .co # use reverse vector multiply order, API changed with rev. 38674
+                            vertex = matrix * location.co # use reverse vector multiply order, API changed with rev. 38674
                             yi.addVertex(vertex[0], vertex[1], vertex[2])
                         #this section will be changed after the material settings been exported
                         hairMat = "default"
