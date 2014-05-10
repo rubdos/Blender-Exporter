@@ -310,25 +310,23 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         else:
             self.resX = self.sizeX
             self.resY = self.sizeY
-        #
-        scene = scene.bounty
         # render type setup
-        if scene.gs_type_render == "file":
+        if scene.bounty.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(scene.gs_gamma_input, True)
-            self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.img_output)
+            self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
+            self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", self.file_type)
             self.yi.paramsSetBool("alpha_channel", render.image_settings.color_mode == "RGBA")
-            self.yi.paramsSetBool("z_channel", scene.gs_z_channel)
+            self.yi.paramsSetBool("z_channel", scene.bounty.gs_z_channel)
             self.yi.paramsSetInt("width", self.resX)
             self.yi.paramsSetInt("height", self.resY)
             self.ih = self.yi.createImageHandler("outFile")
             self.co = yafrayinterface.imageOutput_t(self.ih, str(self.outputFile), 0, 0)
 
-        elif scene.gs_type_render == "xml":
+        elif scene.bounty.gs_type_render == "xml":
             self.setInterface(yafrayinterface.xmlInterface_t())
-            self.yi.setInputGamma(scene.gs_gamma_input, True)
+            self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
             self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'XML')
             self.yi.paramsClearAll()
             self.co = yafrayinterface.imageOutput_t()
@@ -337,9 +335,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         else:
             #
             self.setInterface(yafrayinterface.yafrayInterface_t()) # to line 68
-            self.yi.setInputGamma(scene.gs_gamma_input, True)
+            self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
         
-        #.. y ahora empezamos el proceso de la escena
+        #.. process scene
         self.yi.startScene()
         self.exportScene()# to above, line 92
         self.yaf_integrator.exportIntegrator(self.scene.bounty) # yaf_integrator, line 26
