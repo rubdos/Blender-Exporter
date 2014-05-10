@@ -73,6 +73,7 @@ def getRenderCoords(scene):
 
 
 def exportAA(yi, scene):
+    scene = scene.bounty
     yi.paramsSetInt("AA_passes", scene.AA_passes)
     yi.paramsSetInt("AA_minsamples", scene.AA_min_samples)
     yi.paramsSetInt("AA_inc_samples", scene.AA_inc_samples)
@@ -93,9 +94,10 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetString("volintegrator_name", "volintegr")
     
     # use exporter params from UI
-    scene = scene.bounty
-    yi.paramsSetFloat("gamma", scene.gs_gamma)
-
+    # gamma output
+    yi.paramsSetFloat("gamma", scene.view_settings.gamma) # = 1.8
+    #yi.paramsSetFloat("gamma", scene.gs_gamma)
+    
     exportAA(yi, scene)
 
     yi.paramsSetInt("xstart", bStartX)
@@ -109,26 +111,26 @@ def exportRenderSettings(yi, scene):
         yi.paramsSetInt("width", sizeX)
         yi.paramsSetInt("height", sizeY)
 
-    yi.paramsSetBool("clamp_rgb", scene.gs_clamp_rgb)
-    yi.paramsSetBool("show_sam_pix", scene.gs_show_sam_pix)
-    yi.paramsSetBool("premult", scene.gs_premult)# unused..?
+    yi.paramsSetBool("clamp_rgb", scene.bounty.gs_clamp_rgb)
+    yi.paramsSetBool("show_sam_pix", scene.bounty.gs_show_sam_pix)
+    yi.paramsSetBool("premult", scene.bounty.gs_premult)# unused..?
 
-    yi.paramsSetInt("tile_size", scene.gs_tile_size)
-    yi.paramsSetString("tiles_order", scene.gs_tile_order)
+    yi.paramsSetInt("tile_size", scene.bounty.gs_tile_size)
+    yi.paramsSetString("tiles_order", scene.bounty.gs_tile_order)
 
-    yi.paramsSetBool("z_channel", scene.gs_z_channel)
+    yi.paramsSetBool("z_channel", scene.bounty.gs_z_channel)
 
-    if scene.gs_type_render == "into_blender":
+    if scene.bounty.gs_type_render == "into_blender":
         yi.paramsSetBool("normalize_z_channel", False)
 
-    yi.paramsSetBool("drawParams", scene.gs_draw_params)
-    yi.paramsSetString("customString", scene.gs_custom_string)
+    yi.paramsSetBool("drawParams", scene.bounty.gs_draw_params)
+    yi.paramsSetString("customString", scene.bounty.gs_custom_string)
 
     # change to new mode without 'threads auto' option
     # set to '-1' value for use 'auto'
     threads = -1
-    if scene.gs_threads > 0:
-        threads = scene.gs_threads
+    if scene.bounty.gs_threads > 0:
+        threads = scene.bounty.gs_threads
     yi.paramsSetInt("threads", threads)
 
     yi.paramsSetString("background_name", "world_background")
