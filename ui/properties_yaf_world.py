@@ -34,10 +34,9 @@ WORLD_PT_preview.COMPAT_ENGINES.add('THEBOUNTY')
 del WORLD_PT_preview
 
    
-class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
+class TheBounty_PT_world(WorldButtonsPanel, Panel):
     bl_label = "Background Settings"
     ibl = True
-    # add
     bl_context = "world"
     
     @classmethod
@@ -53,7 +52,9 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
         split = layout.split()
         col = layout.column()
         col.prop(world, "bg_type", text="Background")
-
+        #------------------------------------------
+        # Gradient colors background
+        #------------------------------------------
         if world.bg_type == "Gradient":
 
             split = layout.split(percentage=0.40)
@@ -68,12 +69,10 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
             col.prop(world, "bg_horizon_color", text="")
             col.prop(world, "bg_horizon_ground_color", text="")
             col.prop(world, "bg_zenith_ground_color", text="")
-
-            split = layout.split(percentage=0.40)
-            col = split.column()
-            col.prop(world, "bg_use_ibl")
-            col.label(text=" ")
-
+        
+        #------------------------------------------
+        # Texture background
+        #------------------------------------------
         elif world.bg_type == "Texture":
 
             tex = context.scene.world.active_texture
@@ -81,11 +80,9 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
             if tex is not None:
                 #
                 layout.template_ID(context.world, "active_texture")
-                #
-                if  tex.yaf_tex_type == "IMAGE":  # it allows to change the used image
-                    #
+                # it allows to change the used image
+                if  tex.yaf_tex_type == "IMAGE":
                     layout.template_image(tex, "image", tex.image_user, compact=True)
-                    #
                 else:
                     # TODO: create message about not allow texture type
                     pass
@@ -96,123 +93,56 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
             layout.prop(world,"bg_rotation")
             layout.prop(world,"bg_mapping_type", text="Mapping Coord")
             layout.separator()
+        #------------------------------------------
+        # SunSky models for background
+        #------------------------------------------
+        elif world.bg_type in {"Sunsky1", "Sunsky2"}:
+            self.ibl = False
+            layout.separator()
+            sub = layout.column(align=True)
+            if world.bg_type == "Sunsky1":
+                sub.prop(world, "bg_turbidity")
+            else:
+                sub.prop(world, "bg_ds_turbidity")
+            sub.prop(world, "bg_a_var")
+            sub.prop(world, "bg_b_var")
+            sub.prop(world, "bg_c_var")
+            sub.prop(world, "bg_d_var")
+            sub.prop(world, "bg_e_var")
 
-            split = layout.split(percentage=0.33)
+            self.draw_updateSun(context)
+            
+            layout.separator()
+
+            split = layout.split()
             col = split.column()
-            col.prop(world, "bg_use_ibl")
-
-            if world.bg_use_ibl:
+            col.prop(world, "bg_add_sun", toggle=True)
+            sub = col.row()
+            sub.enabled = world.bg_add_sun
+            sub.prop(world, "bg_sun_power")
+                        
+            col = split.column()
+            col.prop(world, "bg_background_light", toggle=True)
+            sub = col.row()
+            sub.enabled = world.bg_background_light
+            sub.prop(world, "bg_power")
+            #
+            row = layout.row()
+            row.enabled = (world.bg_add_sun or world.bg_background_light)
+            row.prop(world, "bg_light_samples")
+            #
+            if world.bg_type == "Sunsky2":
+                self.draw_influence(context)
+                
                 row = layout.row()
-                row.prop(world, "bg_with_diffuse")
-                row.prop(world, "bg_with_caustic")
-            #else:
-            #    col = layout.column()
-            #    col.label(text=" ")
-            #    col.label(text=" ")
-
-        elif world.bg_type == "Sunsky1":
-            self.ibl = False
-            layout.separator()
-            sub = layout.column(align=True)
-            sub.prop(world, "bg_turbidity")
-            sub.prop(world, "bg_a_var")
-            sub.prop(world, "bg_b_var")
-            sub.prop(world, "bg_c_var")
-            sub.prop(world, "bg_d_var")
-            sub.prop(world, "bg_e_var")
-
-            split = layout.split()
-            col = split.column()
-            col.label(text="Set sun position:")
-            col.prop(world, "bg_from", text="")
-
-            col = split.column()
-            col.label(text=" ")
-            sub = col.column(align=True)
-            sub.operator("world.get_position", text="Get from Location")
-            sub.operator("world.get_angle", text="Get from Angle")
-            sub.operator("world.update_sun", text="Update Lamp in 3D View")
-
-            layout.separator()
-
-            split = layout.split()
-            col = split.column()
-            col.prop(world, "bg_add_sun")
-            if world.bg_add_sun:
-                col.prop(world, "bg_sun_power")
-            else:
-                col.label(text=" ")
-
-            col = split.column()
-            col.prop(world, "bg_background_light")
-            if world.bg_background_light:
-                col.prop(world, "bg_power")
-            else:
-                col.label(text=" ")
-
-            layout.column().prop(world, "bg_light_samples")
-
-        ## DarkTide Sunsky
-        elif world.bg_type == "Sunsky2":
-            self.ibl = False
-            layout.separator()
-            sub = layout.column(align=True)
-            sub.prop(world, "bg_ds_turbidity")
-            sub.prop(world, "bg_a_var")
-            sub.prop(world, "bg_b_var")
-            sub.prop(world, "bg_c_var")
-            sub.prop(world, "bg_d_var")
-            sub.prop(world, "bg_e_var")
-
-            split = layout.split()
-            col = split.column()
-            col.label(text="Set sun position:")
-            col.prop(world, "bg_from", text="")
-            col.prop(world, "bg_dsnight")
-
-            col = split.column()
-            col.label(text=" ")
-            sub = col.column(align=True)
-            sub.operator("world.get_position", text="Get from Location")
-            sub.operator("world.get_angle", text="Get from Angle")
-            sub.operator("world.update_sun", text="Update Lamp in 3D View")
-            col.prop(world, "bg_dsaltitude")
-
-            layout.separator()
-
-            split = layout.split()
-            col = split.column()
-            col.prop(world, "bg_add_sun")
-            if world.bg_add_sun:
-                col.prop(world, "bg_sun_power")
-            else:
-                col.label(text=" ")
-            if world.bg_background_light:
-                col.prop(world, "bg_with_diffuse")
-            else:
-                col.label(text=" ")
-
-            col = split.column()
-            col.prop(world, "bg_background_light")
-            if world.bg_background_light:
-                col.prop(world, "bg_power")
-            else:
-                col.label(text=" ")
-            if world.bg_background_light:
-                col.prop(world, "bg_with_caustic")
-            else:
-                col.label(text=" ")
-
-            split = layout.split()
-            col = split.column()
-            col.prop(world, "bg_exposure")
-            col = split.column()
-            col.prop(world, "bg_dsbright")
-
-            layout.column().prop(world, "bg_light_samples")
-
-            layout.column().prop(world, "bg_color_space")
-
+                row.prop(world, "bg_exposure")
+                row.prop(world, "bg_dsbright")
+            
+                row = layout.row()
+                row.prop(world, "bg_color_space")
+        #------------------------------------------
+        # Color background
+        #------------------------------------------    
         elif world.bg_type == "Single Color":
 
             split = layout.split(percentage=0.33)
@@ -221,17 +151,49 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
             col.label("Color:")
             col = split.column()
             col.prop(world, "bg_single_color", text="")
-
-            split = layout.split(percentage=0.33)
-            col = split.column()
-            col.prop(world, "bg_use_ibl")
-            col.label(text=" ")
-
+        
+        #------------------------------------------
+        # IBL button draw cases..
+        #------------------------------------------
+        if world.bg_type in {"Single Color", "Gradient", "Texture"}:
+            row = layout.row()
+            row.prop(world, "bg_use_ibl", toggle=True)
+            
         if world.bg_use_ibl and self.ibl:
-            # for all options that uses IBL
-            col = split.column()
+            col = layout.row()
             col.prop(world, "bg_ibl_samples")
             col.prop(world, "bg_power", text="Power")
+            if world.bg_type == "Texture":
+                self.draw_influence(context)
+                
+    #-------------------------------------------
+    # Update Sun Light position from or to scene 
+    #-------------------------------------------        
+    def draw_updateSun(self, context):
+        layout = self.layout
+        world = context.world.bounty
+        split = layout.split()
+        col = split.column()
+        col.label(text="Set sun position:")
+        col.prop(world, "bg_from", text="")            
+
+        col = split.column()
+        col.label(text=" ")
+        sub = col.column(align=True)
+        sub.operator("world.get_position", text="Get from Location")
+        sub.operator("world.get_angle", text="Get from Angle")
+        sub.operator("world.update_sun", text="Update Lamp in 3D View")
+        
+    #------------------------------------------
+    # Background light influence
+    #------------------------------------------
+    def draw_influence(self, context):
+        layout = self.layout
+        world = context.world.bounty
+        row = layout.row()
+        row.enabled = world.bg_background_light or (world.bg_type == "Texture" and world.bg_use_ibl)
+        row.prop(world, "bg_with_diffuse", toggle=True)
+        row.prop(world, "bg_with_caustic", toggle=True)
 
 
 class WorldTexture(WorldButtonsPanel, Panel):
@@ -244,11 +206,19 @@ class WorldTexture(WorldButtonsPanel, Panel):
         world = context.world.bounty
         
         engine = context.scene.render.engine
-        return (world and world.bg_type == 'Texture') and (engine in cls.COMPAT_ENGINES)
+        
+        return (world and 
+                (world.bg_type == 'Texture' and 
+                 world.bg_use_ibl and
+                 context.world.active_texture is not None)
+                ) and (engine in cls.COMPAT_ENGINES)
     
     def draw(self, context):
+        world = context.world.bounty
         layout = self.layout
-        layout.label(text="IBL options")
+        
+        row = layout.row()
+        row.prop(world,"ibl_file")
         
 from . import properties_yaf_volume_integrator
 

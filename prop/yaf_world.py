@@ -24,6 +24,7 @@ from bpy.props import (EnumProperty,
                        FloatVectorProperty,
                        IntProperty,
                        BoolProperty,
+                       StringProperty,
                        PointerProperty)
 #
 enum_world_types =(
@@ -115,7 +116,13 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
             name="Use IBL",
             description="Use the background as the light source for your image",
             default=False
-        )    
+        )
+        cls.ibl_file = StringProperty(
+            name="IBL File",
+            description="File to be used as background image settings",
+            subtype='FILE_PATH',
+            default=""
+        )        
         cls.bg_with_caustic = BoolProperty(
             name="Caustic photons",
             description="Allow background light to shoot caustic photons",
@@ -238,7 +245,8 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
             description="Exposure correction for the sky (0 = no correction)",
             min=0.0, max=10.0,
             default=1.0
-        )    
+        )
+        '''    
         cls.bg_clamp_rgb = BoolProperty(
             name="Clamp RGB",
             description="Clamp RGB values",
@@ -249,6 +257,7 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
             description="Apply gamma encoding to the sky",
             default=True
         )
+        '''
         cls.v_int_type = EnumProperty(
             name="Volume integrator",
             description="Set the volume integrator",

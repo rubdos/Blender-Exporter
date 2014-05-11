@@ -61,12 +61,17 @@ class yafWorld:
                 if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
 
                     yi.paramsSetString("type", "image")
+                    
+                    # add ibl file options
+                    if world.ibl_file is not None:
+                        self.yi.printInfo("IBL file, name: {0}".format(abspath(world.ibl_file)))
+                    
 
                     image_file = abspath(worldTexture.image.filepath)
                     image_file = realpath(image_file)
                     image_file = normpath(image_file)
                     yi.paramsSetString("filename", image_file)
-
+                    
                     interpolate = 'none'
                     if worldTexture.use_interpolation:
                         interpolate = 'bilinear'
@@ -91,6 +96,8 @@ class yafWorld:
                     yi.paramsSetInt("ibl_samples", world.bg_ibl_samples)
                     yi.paramsSetFloat("power", world.bg_power)
                     yi.paramsSetFloat("rotation", world.bg_rotation)
+                else:
+                    self.yi.printInfo("World Texture, name: {0} is not valid format".format(worldTexture.name))
 
         elif bg_type == 'Gradient':
             c = world.bg_horizon_color
