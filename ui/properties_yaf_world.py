@@ -88,10 +88,11 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
                     pass
             else:
                 layout.template_ID(context.world, "active_texture", new="texture.new")
-
+            
             layout.label(text="Background Texture controls")
-            layout.prop(world,"bg_rotation")
-            layout.prop(world,"bg_mapping_type", text="Mapping Coord")
+            row = layout.row()
+            row.prop(world,"bg_rotation")
+            row.prop(world,"bg_mapping_type", text="")
             layout.separator()
         #------------------------------------------
         # SunSky models for background
@@ -153,7 +154,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             col.prop(world, "bg_single_color", text="")
         
         #------------------------------------------
-        # IBL button draw cases..
+        # IBL option draw cases..
         #------------------------------------------
         if world.bg_type in {"Single Color", "Gradient", "Texture"}:
             row = layout.row()
@@ -166,9 +167,9 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             if world.bg_type == "Texture":
                 self.draw_influence(context)
                 
-    #-------------------------------------------
-    # Update Sun Light position from or to scene 
-    #-------------------------------------------        
+    #------------------------------------------------
+    # Update Sun Light position 'from' or 'to' scene 
+    #------------------------------------------------        
     def draw_updateSun(self, context):
         layout = self.layout
         world = context.world.bounty
@@ -219,6 +220,10 @@ class WorldTexture(WorldButtonsPanel, Panel):
         
         row = layout.row()
         row.prop(world,"ibl_file")
+        if not world.ibl_file =="":
+            # test
+            layout.operator("world.parse_ibl")
+            # end
         
 from . import properties_yaf_volume_integrator
 

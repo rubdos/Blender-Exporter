@@ -220,7 +220,6 @@ class RENDER_OT_render_still(Operator):
 
     def execute(self, context):
         sceneLights = checkSceneLights()
-        # povman test
         sssMats = checkSSS()        
         scene = context.scene
 
@@ -253,3 +252,119 @@ class YAF_OT_presets_ior_list(Operator):
         bpy.types.YAF_MT_presets_ior_list.bl_label = self.name
         yaf_mat.IOR_refraction = self.index
         return {'FINISHED'}
+
+#-------------------------------------------
+# Add support for use ibl files
+#-------------------------------------------
+import re
+import os
+   
+class Thebounty_parseIBL(Operator):
+    bl_idname = "world.parse_ibl"
+    bl_label = "Parse IBL"
+    iblValues = {}
+    
+    @classmethod
+    def poll(cls, context):
+        world = context.world
+        return world and (world.bounty.bg_type == "Texture")
+    #
+    def execute(self, context):
+        world = context.world.bounty
+        scene = context.scene
+        file = world.ibl_file
+        # parse..
+        self.iblValues = self.parseIbl(file)
+        # maybe dirname only work with Win OS ??
+        # TODO: test on linux OS
+        iblFolder = os.path.dirname(file) 
+        print(iblFolder)
+        worldTexture = scene.world.active_texture
+        if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
+            evfile = self.iblValues.get('EV')
+            newval = os.path.join(iblFolder, evfile) 
+            worldTexture.image.filepath = newval #self.iblValues.get('EV')
+        
+        return {'FINISHED'}
+    
+    #---------------------
+    # some parse helpers
+    #---------------------
+    def parseValue(self, linea, valueType):
+        items = re.split(" ", linea)
+        item = items[2]  # items[1] is '='
+        if valueType == 2:
+            ext = (len(item) - 2)
+            return item[1:ext]            
+        elif valueType == 1:
+            return int(item)
+        elif valueType == 0:
+            return float(item)
+    
+    #---------------------
+    # parse .ibl file
+    #---------------------
+    def parseIbl(self, filename):
+        f = open(filename, 'r')
+        linea = f.readline()
+        while linea != "":
+            linea = f.readline()
+            if linea[:7] == 'ICOfile':
+                self.parseValue(linea, 2) # string
+            #
+            if linea[:11] == 'PREVIEWfile':
+                PREVIEWfile = self.parseValue(linea, 2) # string
+                self.iblValues['PRE']= PREVIEWfile          
+            #
+            if linea[:6] == 'BGfile':
+                BGfile = self.parseValue(linea, 2) # string
+                self.iblValues['BG']= BGfile
+            #
+            if linea[:8] == 'BGheight':
+                self.parseValue(linea, 1) # integer
+            #
+            if linea[:6] == 'EVfile':
+                #EVfile = self.parseValue(linea, 2) # string
+                self.iblValues['EV']= self.parseValue(linea, 2) #EVfile
+            #
+            if linea[:8] == 'EVheight':
+                self.parseValue(linea, 1) # integer
+            #
+            if linea[:7] == 'EVgamma':
+                self.parseValue(linea, 0) # float
+                
+            if linea[:7] == 'REFfile':
+                REFfile = self.parseValue(linea, 2) # string
+                self.iblValues['REF']= REFfile
+                
+            if linea[:9] == 'REFheight':
+                self.parseValue(linea, 1) # integer
+                
+            if linea[:8] == 'REFgamma':
+                self.parseValue(linea, 0) # float
+                     
+        f.close()
+        return self.iblValues
+# test
+
+def register():
+    bpy.utils.register_class(OBJECT_OT_get_position)
+    bpy.utils.register_class(OBJECT_OT_get_angle)
+    bpy.utils.register_class(OBJECT_OT_update_sun)
+    bpy.utils.register_class(RENDER_OT_render_view)
+    bpy.utils.register_class(RENDER_OT_render_animation)
+    bpy.utils.register_class(RENDER_OT_render_still)
+    bpy.utils.register_class(YAF_OT_presets_ior_list)
+    bpy.utils.register_class(Thebounty_parseIBL)
+    
+
+def unregister():
+    bpy.utils.unregister_class(OBJECT_OT_get_position)
+    bpy.utils.unregister_class(OBJECT_OT_get_angle)
+    bpy.utils.unregister_class(OBJECT_OT_update_sun)
+    bpy.utils.unregister_class(RENDER_OT_render_view)
+    bpy.utils.unregister_class(RENDER_OT_render_animation)
+    bpy.utils.unregister_class(RENDER_OT_render_still)
+    bpy.utils.unregister_class(YAF_OT_presets_ior_list)
+    bpy.utils.unregister_class(Thebounty_parseIBL)
+
