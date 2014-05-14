@@ -79,7 +79,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             row.prop(scene, "intg_final_gather", toggle=True, icon='FORCE_FORCE')
             
             if scene.intg_final_gather:
-                ''' Show UI options for Final Gathering. '''
+                # Show UI options for Final Gathering.
                 col = layout.row()
                 col.prop(scene, "intg_fg_bounces")
                 col.prop(scene, "intg_fg_samples")
@@ -120,17 +120,17 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             col = layout.column()
             col.prop(scene, "intg_search")
             col.prop(scene, "intg_pm_ire", toggle=True)
-            #sub = layout.column()
-            #sub.enabled = True
             if not scene.intg_pm_ire:
                 col.prop(scene, "intg_times")
             else:
                 col.prop(scene, "intg_accurate_radius")
         
-        ''' SubSurface integrator '''
+        #--------------------------------
+        # SubSurface integrator
+        #--------------------------------
         if integrator in {'directlighting', 'photonmapping', 'pathtracing'}:
             col = layout.column(align=True)
-            col.prop(scene, "intg_useSSS", text = "Subsurface Scattering integrator", toggle=True)
+            col.prop(scene, "intg_useSSS", toggle=True)
             if scene.intg_useSSS:
                 col.prop(scene, "intg_sssPhotons")
                 col.prop(scene, "intg_sssDepth")

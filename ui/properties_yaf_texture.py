@@ -638,7 +638,7 @@ class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
         materialShaderNodes["translucent"] = ["DiffuseColor", "GlossyColor", "GlossyAmount", "Transparency", "Translucency", "Bump"]
 
         if isinstance(idblock, Material):
-            nodes = materialShaderNodes[idblock.mat_type]
+            nodes = materialShaderNodes[idblock.bounty.mat_type]
             col = layout.column()
 
             for node in nodes:
