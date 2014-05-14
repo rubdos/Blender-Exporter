@@ -60,8 +60,7 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
             name="TheBounty World Settings",
             description="TheBounty world settings",
             type=cls,
-        )
-        #    
+        )#    
         cls.bg_type = EnumProperty(
             name="Background",
             items=enum_world_types,
@@ -126,12 +125,12 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
         cls.bg_with_caustic = BoolProperty(
             name="Caustic photons",
             description="Allow background light to shoot caustic photons",
-            default=True
+            default=False
         )    
         cls.bg_with_diffuse = BoolProperty(
             name="Diffuse photons",
             description="Allow background light to shoot diffuse photons",
-            default=True
+            default=False
         )    
         cls.bg_ibl_samples = IntProperty(
             name="IBL Samples",

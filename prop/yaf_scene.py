@@ -358,7 +358,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         # SSS settings
         #------------------------------
         cls.intg_useSSS = BoolProperty(
-            name="SubSurface Scattering",
+            name="SubSurface Scattering Integrator",
             description="Enable photonmapping for SSS materials",
             default=False
         )    
