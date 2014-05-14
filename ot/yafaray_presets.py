@@ -24,12 +24,11 @@
 #from bpy.types import Operator
 
 import os
-#import sys
 from bpy.props import StringProperty, EnumProperty, BoolProperty
 from bpy.types import Menu, Operator
 import bpy
 
-def updatePath(target):
+def updatePresetsPath(target):
     """ Use install folder for presets """
     ver1 = str(bpy.app.version[0])
     ver2 = str(bpy.app.version[1])
@@ -41,7 +40,7 @@ def updatePath(target):
     #
     return target_path
 
-class YafPresetBase():
+class TheBountyPresetBase():
     """Base preset class, only for subclassing
     subclasses must define
      - preset_values
@@ -92,7 +91,7 @@ class YafPresetBase():
             filename = self.as_filename(name)
             #target_path = os.path.join("presets", self.preset_subdir)            
             preset_subdir = os.path.join("presets", self.preset_subdir)            
-            target_path = updatePath(preset_subdir)
+            target_path = updatePresetsPath(preset_subdir)
             if not os.path.exists(target_path):
                 os.mkdir(target_path)
             #target_path = bpy.utils.user_resource('SCRIPTS', target_path, create=True)
@@ -199,8 +198,7 @@ class YafPresetBase():
             return self.execute(context)
 
 
-
-class YAFARAY_OT_presets_renderset(YafPresetBase, bpy.types.Operator):
+class TheBountyOperatorSettingsPresets(TheBountyPresetBase, bpy.types.Operator):
     # Add render presets
     bl_idname = "bounty.render_preset_add"
     bl_label = "TheBounty Settings Presets"
@@ -268,18 +266,19 @@ class YAFARAY_OT_presets_renderset(YafPresetBase, bpy.types.Operator):
     preset_subdir = "thebounty/render"
 
     
-class YAFARAY_OT_presets_materials(YafPresetBase, bpy.types.Operator):
+class TheBountyOperatorMaterialPresets(TheBountyPresetBase, bpy.types.Operator):
     # Add material presets
     bl_idname = "bounty.material_preset_add"
     bl_label = "Material Presets"
-    preset_menu = "THEBOUNTY_MT_material_presets"
+    preset_menu = "TheBountyMaterialPresets"
     
     preset_defines = [
-        "mat = bpy.context.object.active_material"
+        "material = bpy.context.object.active_material",
+        "mat = material.bounty"
     ]    
     preset_values = [    
         "mat.absorption",
-        "mat.diffuse_color",
+        "material.diffuse_color",
         "mat.absorption_dist",
         "mat.anisotropic",
         "mat.as_diffuse",
@@ -324,14 +323,14 @@ class YAFARAY_OT_presets_materials(YafPresetBase, bpy.types.Operator):
                 
     
 def register():
-    pass
-    #bpy.utils.register_class(YAFARAY_OT_presets_renderset)
-    #bpy.utils.register_class(YAFARAY_OT_presets_materials)
+    #pass
+    bpy.utils.register_class(TheBountyOperatorSettingsPresets)
+    bpy.utils.register_class(TheBountyOperatorMaterialPresets)
     
 def unregister():
-    pass
-    #bpy.utils.unregister_class(YAFARAY_OT_presets_renderset)
-    #bpy.utils.unregister_class(YAFARAY_OT_presets_materials)
+    #pass
+    bpy.utils.unregister_class(TheBountyOperatorSettingsPresets)
+    bpy.utils.unregister_class(TheBountyOperatorMaterialPresets)
     
 if __name__ == "__main__":
     register()

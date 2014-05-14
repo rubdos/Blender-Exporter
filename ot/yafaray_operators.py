@@ -21,6 +21,7 @@
 import bpy
 import mathutils
 from bpy.types import Operator
+from bpy.props import PointerProperty, StringProperty
 
 class OBJECT_OT_get_position(Operator):
     bl_label = "From( get position )"
@@ -113,7 +114,7 @@ def sunPosAngle(mode="get", val="position"):
 
 def checkSSS():
     for mat in [m for m in bpy.data.materials]:
-        if mat.mat_type == 'translucent':
+        if mat.bounty.mat_type == 'translucent':
             return True
     return False
 
@@ -244,13 +245,13 @@ class YAF_OT_presets_ior_list(Operator):
 
     @classmethod
     def poll(cls, context):
-        yaf_mat = context.material
-        return yaf_mat.mat_type in {"glass", "rough_glass"}
+        mat = context.material
+        return mat.bounty.mat_type in {"glass", "rough_glass"}
 
     def execute(self, context):
-        yaf_mat = context.material
+        mat = context.material
         bpy.types.YAF_MT_presets_ior_list.bl_label = self.name
-        yaf_mat.IOR_refraction = self.index
+        mat.bounty.IOR_refraction = self.index
         return {'FINISHED'}
 
 #-------------------------------------------
