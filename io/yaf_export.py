@@ -93,11 +93,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def exportTexture(self, obj):
         # First export the textures of the materials type 'blend'
-        for mat_slot in [m for m in obj.material_slots if m.material is not None]:
-            if mat_slot.material.mat_type == 'blend':
+        for mat_slot in [m for m in obj.material_slots if m.material is not None]:#.bounty is not None]:
+            if mat_slot.material.bounty.mat_type == 'blend':
                 try:
-                    mat1 = bpy.data.materials[mat_slot.material.material1]
-                    mat2 = bpy.data.materials[mat_slot.material.material2]
+                    mat1 = bpy.data.materials[mat_slot.material.bounty.blendmaterial1]
+                    mat2 = bpy.data.materials[mat_slot.material.bounty.blendmaterial2]
                 except:
                     self.yi.printWarning("Exporter: Problem with blend material {0}."
                                          " Could not find one of the two blended materials".format(mat_slot.material.name))
@@ -198,8 +198,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def handleBlendMat(self, mat):
             try:
-                mat1 = bpy.data.materials[mat.material1]
-                mat2 = bpy.data.materials[mat.material2]
+                mat1 = bpy.data.materials[mat.bounty.blendmaterial1]
+                mat2 = bpy.data.materials[mat.bounty.blendmaterial2]
             except:
                 self.yi.printWarning("Exporter: Problem with blend material {0}. Could not find one of the two blended materials".format(mat.name))
                 return
@@ -207,13 +207,13 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 self.yi.printWarning("Exporter: Problem with blend material {0}. {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
                 return
 
-            if mat1.mat_type == 'blend':
+            if mat1.bounty.mat_type == 'blend':
                 self.handleBlendMat(mat1)
             elif mat1 not in self.materials:
                 self.materials.add(mat1)
                 self.yaf_material.writeMaterial(mat1)
 
-            if mat2.mat_type == 'blend':
+            if mat2.bounty.mat_type == 'blend':
                 self.handleBlendMat(mat2)
             elif mat2 not in self.materials:
                 self.materials.add(mat2)
@@ -252,7 +252,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def exportMaterial(self, material):
         if material:
-            if material.mat_type == 'blend':
+            if material.bounty.mat_type == 'blend':
                 # must make sure all materials used by a blend mat
                 # are written before the blend mat itself
                 self.handleBlendMat(material)
@@ -499,10 +499,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     def render(self, scene):
         #
         if not scene.name == 'preview':
-            #self.bl_use_preview = False
             self.render_scene(scene)
         else:
-            #self.bl_use_preview = False
-            if self.resX > 120: #
-                #self.bl_use_preview = True
-                self.render_preview(scene)
+            self.render_preview(scene)

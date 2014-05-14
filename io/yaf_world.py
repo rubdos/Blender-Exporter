@@ -62,11 +62,6 @@ class yafWorld:
 
                     yi.paramsSetString("type", "image")
                     
-                    # add ibl file options
-                    if world.ibl_file is not None:
-                        self.yi.printInfo("IBL file, name: {0}".format(abspath(world.ibl_file)))
-                    
-
                     image_file = abspath(worldTexture.image.filepath)
                     image_file = realpath(image_file)
                     image_file = normpath(image_file)

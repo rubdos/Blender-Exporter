@@ -209,24 +209,24 @@ class yafMaterial:
         # add refraction roughness for roughglass material
         if rough:
             yi.paramsSetString("type", "rough_glass")
-            yi.paramsSetFloat("alpha", mat.refr_roughness)
+            yi.paramsSetFloat("alpha", mat.bounty.refr_roughness)
         else:
             yi.paramsSetString("type", "glass")
 
-        yi.paramsSetFloat("IOR", mat.IOR_refraction)  # added IOR for refraction
-        filt_col = mat.filter_color
-        mir_col = mat.glass_mir_col
-        tfilt = mat.glass_transmit
-        abs_col = mat.absorption
+        yi.paramsSetFloat("IOR", mat.bounty.IOR_refraction)  # added IOR for refraction
+        filt_col = mat.bounty.filter_color
+        mir_col = mat.bounty.glass_mir_col
+        tfilt = mat.bounty.glass_transmit
+        abs_col = mat.bounty.absorption
 
         yi.paramsSetColor("filter_color", filt_col[0], filt_col[1], filt_col[2])
         yi.paramsSetColor("mirror_color", mir_col[0], mir_col[1], mir_col[2])
         yi.paramsSetFloat("transmit_filter", tfilt)
 
         yi.paramsSetColor("absorption", abs_col[0], abs_col[1], abs_col[2])
-        yi.paramsSetFloat("absorption_dist", mat.absorption_dist)
-        yi.paramsSetFloat("dispersion_power", mat.dispersion_power)
-        yi.paramsSetBool("fake_shadows", mat.fake_shadows)
+        yi.paramsSetFloat("absorption_dist", mat.bounty.absorption_dist)
+        yi.paramsSetFloat("dispersion_power", mat.bounty.dispersion_power)
+        yi.paramsSetBool("fake_shadows", mat.bounty.fake_shadows)
 
         mcolRoot = ''
         # fcolRoot = '' /* UNUSED */
@@ -264,6 +264,7 @@ class yafMaterial:
         yi.paramsClearAll()
 
         # If is coated, add IOR and mirror color
+        #if mat.bounty.coated:
         if coated:
             yi.paramsSetString("type", "coated_glossy")
             yi.paramsSetFloat("IOR", mat.IOR_reflection)
@@ -273,17 +274,17 @@ class yafMaterial:
             yi.paramsSetString("type", "glossy")
 
         diffuse_color = mat.diffuse_color
-        glossy_color = mat.glossy_color
+        glossy_color = mat.bounty.glossy_color
 
         yi.paramsSetColor("diffuse_color", diffuse_color[0], diffuse_color[1], diffuse_color[2])
         yi.paramsSetColor("color", glossy_color[0], glossy_color[1], glossy_color[2])
-        yi.paramsSetFloat("glossy_reflect", mat.glossy_reflect)
-        yi.paramsSetFloat("exponent", mat.exponent)
-        yi.paramsSetFloat("diffuse_reflect", mat.diffuse_reflect)
-        yi.paramsSetBool("as_diffuse", mat.as_diffuse)
-        yi.paramsSetBool("anisotropic", mat.anisotropic)
-        yi.paramsSetFloat("exp_u", mat.exp_u)
-        yi.paramsSetFloat("exp_v", mat.exp_v)
+        yi.paramsSetFloat("glossy_reflect", mat.bounty.glossy_reflect)
+        yi.paramsSetFloat("exponent", mat.bounty.exponent)
+        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
+        yi.paramsSetBool("as_diffuse", mat.bounty.as_diffuse)
+        yi.paramsSetBool("anisotropic", mat.bounty.anisotropic)
+        yi.paramsSetFloat("exp_u", mat.bounty.exp_u)
+        yi.paramsSetFloat("exp_v", mat.bounty.exp_v)
 
         # init shader values..
         diffRoot = glossRoot = glRefRoot = bumpRoot = ''
@@ -305,7 +306,7 @@ class yafMaterial:
                 used = True
                 glossRoot = lname
             lname = "glossref_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.glossy_reflect], mtex.specular_factor):
+            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.bounty.glossy_reflect], mtex.specular_factor):
                 used = True
                 glRefRoot = lname
             lname = "bump_layer%x" % i
@@ -326,9 +327,9 @@ class yafMaterial:
         if len(bumpRoot) > 0:
             yi.paramsSetString("bump_shader", bumpRoot)
 
-        if mat.brdf_type == "oren-nayar":  # oren-nayar fix for glossy
+        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for glossy
             yi.paramsSetString("diffuse_brdf", "Oren-Nayar")
-            yi.paramsSetFloat("sigma", mat.sigma)
+            yi.paramsSetFloat("sigma", mat.bounty.sigma)
 
         return yi.createMaterial(self.namehash(mat))
     
@@ -336,24 +337,24 @@ class yafMaterial:
         yi = self.yi
         yi.paramsClearAll()
         yi.paramsSetString("type", "translucent")
-        yi.paramsSetFloat("IOR", mat.sssIOR)
+        yi.paramsSetFloat("IOR", mat.bounty.sssIOR)
         
         diffColor   = mat.diffuse_color #sssColor
-        glossyColor = mat.glossy_color;
-        specColor   = mat.sssSpecularColor
-        sigmaA      = mat.sssSigmaA
-        sigmaS      = mat.sssSigmaS
+        glossyColor = mat.bounty.glossy_color;
+        specColor   = mat.bounty.sssSpecularColor
+        sigmaA      = mat.bounty.sssSigmaA
+        sigmaS      = mat.bounty.sssSigmaS
         
         yi.paramsSetColor("color", diffColor[0], diffColor[1], diffColor[2])
         yi.paramsSetColor("glossy_color", glossyColor[0], glossyColor[1], glossyColor[2])
         yi.paramsSetColor("specular_color", specColor[0], specColor[1], specColor[2])
         yi.paramsSetColor("sigmaA", sigmaA[0], sigmaA[1], sigmaA[2])
         yi.paramsSetColor("sigmaS", sigmaS[0], sigmaS[1], sigmaS[2])
-        yi.paramsSetFloat("sigmaS_factor", mat.sssSigmaS_factor)
-        yi.paramsSetFloat("diffuse_reflect", mat.diffuse_reflect)
-        yi.paramsSetFloat("glossy_reflect", mat.glossy_reflect)
-        yi.paramsSetFloat("sss_transmit", mat.sss_transmit)
-        yi.paramsSetFloat("exponent", mat.exponent)
+        yi.paramsSetFloat("sigmaS_factor", mat.bounty.sssSigmaS_factor)
+        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
+        yi.paramsSetFloat("glossy_reflect", mat.bounty.glossy_reflect)
+        yi.paramsSetFloat("sss_transmit", mat.bounty.sss_transmit)
+        yi.paramsSetFloat("exponent", mat.bounty.exponent)
         
         # init shader values..
         diffRoot = glossRoot = glRefRoot = transpRoot = translRoot = bumpRoot = ''
@@ -374,7 +375,7 @@ class yafMaterial:
                 used = True
                 glossRoot = lname
             lname = "glossref_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.glossy_reflect], mtex.specular_factor):
+            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.bounty.glossy_reflect], mtex.specular_factor):
                 used = True
                 glRefRoot = lname
             lname = "transp_layer%x" % i
@@ -412,8 +413,8 @@ class yafMaterial:
 
         bCol = mat.diffuse_color
         mirCol = mat.mirror_color
-        bSpecr = mat.specular_reflect
-        bTransp = mat.transparency
+        bSpecr = mat.bounty.specular_reflect
+        bTransp = mat.bounty.transparency
         bTransl = mat.translucency
         # bTransmit = mat.transmit_filter
         bEmit = mat.emit
@@ -431,6 +432,7 @@ class yafMaterial:
         for mtex in used_textures:
             if not mtex.texture:
                 continue
+            # done..
             used = False
             mappername = "map%x" % i
 
@@ -485,18 +487,18 @@ class yafMaterial:
         yi.paramsSetColor("color", bCol[0], bCol[1], bCol[2])
         yi.paramsSetFloat("transparency", bTransp)
         yi.paramsSetFloat("translucency", bTransl)
-        yi.paramsSetFloat("diffuse_reflect", mat.diffuse_reflect)
+        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
         yi.paramsSetFloat("emit", bEmit)
-        yi.paramsSetFloat("transmit_filter", mat.transmit_filter)
+        yi.paramsSetFloat("transmit_filter", mat.bounty.transmit_filter)
 
         yi.paramsSetFloat("specular_reflect", bSpecr)
         yi.paramsSetColor("mirror_color", mirCol[0], mirCol[1], mirCol[2])
-        yi.paramsSetBool("fresnel_effect", mat.fresnel_effect)
-        yi.paramsSetFloat("IOR", mat.IOR_reflection)
+        yi.paramsSetBool("fresnel_effect", mat.bounty.fresnel_effect)
+        yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
 
-        if mat.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
+        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
             yi.paramsSetString("diffuse_brdf", "oren_nayar")
-            yi.paramsSetFloat("sigma", mat.sigma)
+            yi.paramsSetFloat("sigma", mat.bounty.sigma)
 
         return yi.createMaterial(self.namehash(mat))
 
@@ -504,10 +506,10 @@ class yafMaterial:
         yi = self.yi
         yi.paramsClearAll()
 
-        yi.printInfo("Exporter: Blend material with: [" + mat.material1 + "] [" + mat.material2 + "]")
+        yi.printInfo("Exporter: Blend material with: [" + mat.bounty.blendmaterial1 + "] [" + mat.bounty.blendmaterial2 + "]")
         yi.paramsSetString("type", "blend_mat")
-        yi.paramsSetString("material1", self.namehash(bpy.data.materials[mat.material1]))
-        yi.paramsSetString("material2", self.namehash(bpy.data.materials[mat.material2]))
+        yi.paramsSetString("material1", self.namehash(bpy.data.materials[mat.bounty.blendmaterial1]))
+        yi.paramsSetString("material2", self.namehash(bpy.data.materials[mat.bounty.blendmaterial2]))
 
         i = 0
 
@@ -536,7 +538,7 @@ class yafMaterial:
             yi.paramsSetString("mask", maskRoot)
             yi.paramsSetFloat("blend_value", 0)
         else:
-            yi.paramsSetFloat("blend_value", mat.blend_value)
+            yi.paramsSetFloat("blend_value", mat.bounty.blend_value)
 
         return yi.createMaterial(self.namehash(mat))
 
@@ -558,20 +560,26 @@ class yafMaterial:
         ymat = None
         if mat.name == "y_null":
             ymat = self.writeNullMat(mat)
-        elif mat.mat_type == "glass":
+            
+        elif mat.bounty.mat_type == "glass":
             ymat = self.writeGlassShader(mat, False)
-        elif mat.mat_type == "rough_glass":
+            
+        elif mat.bounty.mat_type == "rough_glass":
             ymat = self.writeGlassShader(mat, True)
-        elif mat.mat_type == "glossy":
+            
+        elif mat.bounty.mat_type == "glossy":
             ymat = self.writeGlossyShader(mat, False)
-        elif mat.mat_type == "coated_glossy":
+            
+        elif mat.bounty.mat_type == "coated_glossy":
             ymat = self.writeGlossyShader(mat, True)
-        elif mat.mat_type == "shinydiffusemat":
+            
+        elif mat.bounty.mat_type == "shinydiffusemat":
             ymat = self.writeShinyDiffuseShader(mat)
-        elif mat.mat_type == "blend":
+            
+        elif mat.bounty.mat_type == "blend":
             ymat = self.writeBlendShader(mat)
         #
-        elif mat.mat_type == "translucent":
+        elif mat.bounty.mat_type == "translucent":
             ymat = self.writeTranslucentShader(mat)
         #
         else:
