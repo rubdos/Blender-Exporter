@@ -74,45 +74,45 @@ if "bpy" in locals():
     imp.reload(ot)
 else:
     import bpy
-    #from bpy.app.handlers import persistent
+    from bpy.app.handlers import persistent
     from . import prop
     from . import io
     from . import ui
     from . import ot
 # for nodes
-#import nodeitems_utils
-'''
+import nodeitems_utils
+
 @persistent
 def load_handler(dummy):
     for tex in bpy.data.textures:
         if tex is not None:
             # set the correct texture type on file load....
             # converts old files, where propertie yaf_tex_type wasn't defined
-            print("Load Handler: Convert Yafaray texture \"{0}\" with texture type: \"{1}\" to \"{2}\"".format(tex.name, tex.yaf_tex_type, tex.type))
+            print("Load Handler: Convert old texture \"{0}\" with texture type: \"{1}\" to \"{2}\"".format(tex.name, tex.yaf_tex_type, tex.type))
             tex.yaf_tex_type = tex.type
     # convert image output file type setting from blender to yafaray's file type setting on file load, so that both are the same...
     if bpy.context.scene.render.image_settings.file_format is not bpy.context.scene.bounty.img_output:
         bpy.context.scene.bounty.img_output = bpy.context.scene.render.image_settings.file_format
-'''
+
 
 def register():
     prop.register()
     bpy.utils.register_module(__name__)
-    '''
+    
     bpy.app.handlers.load_post.append(load_handler)
     # register keys for 'render 3d view', 'render still' and 'render animation'
     km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='Screen')
     kmi = km.keymap_items.new('render.render_view', 'F12', 'PRESS', False, False, False, True)
     kmi = km.keymap_items.new('render.render_animation', 'F12', 'PRESS', False, False, True, False)
     kmi = km.keymap_items.new('render.render_still', 'F12', 'PRESS', False, False, False, False)
-    '''
+    
     # for nodes
-    #nodeitems_utils.register_node_categories("YAF_NODES", ui.prop_custom_nodes.yaf_node_categories)
+    nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)
     
 
 def unregister():
     prop.unregister()
-    '''
+    
     # unregister keys for 'render 3d view', 'render still' and 'render animation'
     kma = bpy.context.window_manager.keyconfigs.addon.keymaps['Screen']
     for kmi in kma.keymap_items:
@@ -121,9 +121,9 @@ def unregister():
             kma.keymap_items.remove(kmi)
     bpy.utils.unregister_module(__name__)
     bpy.app.handlers.load_post.remove(load_handler)
-    '''
+    
     # for nodes
-    #nodeitems_utils.unregister_node_categories("YAF_NODES")
+    nodeitems_utils.unregister_node_categories("TheBountyMaterial")
 
 
 if __name__ == '__main__':

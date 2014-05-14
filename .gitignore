@@ -5,3 +5,4 @@ __pycache*
 .pydevproject
 .settings
 *.rar
+*.org
