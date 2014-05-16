@@ -23,7 +23,8 @@ from bpy.props import (FloatProperty,
                        BoolProperty,
                        EnumProperty,
                        FloatVectorProperty,
-                       PointerProperty)
+                       PointerProperty,
+                       StringProperty)
 
 enum_material_types = (
     ('shinydiffusemat', "Shiny Diffuse",    ""),
@@ -33,6 +34,11 @@ enum_material_types = (
     ('rough_glass',     "Rough Glass",      ""),
     ('blend',           "Blend",            ""),
     ('translucent',     "Translucent(SSS)", ""),
+)
+
+enum_reflectance_mode = (
+    ('oren-nayar', "Oren-Nayar", "Reflectance Model"),
+    ('lambert', "Lambert", "Reflectance Model"),
 )
 
 Material = bpy.types.Material
@@ -51,10 +57,15 @@ def items_mat2(self, context):
         a.append((mat.name, mat.name, "Second blend material"))
     return(a)
 
-class TheBountyMaterialSettings(bpy.types.PropertyGroup):
+class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     
     @classmethod
     def register(cls):
+        # test for register nodetree
+        cls.nodetree = StringProperty(
+                name="Node Tree",
+                description="Name of the shader node tree for this material",
+                default="")
         # add subclasse to scene class
         bpy.types.Material.bounty = PointerProperty(
             name="TheBounty Material properties",
@@ -80,199 +91,180 @@ class TheBountyMaterialSettings(bpy.types.PropertyGroup):
                 min=0.0, max=1.0,
                 step=1, precision=3,
                 soft_min=0.0, soft_max=1.0,
-                default=0.000)
-    
+                default=0.000
+        )    
         cls.transparency = FloatProperty(
                 name="Transparency",
                 description="Material transparency",
                 min=0.0, max=1.0,
                 step=1, precision=3,
                 soft_min=0.0, soft_max=1.0,
-                default=0.000)
-    
+                default=0.000
+        )    
         cls.transmit_filter = FloatProperty(
                 name="Transmit filter",
                 description="Amount of tinting of light passing through the Material",
                 min=0.0, max=1.0,
                 step=1, precision=3,
                 soft_min=0.0, soft_max=1.0,
-                default=1.000)
-    
+                default=1.000
+        )    
         cls.fresnel_effect = BoolProperty(
                 name="Fresnel effect",
                 description="Apply a fresnel effect to specular reflection",
-                default=False)
-    
+                default=False
+        )    
         cls.brdf_type = EnumProperty(
                 name="Reflectance model",
-                items=(
-                    ('oren-nayar', "Oren-Nayar", "Reflectance Model"),
-                    ('lambert', "Lambert", "Reflectance Model"),
-                ),
-                default='lambert')
-    
+                items= enum_reflectance_mode,
+                default='lambert'
+        )    
         cls.glossy_color = FloatVectorProperty(
                 name="Glossy color",
                 description="Glossy Color",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(1.0, 1.0, 1.0))
-    
-        # added mirror col property for coated glossy material
+                default=(1.0, 1.0, 1.0)
+        )
         cls.coat_mir_col = FloatVectorProperty(
                 name="Mirror color",
                 description="Reflection color of coated layer",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(1.0, 1.0, 1.0))
-    
-        # added mirror color property for glass material
+                default=(1.0, 1.0, 1.0)
+        )
         cls.glass_mir_col = FloatVectorProperty(
                 name="Reflection color",
                 description="Reflection color of glass material",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(1.0, 1.0, 1.0))
-    
+                default=(1.0, 1.0, 1.0)
+        )
         cls.glossy_reflect = FloatProperty(
                 name="Reflection strength",
                 description="Amount of glossy reflection",
                 min=0.0, max=1.0,
                 step=1, precision=3,
                 soft_min=0.0, soft_max=1.0,
-                default=0.000)
-    
+                default=0.000
+        )    
         cls.exp_u = FloatProperty(
                 name="Exponent U",
                 description="Horizontal anisotropic exponent value",
                 min=1.0, max=10000.0,
                 step=10, precision=2,
                 soft_min=1.0, soft_max=10000.0,
-                default=50.00)
-    
+                default=50.00
+        )    
         cls.exp_v = FloatProperty(
                 name="Exponent V",
                 description="Vertical anisotropic exponent value",
                 min=1.0, max=10000.0,
                 step=10, precision=2,
                 soft_min=1.0, soft_max=10000.0,
-                default=50.00)
-    
+                default=50.00
+        )    
         cls.exponent = FloatProperty(
                 name="Exponent",
                 description="Blur of the glossy reflection, higher exponent = sharper reflections",
                 min=1.0, max=10000.0,
                 step=10, precision=2,
                 soft_min=1.0, soft_max=10000.0,
-                default=500.00)
-    
+                default=500.00
+        )    
         cls.as_diffuse = BoolProperty(
                 name="Use photon map",
                 description="Treat glossy component as diffuse",
-                default=False)
-    
+                default=False
+        )    
         cls.anisotropic = BoolProperty(
                 name="Anisotropic",
                 description="Use anisotropic reflections",
-                default=False)
-    
-        # added IOR property for refraction
+                default=False
+        )    
         cls.IOR_refraction = FloatProperty(
                 name="IOR",
                 description="Index of refraction",
                 min=0.0, max=30.0,
                 step=1, precision=3,
                 soft_min=0.0, soft_max=30.0,
-                default=1.520)
-    
-        # added IOR property for reflection
+                default=1.520
+        )    
         cls.IOR_reflection = FloatProperty(
                 name="IOR",
                 description="Fresnel reflection strength",
                 min=1.0, max=30.0,
                 step=1, precision=3,
                 soft_min=1.0, soft_max=30.0,
-                default=1.800)
-    
+                default=1.800
+        )    
         cls.absorption = FloatVectorProperty(
                 name="Color and absorption",
                 description="Glass volumetric absorption color. White disables absorption",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(1.0, 1.0, 1.0))
-    
+                default=(1.0, 1.0, 1.0)
+        )    
         cls.absorption_dist = FloatProperty(
                 name="Abs. distance",
                 description="Absorption distance scale",
                 min=0.0, max=100.0,
                 step=1, precision=4,
                 soft_min=0.0, soft_max=100.0,
-                default=1.0000)
-    
-        # added transmit filter for glass material
+                default=1.0000
+        )    
         cls.glass_transmit = FloatProperty(
                 name="Transmit filter",
                 description="Filter strength applied to refracted light",
                 min=0.0, max=1.0,
                 step=1, precision=3,
                 soft_min=0.0, soft_max=1.0,
-                default=1.000)
-    
+                default=1.000
+        )    
         cls.filter_color = FloatVectorProperty(
                 name="Filter color",
                 description="Filter color for refracted light of glass, also tint transparent shadows if enabled",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(1.0, 1.0, 1.0))
-    
+                default=(1.0, 1.0, 1.0)
+        )    
         cls.dispersion_power = FloatProperty(
                 name="Disp. power",
                 description="Strength of dispersion effect, disabled when 0",
                 min=0.0, max=5.0,
                 step=1, precision=4,
                 soft_min=0.0, soft_max=5.0,
-                default=0.0000)
-    
-        # added refraction roughness propertie for roughglass material
+                default=0.0000
+        )    
         cls.refr_roughness = FloatProperty(
                 name="Exponent",
-                description="Roughness factor for glass material",
+                description="Refraction factor on rough glass material",
                 min=0.0, max=1.0,
                 step=1, precision=3,
                 soft_min=0.0, soft_max=1.0,
-                default=0.200)
-    
+                default=0.200
+        )    
         cls.fake_shadows = BoolProperty(
                 name="Fake shadows",
                 description="Let light straight through for shadow calculation. Not to be used with dispersion",
-                default=False)
-    
+                default=False
+        )    
         cls.blend_value = FloatProperty(
                 name="Blend value",
                 description="The mixing balance: 0 -> only material 1, 1.0 -> only material 2",
                 min=0.0, max=1.0,
                 step=3, precision=3,
                 soft_min=0.0, soft_max=1.0,
-                default=0.500)
-    
+                default=0.500
+        )    
         cls.sigma = FloatProperty(
                 name="Sigma",
                 description="Roughness of the surface",
                 min=0.0, max=1.0,
                 step=1, precision=5,
                 soft_min=0.0, soft_max=1.0,
-                default=0.10000)
-    
-        cls.rough = BoolProperty(
-                name="rough",
-                description="",
-                default=False)
-    
-        cls.coated = BoolProperty(
-                name="coated",
-                description="",
-                default=False)
-    
+                default=0.10000
+        )    
         cls.blendmaterial1 = EnumProperty(
                 name="Material one",
                 description="First blend material",
@@ -281,59 +273,61 @@ class TheBountyMaterialSettings(bpy.types.PropertyGroup):
         cls.blendmaterial2 = EnumProperty(
                 name="Material two",
                 description="Second blend material",
-                items=items_mat2)
-        
-        # Translucent SubSurface Scattering settings
+                items=items_mat2
+        )        
+        #--------------------------------------------
+        #  Translucent SubSurface Scattering settings
+        #--------------------------------------------
         cls.sssColor = FloatVectorProperty(
                 name="Diffuse color",
                 description="Diffuse color",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(1.0, 1.0, 1.0))
-            
+                default=(1.0, 1.0, 1.0)
+        )            
         cls.sssSpecularColor = FloatVectorProperty(
                 name="Specular Color",
                 description="Specular Color",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(1.0, 1.0, 1.0))
-    
+                default=(1.0, 1.0, 1.0)
+        )    
         cls.sssSigmaA = FloatVectorProperty(
                 name="Absorption Color",
                 description="Absorption Color",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(0.0, 0.0, 0.0))
-    
+                default=(0.0, 0.0, 0.0)
+        )    
         cls.sssSigmaS = FloatVectorProperty(
                 name="Scatter color",
                 description="Scatter color",
                 subtype='COLOR',
                 min=0.0, max=1.0,
-                default=(0.7, 0.7, 0.7))
-        
+                default=(0.7, 0.7, 0.7)
+        )        
         cls.sssSigmaS_factor = FloatProperty(
                 name="SigmaS factor",
                 description="Sigma factor for SSS",
                 min=0.1, max=100.0,
                 step=0.01, precision=3,
-                default=1.0)
-    
+                default=1.0
+        )    
         cls.sss_transmit = FloatProperty(
                 name="Transmittance",
                 description="Transmittance",
                 min=0.0, max=1.0,
                 step=0.01, precision=3,
-                default=1.0)
-        
+                default=1.0
+        )        
         cls.sssIOR = FloatProperty(
                 name="IOR",
                 description="Index of refraction for SSS",
                 min=0.0, max=3.0,
                 step=1, precision=3,
                 soft_min=1.0, soft_max=30.0,
-                default=1.300)
-        #
+                default=1.300
+        )
         cls.phaseFuction = FloatProperty(
                 name="Phase Function",
                 description="Difference between diffuse reflection (+ values) and glossy reflection (- values)",
@@ -346,7 +340,7 @@ class TheBountyMaterialSettings(bpy.types.PropertyGroup):
         del bpy.types.Scene.bounty
 
 def register():
-    bpy.utils.register_class(TheBountyMaterialSettings)
+    bpy.utils.register_class(TheBountyMaterialProperties)
     
 def unregister():
-    bpy.utils.unregister_class(TheBountyMaterialSettings)
+    bpy.utils.unregister_class(TheBountyMaterialProperties)
