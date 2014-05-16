@@ -234,16 +234,21 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
         ymat = self.yi.createMaterial("defaultMat")
         self.materialMap["default"] = ymat
-
-        # create a shiny diffuse material for "Clay Render" option in general settings
-        self.yi.paramsClearAll()
-        self.yi.paramsSetString("type", "shinydiffusemat")
-        cCol = self.scene.bounty.gs_clay_col
-        self.yi.paramsSetColor("color", cCol[0], cCol[1], cCol[2])
-        self.yi.printInfo("Exporter: Creating Material \"clayMat\"")
-        cmat = self.yi.createMaterial("clayMat")
-        self.materialMap["clay"] = cmat
-        # povman: first test for override all materials in 'clay render' mode
+        #--------------------------------------------------
+        # create a shinydiffuse material for "Clay Render"
+        # exception: don't create for material preview mode
+        #--------------------------------------------------
+        if not self.is_preview:
+            self.yi.paramsClearAll()
+            self.yi.paramsSetString("type", "shinydiffusemat")
+            cCol = self.scene.bounty.gs_clay_col
+            self.yi.paramsSetColor("color", cCol[0], cCol[1], cCol[2])
+            self.yi.printInfo("Exporter: Creating Material \"clayMat\"")
+            cmat = self.yi.createMaterial("clayMat")
+            self.materialMap["clay"] = cmat
+        #---------------------------------------------
+        # override all materials in 'clay render' mode
+        #---------------------------------------------
         if not self.scene.bounty.gs_clay_render:
             for obj in self.scene.objects:
                 for mat_slot in obj.material_slots:
@@ -387,13 +392,15 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.end_result(res)
                 
         # define thread
-        thread = threading.Thread(target=self.yi.render,
-                                  args=(self.resX, self.resY, self.bStartX, self.bStartY, self.is_preview,
-                                        drawAreaCallback, flushCallback, progressCallback)
-                                  )
+        thread = threading.Thread(target = self.yi.render, 
+                                  args=(self.resX, self.resY, 
+                                        self.bStartX, self.bStartY, 
+                                        self.is_preview, drawAreaCallback, 
+                                        flushCallback, progressCallback))
+
         # run..
         thread.start()
-        
+    
         #while thread.isAlive() and not self.test_break():
         while thread.is_alive() and not self.test_break():
             time.sleep(0.5) #2)

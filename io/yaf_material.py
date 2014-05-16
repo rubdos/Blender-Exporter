@@ -201,13 +201,13 @@ class yafMaterial:
             nf = mtex.normal_factor * 2
             yi.paramsSetFloat("bump_strength", nf)
 
-    def writeGlassShader(self, mat, rough):
+    def writeGlassShader(self, mat):
 
         yi = self.yi
         yi.paramsClearAll()
         
         # add refraction roughness for roughglass material
-        if rough:
+        if mat.bounty.mat_type == "rough_glass":
             yi.paramsSetString("type", "rough_glass")
             yi.paramsSetFloat("alpha", mat.bounty.refr_roughness)
         else:
@@ -259,16 +259,18 @@ class yafMaterial:
 
         return yi.createMaterial(self.namehash(mat))
 
-    def writeGlossyShader(self, mat, coated):
+    def writeGlossyShader(self, mat):
         yi = self.yi
         yi.paramsClearAll()
 
-        # If is coated, add IOR and mirror color
-        #if mat.bounty.coated:
-        if coated:
+        #-------------------------------------------
+        # Add IOR and mirror color for coated glossy
+        #-------------------------------------------
+        if mat.bounty.mat_type == "coated_glossy":
+            #
             yi.paramsSetString("type", "coated_glossy")
-            yi.paramsSetFloat("IOR", mat.IOR_reflection)
-            mir_col = mat.coat_mir_col
+            yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
+            mir_col = mat.bounty.coat_mir_col
             yi.paramsSetColor("mirror_color", mir_col[0], mir_col[1], mir_col[2])
         else:
             yi.paramsSetString("type", "glossy")
@@ -301,14 +303,17 @@ class yafMaterial:
             if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.use_map_color_diffuse, diffuse_color, mtex.diffuse_color_factor):
                 used = True
                 diffRoot = lname
+            #
             lname = "gloss_layer%x" % i
             if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.use_map_color_spec, glossy_color, mtex.specular_color_factor):
                 used = True
                 glossRoot = lname
+            #
             lname = "glossref_layer%x" % i
             if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.bounty.glossy_reflect], mtex.specular_factor):
                 used = True
                 glRefRoot = lname
+            #
             lname = "bump_layer%x" % i
             if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.use_map_normal, [0], mtex.normal_factor):
                 used = True
@@ -318,6 +323,7 @@ class yafMaterial:
             i += 1
 
         yi.paramsEndList()
+        
         if len(diffRoot) > 0:
             yi.paramsSetString("diffuse_shader", diffRoot)
         if len(glossRoot) > 0:
@@ -561,17 +567,11 @@ class yafMaterial:
         if mat.name == "y_null":
             ymat = self.writeNullMat(mat)
             
-        elif mat.bounty.mat_type == "glass":
-            ymat = self.writeGlassShader(mat, False)
+        elif mat.bounty.mat_type in {"glass", "rough_glass"}:
+            ymat = self.writeGlassShader(mat)
             
-        elif mat.bounty.mat_type == "rough_glass":
-            ymat = self.writeGlassShader(mat, True)
-            
-        elif mat.bounty.mat_type == "glossy":
-            ymat = self.writeGlossyShader(mat, False)
-            
-        elif mat.bounty.mat_type == "coated_glossy":
-            ymat = self.writeGlossyShader(mat, True)
+        elif mat.bounty.mat_type in {"glossy", "coated_glossy"}:
+            ymat = self.writeGlossyShader(mat)
             
         elif mat.bounty.mat_type == "shinydiffusemat":
             ymat = self.writeShinyDiffuseShader(mat)
