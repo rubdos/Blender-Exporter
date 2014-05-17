@@ -41,7 +41,7 @@ enum_reflectance_mode = (
     ('lambert', "Lambert", "Reflectance Model"),
 )
 
-Material = bpy.types.Material
+#Material = bpy.types.Material
 
 
 def items_mat1(self, context):
@@ -61,29 +61,33 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     
     @classmethod
     def register(cls):
-        # test for register nodetree
-        cls.nodetree = StringProperty(
-                name="Node Tree",
-                description="Name of the shader node tree for this material",
-                default="")
-        # add subclasse to scene class
+        # 
+        # add subclasse to Material class
         bpy.types.Material.bounty = PointerProperty(
             name="TheBounty Material properties",
             description="",
             type=cls,
         )
+        #---------------------------
+        # list of material properies
+        #---------------------------
+        cls.nodetree = StringProperty(
+            name="Node Tree",
+            description="Name of the shader node tree for this material",
+            default=""
+        )
         cls.mat_type = EnumProperty(
-                name="Material type",
-                items=enum_material_types,
-                default='shinydiffusemat'
+            name="Material type",
+            items=enum_material_types,
+            default='shinydiffusemat'
         )    
         cls.diffuse_reflect = FloatProperty(
-                name="Reflection strength",
-                description="Amount of diffuse reflection",
-                min=0.0, max=1.0,
-                step=1, precision=3,
-                soft_min=0.0, soft_max=1.0,
-                default=1.000
+            name="Reflection strength",
+            description="Amount of diffuse reflection",
+            min=0.0, max=1.0,
+            step=1, precision=3,
+            soft_min=0.0, soft_max=1.0,
+            default=1.000
         )    
         cls.specular_reflect = FloatProperty(
                 name="Reflection strength",
