@@ -47,14 +47,14 @@ class TheBountyShaderTree(NodeTree):
         if ob and ob.type not in {'LAMP', 'CAMERA'}:
             ma = ob.active_material
             if ma != None: 
-                nt_name = ma.bounty.nodetree #renderman.nodetree
+                nt_name = ma.bounty.nodetree
                 if nt_name != '':
                     return bpy.data.node_groups[ma.bounty.nodetree], ma, ma
         #elif ob and ob.type == 'LAMP':
         #    la = ob.data
-        #    nt_name = la.renderman.nodetree
+        #    nt_name = la.bounty.nodetree
         #    if nt_name != '':
-        #        return bpy.data.node_groups[la.renderman.nodetree], la, la
+        #        return bpy.data.node_groups[la.bounty.nodetree], la, la
         return (None, None, None)
         
     # This block updates the preview, when socket links change
@@ -230,8 +230,7 @@ class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
     def init(self, context):
         # slots shaders
         self.outputs.new('NodeSocketColor', "Shader")
-        #self.inputs.new('diffuse_color_socket','Sombra')
-
+        
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
         print("Copying from node ", node)
@@ -247,9 +246,9 @@ class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
 
         col = layout.column()
         col.prop(mat, "diffuse_color")
-        col.prop(mat, "emit")
         col.prop(mat.bounty, "diffuse_reflect", slider=True)
-
+        col.prop(mat, "emit")
+        
         col.prop(mat.bounty, "brdf_type", text="")
         brdf = layout.column()
         brdf.enabled = mat.bounty.brdf_type == "oren-nayar"
@@ -317,11 +316,9 @@ class TheBountyGlossyShaderNode(Node, NodeTree):
         # sync values with panels
         mat = context.active_object.active_material
         
-        split = layout.split()
-        col = split.column()
+        col = layout.column()
         col.prop(mat, "diffuse_color")
 
-        col = split.column()
         ref = col.column(align=True)
         ref.label(text="Reflectance model:")
         ref.prop(mat.bounty, "brdf_type", text="")
@@ -332,8 +329,7 @@ class TheBountyGlossyShaderNode(Node, NodeTree):
         layout.row().prop(mat.bounty, "diffuse_reflect", slider=True)
 
         layout.separator()
-        #split = layout.split()
-        #col = split.column()
+        col = layout.column()
         col.prop(mat.bounty, "glossy_color")
         exp = col.column()
         exp.enabled = mat.bounty.anisotropic == False
@@ -355,18 +351,13 @@ class TheBountyGlossyShaderNode(Node, NodeTree):
         if mat.bounty.mat_type == "coated_glossy":
             box = layout.box()
             box.label(text="Coated layer")
-            split = box.split()
             col = layout.column()
             col.prop(mat.bounty, "coat_mir_col")
-            #col = split.column(align=True)
             col.label(text="Fresnel reflection:")
             col.prop(mat.bounty, "IOR_reflection")
-            #col.label()
     
     def draw_buttons_ext(self, context, layout):
-        # mat = bpy.context.active_object.active_material
-        # layout.prop(mat, "brdf_type")
-        # layout.prop(mat, "sigma")
+        # many buttons..
         pass
 
     def copy(self, node):
@@ -383,7 +374,6 @@ class TheBountyGlassShaderNode(Node, NodeTree):
     bl_icon = 'MATERIAL'
 
     def init(self, context):
-        #self.inputs.new('NodeSocketColor', "Filter Color")
         #
         self.outputs.new('NodeSocketColor', "Shader")
 

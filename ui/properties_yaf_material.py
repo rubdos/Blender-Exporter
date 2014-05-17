@@ -178,7 +178,7 @@ for ior_group, ior_n in ior_list:
     submenus.append(submenu)
 
 
-class YAF_MT_presets_ior_list(Menu):
+class TheBounty_presets_ior_list(Menu):
     bl_label = "Glass"
 
     def draw(self, context):
@@ -316,7 +316,7 @@ class TheBountyRealGlass(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "IOR_refraction")
 
         col = split.column()
-        col.menu("YAF_MT_presets_ior_list", text=bpy.types.YAF_MT_presets_ior_list.bl_label)
+        col.menu("TheBounty_presets_ior_list", text=bpy.types.TheBounty_presets_ior_list.bl_label)
 
         split = layout.split()
         col = split.column(align=True)
@@ -434,5 +434,5 @@ class TheBountySubSurfaceScattering(TheBountyMaterialTypePanel, Panel):
               
 
 if __name__ == "__main__":  # only for live edit.
-    import bpy
+    #import bpy
     bpy.utils.register_module(__name__)

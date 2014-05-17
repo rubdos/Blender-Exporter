@@ -237,7 +237,7 @@ class RENDER_OT_render_still(Operator):
             return {'FINISHED'}
 
 
-class YAF_OT_presets_ior_list(Operator):
+class TheBounty_presets_ior_list(Operator):
     bl_idname = "material.set_ior_preset"
     bl_label = "IOR presets"
     index = bpy.props.FloatProperty()
@@ -250,7 +250,7 @@ class YAF_OT_presets_ior_list(Operator):
 
     def execute(self, context):
         mat = context.material
-        bpy.types.YAF_MT_presets_ior_list.bl_label = self.name
+        bpy.types.TheBounty_presets_ior_list.bl_label = self.name
         mat.bounty.IOR_refraction = self.index
         return {'FINISHED'}
 
