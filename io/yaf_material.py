@@ -275,7 +275,8 @@ class yafMaterial:
         else:
             yi.paramsSetString("type", "glossy")
 
-        diffuse_color = mat.diffuse_color
+        #diffuse_color = mat.diffuse_color
+        diffuse_color = mat.bounty.diff_color
         glossy_color = mat.bounty.glossy_color
 
         yi.paramsSetColor("diffuse_color", diffuse_color[0], diffuse_color[1], diffuse_color[2])
@@ -345,7 +346,8 @@ class yafMaterial:
         yi.paramsSetString("type", "translucent")
         yi.paramsSetFloat("IOR", mat.bounty.sssIOR)
         
-        diffColor   = mat.diffuse_color #sssColor
+        #diffColor   = mat.diffuse_color #sssColor
+        diffColor   = mat.bounty.diff_color #sssColor
         glossyColor = mat.bounty.glossy_color;
         specColor   = mat.bounty.sssSpecularColor
         sigmaA      = mat.bounty.sssSigmaA
@@ -416,15 +418,19 @@ class yafMaterial:
         yi.paramsClearAll()
 
         yi.paramsSetString("type", "shinydiffusemat")
-
+        #---------------------------------------------------
+        # know issue with the use of own variable diff_color
+        # and the background texture on material preview
+        #---------------------------------------------------
+        #bCol = mat.bounty.diff_color
         bCol = mat.diffuse_color
-        mirCol = mat.mirror_color
+        mirCol = mat.bounty.mirr_color
         bSpecr = mat.bounty.specular_reflect
         bTransp = mat.bounty.transparency
         bTransl = mat.translucency
-        # bTransmit = mat.transmit_filter
-        bEmit = mat.emit
-
+        bEmit = mat.bounty.emittance
+        
+        # for fix dark preview
         if self.preview:
             if mat.name.startswith("checker"):
                 bEmit = 2.50

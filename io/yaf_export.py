@@ -197,31 +197,38 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 self.yaf_object.writeObject(obj)
 
     def handleBlendMat(self, mat):
-            try:
-                mat1 = bpy.data.materials[mat.bounty.blendmaterial1]
-                mat2 = bpy.data.materials[mat.bounty.blendmaterial2]
-            except:
-                self.yi.printWarning("Exporter: Problem with blend material {0}. Could not find one of the two blended materials".format(mat.name))
-                return
-            if mat1.name == mat2.name:
-                self.yi.printWarning("Exporter: Problem with blend material {0}. {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
-                return
+        #
+        try:
+            mat1 = bpy.data.materials[mat.bounty.blendmaterial1]
+            mat2 = bpy.data.materials[mat.bounty.blendmaterial2]
+        except:
+            self.yi.printWarning("Exporter: Problem with blend material {0}. Could not find one of the two blended materials".format(mat.name))
+            return
+            
+        if mat1.name == mat2.name:
+            self.yi.printWarning("Exporter: Problem with blend material {0}. {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
+            return
+        #--------------------------------------------------------------
+        # This is not needed atm because 'blend' materials are excluded 
+        # themselves from list. Recursive blend materials aren't allowed. 
+        # Now Property update method is excluded
+        #------------------------------------------------------------
+        
+        #if mat1.bounty.mat_type == 'blend':
+        #    self.handleBlendMat(mat1)        
+        if mat1 not in self.materials:
+            self.materials.add(mat1)
+            self.yaf_material.writeMaterial(mat1)
 
-            if mat1.bounty.mat_type == 'blend':
-                self.handleBlendMat(mat1)
-            elif mat1 not in self.materials:
-                self.materials.add(mat1)
-                self.yaf_material.writeMaterial(mat1)
+        #if mat2.bounty.mat_type == 'blend':
+        #    self.handleBlendMat(mat2)
+        if mat2 not in self.materials:
+            self.materials.add(mat2)
+            self.yaf_material.writeMaterial(mat2)
 
-            if mat2.bounty.mat_type == 'blend':
-                self.handleBlendMat(mat2)
-            elif mat2 not in self.materials:
-                self.materials.add(mat2)
-                self.yaf_material.writeMaterial(mat2)
-
-            if mat not in self.materials:
-                self.materials.add(mat)
-                self.yaf_material.writeMaterial(mat)
+        if mat not in self.materials:
+            self.materials.add(mat)
+            self.yaf_material.writeMaterial(mat)
 
     def exportMaterials(self):
         self.yi.printInfo("Exporter: Processing Materials...")
