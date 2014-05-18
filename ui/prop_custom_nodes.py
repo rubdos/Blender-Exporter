@@ -247,7 +247,7 @@ class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
         col = layout.column()
         col.prop(mat, "diffuse_color")
         col.prop(mat.bounty, "diffuse_reflect", slider=True)
-        col.prop(mat, "emit")
+        col.prop(mat.bounty, "emittance")
         
         col.prop(mat.bounty, "brdf_type", text="")
         brdf = layout.column()

@@ -141,9 +141,9 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             
                 row = layout.row()
                 row.prop(world, "bg_color_space")
-        #------------------------------------------
+        #---------------------------------------
         # Color background
-        #------------------------------------------    
+        #---------------------------------------    
         elif world.bg_type == "Single Color":
 
             split = layout.split(percentage=0.33)
