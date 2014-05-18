@@ -40,7 +40,13 @@ enum_reflectance_mode = (
     ('oren-nayar', "Oren-Nayar", "Reflectance Model"),
     ('lambert', "Lambert", "Reflectance Model"),
 )
-
+#-----------------------------------------
+# syncronize some colors with Blender
+# for better visualization on viewport
+#-----------------------------------------
+def syncBlenderColors(self, context):
+    context.material.diffuse_color = context.material.bounty.diff_color
+    
 
 def items_mat1(self, context):
     a = []
@@ -79,7 +85,23 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             name="Material type",
             items=enum_material_types,
             default='shinydiffusemat'
-        )    
+        )
+        cls.diff_color = FloatVectorProperty(
+            name="Diffuse color",
+            description="Diffuse albedo color material",
+            subtype='COLOR',
+            min=0.0, max=1.0,
+            default=(0.8, 0.8, 0.8),
+            update = syncBlenderColors
+        )
+        cls.emittance = FloatProperty(
+            name="Emit",
+            description="Amount of emissive property",
+            min=0.0, max=1.0,
+            step=1, precision=3,
+            soft_min=0.0, soft_max=1.0,
+            default=0.00
+        )       
         cls.diffuse_reflect = FloatProperty(
             name="Reflection strength",
             description="Amount of diffuse reflection",
@@ -121,7 +143,14 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
                 name="Reflectance model",
                 items= enum_reflectance_mode,
                 default='lambert'
-        )    
+        )
+        cls.mirr_color = FloatVectorProperty(
+                name="Mirror color",
+                description="Mirror Color",
+                subtype='COLOR',
+                min=0.0, max=1.0,
+                default=(1.0, 1.0, 1.0)
+        )   
         cls.glossy_color = FloatVectorProperty(
                 name="Glossy color",
                 description="Glossy Color",
@@ -340,7 +369,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     #
     @classmethod
     def unregister(cls):
-        del bpy.types.Scene.bounty
+        del bpy.types.Material.bounty
 
 def register():
     bpy.utils.register_class(TheBountyMaterialProperties)
