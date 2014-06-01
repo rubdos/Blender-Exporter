@@ -23,7 +23,8 @@ from bpy.props import (FloatProperty,
                        BoolProperty,
                        EnumProperty,
                        FloatVectorProperty,
-                       PointerProperty)
+                       PointerProperty,
+                       StringProperty)
 
 enum_material_types = (
     ('shinydiffusemat', "Shiny Diffuse",    ""),
@@ -41,18 +42,25 @@ enum_reflectance_mode = (
 )
 
 Material = bpy.types.Material
-
+#-----------------------------------------
+# syncronize some colors with Blender
+# for better visualization on viewport
+#-----------------------------------------
+def syncBlenderColors(self, context):
+    context.material.diffuse_color = context.material.bounty.diff_color
+    
 
 def items_mat1(self, context):
     a = []
     for mat in [m for m in bpy.data.materials if m.name not in self.name]:
+        if mat.bounty.mat_type not in 'blend':
         a.append((mat.name, mat.name, "First blend material"))
     return(a)
-
 
 def items_mat2(self, context):
     a = []
     for mat in [m for m in bpy.data.materials if m.name not in self.name]:
+        if mat.bounty.mat_type not in 'blend':
         a.append((mat.name, mat.name, "Second blend material"))
     return(a)
 
@@ -60,16 +68,41 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     
     @classmethod
     def register(cls):
-        # add subclasse to scene class
+        # 
+        # add subclasse to Material class
         bpy.types.Material.bounty = PointerProperty(
             name="TheBounty Material properties",
             description="",
             type=cls,
         )
+        #---------------------------
+        # list of material properies
+        #---------------------------
+        cls.nodetree = StringProperty(
+            name="Node Tree",
+            description="Name of the shader node tree for this material",
+            default=""
+        )
         cls.mat_type = EnumProperty(
                 name="Material type",
                 items=enum_material_types,
                 default='shinydiffusemat'
+        )
+        cls.diff_color = FloatVectorProperty(
+            name="Diffuse color",
+            description="Diffuse albedo color material",
+            subtype='COLOR',
+            min=0.0, max=1.0,
+            default=(0.8, 0.8, 0.8),
+            update = syncBlenderColors
+        )
+        cls.emittance = FloatProperty(
+            name="Emit",
+            description="Amount of emissive property",
+            min=0.0, max=1.0,
+            step=1, precision=3,
+            soft_min=0.0, soft_max=1.0,
+            default=0.00
         )    
         cls.diffuse_reflect = FloatProperty(
                 name="Reflection strength",
@@ -113,6 +146,16 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
                 items= enum_reflectance_mode,
                 default='lambert'
         )    
+                items= enum_reflectance_mode,
+                default='lambert'
+        )
+        cls.mirr_color = FloatVectorProperty(
+                name="Mirror color",
+                description="Mirror Color",
+                subtype='COLOR',
+                min=0.0, max=1.0,
+                default=(1.0, 1.0, 1.0)
+        )   
         cls.glossy_color = FloatVectorProperty(
                 name="Glossy color",
                 description="Glossy Color",
@@ -331,7 +374,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     #
     @classmethod
     def unregister(cls):
-        del bpy.types.Scene.bounty
+        del bpy.types.Material.bounty
 
 def register():
     bpy.utils.register_class(TheBountyMaterialProperties)

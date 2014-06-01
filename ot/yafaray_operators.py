@@ -182,7 +182,7 @@ class RENDER_OT_render_view(Operator):
 
 
 class RENDER_OT_render_animation(Operator):
-    bl_label = "YafaRay render animation"
+    bl_label = "TheBounty render animation"
     bl_idname = "render.render_animation"
     bl_description = "Render active scene"
 
@@ -210,7 +210,7 @@ class RENDER_OT_render_animation(Operator):
 
 
 class RENDER_OT_render_still(Operator):
-    bl_label = "YafaRay render still"
+    bl_label = "TheBounty render still"
     bl_idname = "render.render_still"
     bl_description = "Render active scene"
 
@@ -237,7 +237,7 @@ class RENDER_OT_render_still(Operator):
             return {'FINISHED'}
 
 
-class YAF_OT_presets_ior_list(Operator):
+class TheBounty_presets_ior_list(Operator):
     bl_idname = "material.set_ior_preset"
     bl_label = "IOR presets"
     index = bpy.props.FloatProperty()
@@ -250,7 +250,7 @@ class YAF_OT_presets_ior_list(Operator):
 
     def execute(self, context):
         mat = context.material
-        bpy.types.YAF_MT_presets_ior_list.bl_label = self.name
+        bpy.types.TheBounty_presets_ior_list.bl_label = self.name
         mat.bounty.IOR_refraction = self.index
         return {'FINISHED'}
 
@@ -314,12 +314,12 @@ class Thebounty_parseIBL(Operator):
                 self.parseValue(linea, 2) # string
             #
             if linea[:11] == 'PREVIEWfile':
-                PREVIEWfile = self.parseValue(linea, 2) # string
-                self.iblValues['PRE']= PREVIEWfile          
+                #PREVIEWfile = self.parseValue(linea, 2) # string
+                self.iblValues['PRE']= self.parseValue(linea, 2) #PREVIEWfile          
             #
             if linea[:6] == 'BGfile':
-                BGfile = self.parseValue(linea, 2) # string
-                self.iblValues['BG']= BGfile
+                #BGfile = self.parseValue(linea, 2) # string
+                self.iblValues['BG']= self.parseValue(linea, 2) #BGfile
             #
             if linea[:8] == 'BGheight':
                 self.parseValue(linea, 1) # integer
@@ -335,8 +335,8 @@ class Thebounty_parseIBL(Operator):
                 self.parseValue(linea, 0) # float
                 
             if linea[:7] == 'REFfile':
-                REFfile = self.parseValue(linea, 2) # string
-                self.iblValues['REF']= REFfile
+                #REFfile = self.parseValue(linea, 2) # string
+                self.iblValues['REF']= self.parseValue(linea, 2) #REFfile
                 
             if linea[:9] == 'REFheight':
                 self.parseValue(linea, 1) # integer

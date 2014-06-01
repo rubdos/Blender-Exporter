@@ -28,17 +28,6 @@ from bpy.props import StringProperty, EnumProperty, BoolProperty
 from bpy.types import Menu, Operator
 import bpy
 
-def updatePresetsPath(target):
-    """ Use install folder for presets """
-    ver1 = str(bpy.app.version[0])
-    ver2 = str(bpy.app.version[1])
-    version = ver1 +'.'+ ver2
-    target_path = os.path.join(os.getcwd(),version,"scripts", target)
-    #fix missings paths, you only needs create an new presets    
-    if not os.path.exists(target_path):
-        os.mkdir(target_path)
-    #
-    return target_path
 
 class TheBountyPresetBase():
     """Base preset class, only for subclassing
@@ -90,8 +79,8 @@ class TheBountyPresetBase():
 
             filename = self.as_filename(name)
             #target_path = os.path.join("presets", self.preset_subdir)            
-            preset_subdir = os.path.join("presets", self.preset_subdir)            
-            target_path = updatePresetsPath(preset_subdir)
+            preset_subdir = os.path.join("presets", self.preset_subdir)
+            target_path = os.path.join(bpy.utils.script_path_user(), preset_subdir)           
             if not os.path.exists(target_path):
                 os.mkdir(target_path)
             #target_path = bpy.utils.user_resource('SCRIPTS', target_path, create=True)
@@ -284,7 +273,6 @@ class TheBountyOperatorMaterialPresets(TheBountyPresetBase, bpy.types.Operator):
         "mat.as_diffuse",
         "mat.brdf_type",
         "mat.coat_mir_col",
-        "mat.coated",
         "mat.diffuse_reflect",
         "mat.dispersion_power",
         "mat.exp_u",
@@ -304,7 +292,6 @@ class TheBountyOperatorMaterialPresets(TheBountyPresetBase, bpy.types.Operator):
         # "mat.material2",
         # "mat.blend_value",
         "mat.refr_roughness",
-        "mat.rough",
         "mat.sigma",
         "mat.specular_reflect",
         "mat.transmit_filter",
