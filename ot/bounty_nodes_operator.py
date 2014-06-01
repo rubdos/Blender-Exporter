@@ -34,38 +34,32 @@ class TheBountyAddNodetree(bpy.types.Operator):
         idtype = 'material'
         context_data = {'material':context.material}
         idblock = context_data[idtype]
+        # node_active = context.active_node
+        # node_selected = context.selected_nodes
         
         nt = bpy.data.node_groups.new(idblock.name, type='TheBountyShaderTree')
         nt.use_fake_user = True
         idblock.bounty.nodetree = nt.name
-
-        if idtype == 'material':
-            nt.nodes.new('MaterialOutputNode')
-        
-        #
+        # test
         mat = context.material.bounty
         
-        if mat.mat_type == 'shinydiffusemat':
-            nt.nodes.new('ShinyDiffuseShaderNode')
+        bountyNodeTypes = {
+                'shinydiffusemat':'ShinyDiffuseShaderNode',
+                'glossy':'GlossyShaderNode',
+                'coated_glossy':'GlossyShaderNode',
+                'glass':'GlassShaderNode',
+                'rough_glass':'GlassShaderNode',
+                'blend':'BlendShaderNode',
+                'translucent':'TranslucentScattering'}
         
-        if mat.mat_type == 'glossy':
-            nt.nodes.new('GlossyShaderNode')
-            
-        if mat.mat_type == 'coated_glossy':
-            nt.nodes.new('GlossyShaderNode')
-            
-        if mat.mat_type == 'glass':
-            nt.nodes.new('GlassShaderNode')
-            
-        if mat.mat_type == 'rough_glass':
-            nt.nodes.new('GlassShaderNode')
-            
-        if mat.mat_type == 'blend':
-            pass
-        
-        if mat.mat_type == 'translucent':
-            pass
-            
+        #--------------------------------------
+        if idtype == 'material':            
+            shader =  nt.nodes.new(bountyNodeTypes[mat.mat_type])
+            shader.location = 100,250
+            sh_out = nt.nodes.new('MaterialOutputNode')
+            sh_out.location = 300,200
+            nt.links.new(shader.outputs[0],sh_out.inputs[0])
+        #--------------------------------------            
         
         return {'FINISHED'}
 
