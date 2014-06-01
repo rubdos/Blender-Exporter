@@ -52,17 +52,16 @@ def syncBlenderColors(self, context):
 
 def items_mat1(self, context):
     a = []
-    for mat in [m for m in bpy.data.materials if m.name not in self.name]:
-        if mat.bounty.mat_type not in 'blend':
+    for mat in [m for m in bpy.data.materials if m.bounty.mat_type not in 'blend']: # name not in self.name]:
         a.append((mat.name, mat.name, "First blend material"))
     return(a)
 
 def items_mat2(self, context):
     a = []
-    for mat in [m for m in bpy.data.materials if m.name not in self.name]:
-        if mat.bounty.mat_type not in 'blend':
+    for mat in [m for m in bpy.data.materials if m.bounty.mat_type not in 'blend']: # m.name not in self.name]:
         a.append((mat.name, mat.name, "Second blend material"))
     return(a)
+
 
 class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     
@@ -143,9 +142,6 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
         )    
         cls.brdf_type = EnumProperty(
                 name="Reflectance model",
-                items= enum_reflectance_mode,
-                default='lambert'
-        )    
                 items= enum_reflectance_mode,
                 default='lambert'
         )

@@ -175,7 +175,7 @@ class yaf_fresnel_socket(NodeSocket):
 
 
 # Derived from the Node base type.
-class TheBountyMaterialOutputNode(Node, TheBountyNodeTree):
+class TheBountyMaterialOutputNode(Node, NodeTree):
     bl_idname = 'MaterialOutputNode'
     bl_label = 'Material Output'
     bl_icon = 'MATERIAL'
@@ -184,7 +184,7 @@ class TheBountyMaterialOutputNode(Node, TheBountyNodeTree):
         self.inputs.new('NodeSocketShader', "Shader")
         
 
-class TheBountyTranslucenShaderNode(Node, TheBountyNodeTree):
+class TheBountyTranslucenShaderNode(Node, NodeTree):
     # Shiny Diffuse node
     bl_idname = 'TranslucentScattering'
     bl_label = 'Scattering Shader'
@@ -222,28 +222,7 @@ class TheBountyTranslucenShaderNode(Node, TheBountyNodeTree):
         col.prop(mat.bounty, "sssIOR")
         
         
-        col.prop(mat.bounty, "diffuse_reflect", text="Diff. Reflect",slider=True)
-        col.prop(mat.bounty, "glossy_color")#Glossy color")
-        col.prop(mat.bounty, "glossy_reflect", text="Gloss. Reflect",slider=True)
-        col.prop(mat.bounty, "sssSpecularColor")
-        col.prop(mat.bounty, "exponent", text="Specular Exponent")
-        
-        row = layout.row()
-        row.label("SSS Presets")
-        row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
-        
-        col = layout.column()        
-        
-        col.prop(mat.bounty, "sssSigmaS", text="Scatter color")
-        col.prop(mat.bounty, "sssSigmaS_factor")
-        col.prop(mat.bounty, "phaseFuction")
-                
-        col.prop(mat.bounty, "sssSigmaA", text="Absorption color")
-        col.prop(mat.bounty, "sss_transmit", text="Transmit")
-        col.prop(mat.bounty, "sssIOR")
-        
-        
-class TheBountyShinyDiffuseShaderNode(Node, TheBountyNodeTree):
+class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
     # Shiny Diffuse node
     bl_idname = 'ShinyDiffuseShaderNode'
     bl_label = 'Shiny Diffuse Shader'
