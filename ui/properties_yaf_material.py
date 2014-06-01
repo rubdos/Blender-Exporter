@@ -69,7 +69,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
     def draw(self, context):
         layout = self.layout
 
-        mat = context.material # povman: no bounty here ??
+        mat = context.material
         #material = mat.bounty
         ob = context.object
         slot = context.material_slot
@@ -103,9 +103,9 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #----------------
             # test for nodes
             #----------------
-            #ymat = context.material
-            #if ymat:
-            #   row.prop(ymat, "use_nodes", icon='NODETREE', text="")
+            ymat = context.material
+            if ymat:
+                row.prop(ymat, "use_nodes", icon='NODETREE', text="")
             #----------------
             if slot:
                 row.prop(slot, "link", text="")
@@ -129,7 +129,6 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #-------------------
             # test for nodes
             #-------------------
-            '''
             if mat.use_nodes:
                 row = layout.row()
                 row.label(text="", icon='NODETREE')
@@ -138,7 +137,6 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
                 else:
                     row.label(text="No material node selected")
             #-------------------
-            '''
 
 class TheBountyMaterialPreview(TheBountyMaterialButtonsPanel, Panel):
     bl_label = "Preview" 
