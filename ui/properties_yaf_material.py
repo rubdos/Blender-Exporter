@@ -30,7 +30,6 @@ class TheBountyMaterialButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "material"
-    # COMPAT_ENGINES must be defined in each subclass, external engines can add themselves here
     COMPAT_ENGINES = {'THEBOUNTY'}
     
     @classmethod
@@ -49,9 +48,10 @@ class TheBountyMaterialTypePanel(TheBountyMaterialButtonsPanel):
 
     @classmethod
     def poll(cls, context):
-        yaf_mat = context.material
+        mat = context.material
         engine = context.scene.render.engine
-        return check_material(yaf_mat) and (yaf_mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
+        #
+        return check_material(mat) and(mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
 
 
 class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
@@ -61,25 +61,19 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
     
     @classmethod
     def poll(cls, context):
-        # An exception, dont call the parent poll func because
-        # this manages materials for all engine types
-        engine = context.scene.render.engine
-        return (context.material or context.object) and (engine in cls.COMPAT_ENGINES)
+        #
+        return (context.material or context.object) and (context.scene.render.engine in cls.COMPAT_ENGINES)
 
     def draw(self, context):
         layout = self.layout
 
         mat = context.material
-        #material = mat.bounty
         ob = context.object
         slot = context.material_slot
         space = context.space_data
 
         if ob:
             row = layout.row()
-            #if bpy.app.version < (2, 65, 3 ):
-            #    row.template_list(ob, "material_slots", ob, "active_material_index", rows=2)
-            #else:
             row.template_list("MATERIAL_UL_matslots", "", ob, "material_slots", ob, "active_material_index", rows=2)
 
             col = row.column(align=True)
@@ -190,7 +184,7 @@ class TheBounty_presets_ior_list(Menu):
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
     bl_label = "Diffuse reflection"
     material_type = 'shinydiffusemat'
-
+    
     def draw(self, context):
         layout = self.layout
         mat = active_node_mat(context.material)
@@ -262,7 +256,6 @@ class TheBountyGlossyDiffuse(TheBountyMaterialTypePanel, Panel):
         sig.prop(mat.bounty, "sigma")
         layout.row().prop(mat.bounty, "diffuse_reflect", slider=True)
 
-
 class TheBountyGlossySpecular(TheBountyMaterialTypePanel, Panel):
     bl_label = "Specular reflection"
     material_type = 'glossy', 'coated_glossy'
@@ -301,7 +294,6 @@ class TheBountyGlossySpecular(TheBountyMaterialTypePanel, Panel):
             col.prop(mat.bounty, "IOR_reflection")
             col.label()
 
-
 class TheBountyRealGlass(TheBountyMaterialTypePanel, Panel):
     bl_label = "Real glass settings"
     material_type = 'glass', 'rough_glass'
@@ -331,7 +323,6 @@ class TheBountyRealGlass(TheBountyMaterialTypePanel, Panel):
             row = layout.row()
             #box.label(text="Glass roughness:")
             row.prop(mat.bounty, "refr_roughness",text="Roughness exponent", slider=True)
-
 
 class TheBountyFakeGlass(TheBountyMaterialTypePanel, Panel):
     bl_label = "Fake glass settings"
@@ -394,11 +385,10 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         #
         split = layout.split()
         col = split.column()
-        #col = layout.box()
         col.prop(mat.bounty, "diff_color")
         col.prop(mat.bounty, "diffuse_reflect", text="Diff. Reflect",slider=True)
         col = split.column()     
-        col.prop(mat.bounty, "glossy_color")#Glossy color")
+        col.prop(mat.bounty, "glossy_color")
         col.prop(mat.bounty, "glossy_reflect", text="Gloss. Reflect",slider=True)
         row= layout.row()
         row.prop(mat.bounty, "sssSpecularColor")
@@ -416,10 +406,7 @@ class TheBountySubSurfaceScattering(TheBountyMaterialTypePanel, Panel):
         row = layout.row()
         row.label("SSS Presets")
         row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
-        # this operator's is not need, you can use material presets for save SSS presets
-        #row.operator("yafaray.preset_add", text="", icon='ZOOMIN')
-        #row.operator("yafaray.preset_add", text="", icon='ZOOMOUT').remove_active = True
-        #
+    
         split = layout.split()
         col = split.column()        
         
@@ -431,7 +418,6 @@ class TheBountySubSurfaceScattering(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "sssSigmaA", text="Absorption color")
         col.prop(mat.bounty, "sss_transmit", text="Transmit")
         col.prop(mat.bounty, "sssIOR")
-              
 
 if __name__ == "__main__":  # only for live edit.
     #import bpy

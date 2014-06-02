@@ -21,7 +21,7 @@
 
 import bpy
 from bpy.types import NodeTree, Node, NodeSocket
-from bpy.props import FloatProperty, FloatVectorProperty
+from bpy.props import FloatProperty #, FloatVectorProperty
 # test move here
 from nodeitems_utils import NodeCategory, NodeItem, NodeItemCustom
 
@@ -80,7 +80,6 @@ class TheBountyShaderTree(NodeTree):
 #        return ntree.bl_idname == 'TheBountyShaderTree'
 
 '''
-
 #- Shiny diffuse sockets ------------->
 class diffuse_color_socket(NodeSocket):
     bl_idname = 'diffuse_color_socket'
@@ -155,7 +154,7 @@ class yaf_mirror_reflect_socket(NodeSocket):
     # Socket color
     def draw_color(self, context, node):
         return (float_socket)
-
+'''
 #----------- fresnel -------------------------->
 class yaf_fresnel_socket(NodeSocket):
     bl_idname = "yaf_fresnel"
@@ -171,7 +170,35 @@ class yaf_fresnel_socket(NodeSocket):
     # Socket color
     def draw_color(self, context, node):
         return (float_socket)
-'''
+
+class MyCustomSocket(NodeSocket):
+    # Description string
+    '''Custom node socket type'''
+    # Optional identifier string. If not explicitly defined, the python class name is used.
+    bl_idname = 'CustomSocketType'
+    # Label for nice name display
+    bl_label = 'Custom Node Socket'
+
+    # Enum items list
+    my_items = [
+        ("DOWN", "Down", "Where your feet are"),
+        ("UP", "Up", "Where your head should be"),
+        ("LEFT", "Left", "Not right"),
+        ("RIGHT", "Right", "Not left")
+    ]
+
+    myEnumProperty = bpy.props.EnumProperty(name="Direction", description="Just an example", items=my_items, default='UP')
+
+    # Optional function for drawing the socket input value
+    def draw(self, context, layout, node, text):
+        if self.is_output or self.is_linked:
+            layout.label(text)
+        else:
+            layout.prop(self, "myEnumProperty", text=text)
+
+    # Socket color
+    def draw_color(self, context, node):
+        return (1.0, 0.4, 0.216, 0.5)
 
 
 # Derived from the Node base type.
@@ -181,7 +208,11 @@ class TheBountyMaterialOutputNode(Node, NodeTree):
     bl_icon = 'MATERIAL'
     
     def init(self, context):
-        self.inputs.new('NodeSocketShader', "Shader")
+        self.inputs.new('NodeSocketShader', "ShaderTree")
+    
+    def draw_buttons(self, context, layout):
+        #
+        layout.column().label(context.active_object.active_material.name)
         
 
 class TheBountyTranslucenShaderNode(Node, NodeTree):
@@ -189,6 +220,7 @@ class TheBountyTranslucenShaderNode(Node, NodeTree):
     bl_idname = 'TranslucentScattering'
     bl_label = 'Scattering Shader'
     bl_icon = 'MATERIAL'
+    bl_width_min = 180
     
     #
     def init(self, context):
@@ -227,13 +259,21 @@ class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
     bl_idname = 'ShinyDiffuseShaderNode'
     bl_label = 'Shiny Diffuse Shader'
     bl_icon = 'MATERIAL'
-    
+    #
+    diffuse_reflect = FloatProperty(
+            name="Reflection strength",
+            description="Amount of diffuse reflection",
+            min=0.0, max=1.0,
+            step=1, precision=3,
+            soft_min=0.0, soft_max=1.0,
+            default=1.000
+        )
     #
     def init(self, context):
         # slots shaders
         self.outputs.new('NodeSocketColor', "Shader")
+        self.inputs.new("MyCustomSocket","Shader")
         
-
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
         print("Copying from node ", node)
@@ -249,9 +289,9 @@ class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
 
         col = layout.column()
         col.prop(mat, "diffuse_color")
-        col.prop(mat, "emit")
-        col.prop(mat.bounty, "diffuse_reflect", slider=True)
-
+        col.prop(self, "diffuse_reflect", slider=True)
+        col.prop(mat.bounty, "emittance")
+        
         col.prop(mat.bounty, "brdf_type", text="")
         brdf = layout.column()
         brdf.enabled = mat.bounty.brdf_type == "oren-nayar"
@@ -267,7 +307,8 @@ class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
         # specular
         col.label(text="Mirror color:")
         col.prop(mat, "mirror_color", text="")
-
+        
+        
         col.prop(mat.bounty, "fresnel_effect")
         sub = col.column()
         sub.enabled = mat.bounty.fresnel_effect
@@ -288,7 +329,7 @@ class TheBountyReflectanceNode(Node, NodeTree):
 
     def init(self, context):
         #
-        self.outputs.new('NodeSocketColor', "BSRDF")
+        self.outputs.new('NodeSocketColor', "BRDF")
     
     def draw_buttons(self, context, layout):
         """ Same design to a UI panels ( column, split, row..) """
@@ -309,7 +350,16 @@ class TheBountyGlossyShaderNode(Node, NodeTree):
     bl_idname = 'GlossyShaderNode'
     bl_label = 'Glossy Shader'
     bl_icon = 'MATERIAL'
-
+    #
+    diffuse_reflect = FloatProperty(
+            name="Reflection strength",
+            description="Amount of diffuse reflection",
+            min=0.0, max=1.0,
+            step=1, precision=3,
+            soft_min=0.0, soft_max=1.0,
+            default=1.000
+    )
+    #
     def init(self, context):
         #
         self.outputs.new('NodeSocketColor', "Shader Out")
@@ -329,11 +379,10 @@ class TheBountyGlossyShaderNode(Node, NodeTree):
         sig.enabled = mat.bounty.brdf_type == "oren-nayar"
         sig.prop(mat.bounty, "sigma")
         
-        layout.row().prop(mat.bounty, "diffuse_reflect", slider=True)
+        layout.row().prop(self, "diffuse_reflect", slider=True)
 
         layout.separator()
-        #split = layout.split()
-        #col = split.column()
+        col = layout.column()
         col.prop(mat.bounty, "glossy_color")
         exp = col.column()
         exp.enabled = mat.bounty.anisotropic == False
@@ -359,7 +408,6 @@ class TheBountyGlossyShaderNode(Node, NodeTree):
             col.prop(mat.bounty, "coat_mir_col")
             col.label(text="Fresnel reflection:")
             col.prop(mat.bounty, "IOR_reflection")
-            #col.label()
     
     def draw_buttons_ext(self, context, layout):
         # many buttons..
@@ -494,6 +542,7 @@ TheBountyNodeCategories = [
         NodeItem("TranslucentScattering"),
         # test
         NodeItem("ReflectanceShaderNode"),
+        #NodeItem("ShinyDiffuseComponent"), # test
         ]),
     TheBountyNodeCategory("TheBountyTextures", "Textures", items=[
         # texture nodes
@@ -502,7 +551,7 @@ TheBountyNodeCategories = [
     ]
 
 def register():
-    bpy.utils.register_class(TheBountyNodeTree)
+    #bpy.utils.register_class(TheBountyNodeTree)
     #bpy.utils.register_class(yaf_diffuse_color_socket)
     #bpy.utils.register_class(yaf_diffuse_reflect_socket)
     #bpy.utils.register_class(yaf_mirror_reflect_socket)
@@ -515,7 +564,7 @@ def register():
     bpy.utils.register_class(TheBountyTextureShaderNode)
 
 def unregister():
-    bpy.utils.unregister_class(TheBountyNodeTree)
+    #bpy.utils.unregister_class(TheBountyNodeTree)
     #bpy.utils.unregister_class(yaf_diffuse_color_socket)
     #bpy.utils.unregister_class(yaf_diffuse_reflect_socket)
     #bpy.utils.unregister_class(yaf_mirror_reflect_socket)
