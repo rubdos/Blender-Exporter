@@ -31,9 +31,40 @@ def proj2int(val):
         return 2
     elif val == 'Z':
         return 3
+    
+switchTextureCoordinates = {
+    'UV': 'uv',
+    'GLOBAL': 'global',
+    'ORCO': 'orco',
+    'WINDOW': 'window',
+    'NORMAL': 'normal',
+    'REFLECTION': 'reflect',
+    'STICKY': 'stick',
+    'STRESS': 'stress',
+    'TANGENT': 'tangent',
+    'OBJECT': 'transformed',
+}
 
+switchBlendMode = {
+    'MIX': 0,
+    'ADD': 1,
+    'MULTIPLY': 2,
+    'SUBTRACT': 3,
+    'SCREEN': 4,
+    'DIVIDE': 5,
+    'DIFFERENCE': 6,
+    'DARKEN': 7,
+    'LIGHTEN': 8,
+}
 
-class yafMaterial:
+switchMappingCoords = {
+    'FLAT': 'plain',
+    'CUBE': 'cube',
+    'TUBE': 'tube',
+    'SPHERE': 'sphere',
+}
+
+class TheBountyMaterialWrite:
     def __init__(self, interface, mMap, texMap):
         self.yi = interface
         self.materialMap = mMap
@@ -65,19 +96,6 @@ class yafMaterial:
 
         yi.paramsSetString("input", mapName)
 
-        #mtex is an instance of MaterialTextureSlot class
-
-        switchBlendMode = {
-            'MIX': 0,
-            'ADD': 1,
-            'MULTIPLY': 2,
-            'SUBTRACT': 3,
-            'SCREEN': 4,
-            'DIVIDE': 5,
-            'DIFFERENCE': 6,
-            'DARKEN': 7,
-            'LIGHTEN': 8,
-        }
         # set texture blend mode, if not a supported mode then set it to 'MIX'
         mode = switchBlendMode.get(mtex.blend_type, 0)
         yi.paramsSetInt("mode", mode)
@@ -89,20 +107,13 @@ class yafMaterial:
             negative = True        
         yi.paramsSetBool("negative", negative)
 
-        # "hack", scalar maps should always convert the RGB intensity to scalar
-        # not clear why without this and noRGB == False, maps on scalar values seem to be "white" everywhere   <-- ???
-        # noRGB = mtex.use_rgb_to_intensity
-        # if len(dcol) == 1:    # disabled this 'hack' again, does not work with procedurals and alpha mapping (e.g. PNG image with 'use alpha')
-        #     noRGB = True      # user should decide if rgb_to_intensity will be used or not...
-
+        # Use float instead rgb data from image or procedural texture
         yi.paramsSetBool("noRGB", mtex.use_rgb_to_intensity)
 
         yi.paramsSetColor("def_col", mtex.color[0], mtex.color[1], mtex.color[2])
         yi.paramsSetFloat("def_val", mtex.default_value)
 
         tex = mtex.texture  # texture object instance
-        # lots to do...
-
         isImage = tex.yaf_tex_type == 'IMAGE'
 
         isColored = False
@@ -146,21 +157,9 @@ class yafMaterial:
         yi.paramsSetString("type", "texture_mapper")
         yi.paramsSetString("name", name)
         yi.paramsSetString("texture", texname)
-
-        switchTexCoords = {
-            'UV': 'uv',
-            'GLOBAL': 'global',
-            'ORCO': 'orco',
-            'WINDOW': 'window',
-            'NORMAL': 'normal',
-            'REFLECTION': 'reflect',
-            'STICKY': 'stick',
-            'STRESS': 'stress',
-            'TANGENT': 'tangent',
-            'OBJECT': 'transformed',
-        }
-
-        texco = switchTexCoords.get(mtex.texture_coords, 'orco')  # get texture coords, default is 'orco'
+        
+        # get texture coords, default is 'orco'
+        texco = switchTextureCoordinates.get(mtex.texture_coords, 'orco')
         yi.paramsSetString("texco", texco)
 
         if mtex.object:
@@ -178,12 +177,6 @@ class yafMaterial:
         yi.paramsSetInt("proj_y", proj2int(mtex.mapping_y))
         yi.paramsSetInt("proj_z", proj2int(mtex.mapping_z))
 
-        switchMappingCoords = {
-            'FLAT': 'plain',
-            'CUBE': 'cube',
-            'TUBE': 'tube',
-            'SPHERE': 'sphere',
-        }
         mappingCoords = switchMappingCoords.get(mtex.mapping, 'plain')
         yi.paramsSetString("mapping", mappingCoords)
 
@@ -535,10 +528,10 @@ class yafMaterial:
             used = False
             mappername = "map%x" % i
 
-            lname = "mask_layer%x" % i
-            if self.writeTexLayer(lname, mappername, maskRoot, mtex, mtex.use_map_diffuse, [0], mtex.diffuse_factor):
+            layername = "mask_layer%x" % i
+            if self.writeTexLayer(layername, mappername, maskRoot, mtex, mtex.use_map_diffuse, [0], mtex.diffuse_factor):
                 used = True
-                maskRoot = lname
+                maskRoot = layername
             if used:
                 self.writeMappingNode(mappername, mtex.texture.name, mtex)
             i += 1
@@ -566,7 +559,7 @@ class yafMaterial:
         yi.paramsSetString("type", "null")
         return yi.createMaterial(self.namehash(mat))
 
-    def writeMaterial(self, mat, preview=False):
+    def writeMaterial(self, mat, preview=False): # test
         self.preview = preview
         self.yi.printInfo("Exporter: Creating Material: \"" + self.namehash(mat) + "\"")
         ymat = None

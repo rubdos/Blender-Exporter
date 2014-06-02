@@ -31,7 +31,7 @@ from .yaf_world  import yafWorld
 from .yaf_integrator import yafIntegrator
 from . import yaf_scene
 from .yaf_texture import yafTexture
-from .yaf_material import yafMaterial
+from .yaf_material import TheBountyMaterialWrite
 
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
@@ -59,26 +59,32 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi = yi
         # setup specific values for render preview mode
         if self.is_preview:
-            #self.yi.setVerbosityMute()
+            self.yi.setVerbosityMute()
             self.scene.bounty.bg_transp = False         #to correct alpha problems in preview roughglass
             self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
         else:
             self.verbositylevel('info')
         
         # export go.. load plugins
-        self.yi.loadPlugins(PLUGIN_PATH)        
+        self.yi.loadPlugins(PLUGIN_PATH)
+                
         # process geometry
-        self.yaf_object = yafObject(self.yi, self.materialMap, self.is_preview)        
+        self.yaf_object = yafObject(self.yi, self.materialMap, self.is_preview)
+             
         # process lights
-        self.yaf_lamp = yafLight(self.yi, self.is_preview)        
+        self.yaf_lamp = yafLight(self.yi, self.is_preview)
+              
         # process environment world
-        self.yaf_world = yafWorld(self.yi)        
+        self.yaf_world = yafWorld(self.yi)
+              
         # process lighting integrators..
-        self.yaf_integrator = yafIntegrator(self.yi)        
+        self.yaf_integrator = yafIntegrator(self.yi)
+              
         # textures before materials
-        self.yaf_texture = yafTexture(self.yi)        
+        self.yaf_texture = yafTexture(self.yi)
+             
         # and materials
-        self.yaf_material = yafMaterial(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
+        self.yaf_material = TheBountyMaterialWrite(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
 
     def exportScene(self):
         #
@@ -211,7 +217,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         #--------------------------------------------------------------
         # This is not needed atm because 'blend' materials are excluded 
         # themselves from list. Recursive blend materials aren't allowed. 
-        # Now Property update method is excluded
+        # Now Property sync method is excluded
         #------------------------------------------------------------
         
         #if mat1.bounty.mat_type == 'blend':
@@ -256,17 +262,16 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         #---------------------------------------------
         # override all materials in 'clay render' mode
         #---------------------------------------------
-        if not self.scene.bounty.gs_clay_render:
-            for obj in self.scene.objects:
-                for mat_slot in obj.material_slots:
-                    if mat_slot.material not in self.materials:
-                        self.exportMaterial(mat_slot.material)
+        for obj in [o for o in self.scene.objects if not self.scene.bounty.gs_clay_render]:
+            for mat_slot in obj.material_slots:
+                if mat_slot.material not in self.materials:
+                    self.exportMaterial(mat_slot.material)
 
     def exportMaterial(self, material):
         if material:
+            # must make sure all materials used by a blend mat
+            # are written before the blend mat itself                
             if material.bounty.mat_type == 'blend':
-                # must make sure all materials used by a blend mat
-                # are written before the blend mat itself
                 self.handleBlendMat(material)
             else:
                 self.materials.add(material)
@@ -360,7 +365,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def render_preview(self, scene):
         # callback to render scene
-        #self.is_preview = True
+        self.is_preview = True
         #scene = scene.bounty
         self.bl_use_postprocess = False
         #
@@ -427,12 +432,15 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # callback to render scene
         self.is_preview = False
         scene = scene.bounty
-        self.bl_use_postprocess = False
-        
+        # test for keep postprocess state
+        postprocess = self.bl_use_postprocess
+        #
+        if self.bl_use_postprocess:
+            self.bl_use_postprocess = False        
 
         if scene.gs_type_render == "file":
             self.yi.printInfo("Exporter: Rendering to file {0}".format(self.outputFile))
-            self.update_stats("TheBounty Rendering:", "Rendering to {0}".format(self.outputFile))
+            
             self.yi.render(self.co)
             result = self.begin_result(0, 0, self.resX, self.resY)
             lay = result.layers[0]
@@ -442,7 +450,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
             else:
                 lay.load_from_file(self.outputFile)
-
             self.end_result(result)
 
         elif scene.gs_type_render == "xml":
@@ -463,8 +470,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
             def drawAreaCallback(*args):
                 x, y, w, h, tile = args
-                layer = ""
-                res = self.begin_result(x, y, w, h, layer)
+                res = self.begin_result(x, y, w, h)
                 try:
                     lay = res.layers[0]
                     lay.rect, lay.passes[0].rect = tile
@@ -475,8 +481,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
             def flushCallback(*args):
                 w, h, tile = args
-                layer = ""
-                res = self.begin_result(0, 0, w, h, layer)
+                res = self.begin_result(0, 0, w, h)
                 try:
                     lay = res.layers[0]
                     lay.rect, lay.passes[0].rect = tile
@@ -504,11 +509,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 self.update_stats("", "Aborting...")
                 self.yi.abort()
                 thread.join()
-
+        #
         self.yi.clearAll()
         del self.yi
         self.update_stats("", "Done!")
-        self.bl_use_postprocess = True
+        self.bl_use_postprocess = postprocess #True
 
     def render(self, scene):
         #
