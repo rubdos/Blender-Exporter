@@ -81,6 +81,10 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             col.operator("object.material_slot_remove", icon='ZOOMOUT', text="")
 
             # TODO: code own operators to copy yaf material settings...
+            # povman add test..
+            #col.operator("object.material_slot_move", text="", icon='TRIA_UP').type = 'UP'
+            #col.operator("object.material_slot_move", text="", icon='TRIA_DOWN').type = 'DOWN'
+            # end test
             col.menu("MATERIAL_MT_specials", icon='DOWNARROW_HLT', text="")
 
             if ob.mode == 'EDIT':
@@ -180,7 +184,40 @@ class TheBounty_presets_ior_list(Menu):
         for sm in submenus:
             sl.menu(sm.bl_idname)
 
+class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
+    bl_label = "Blend material settings"
+    material_type = 'blend'
 
+    def draw(self, context):
+        layout = self.layout
+        mat = active_node_mat(context.material)
+
+        col = layout.column()
+        #col.prop(mat.bounty, "blend_value", slider=True)
+        layout.separator()
+        col.prop(mat.bounty, "blendmat_type1", text="Material one")
+        if mat.bounty.blendmat_type1 == "shinydiffusemat":
+            self.draw_blend1(context, layout)
+            
+        col.separator()
+        col.prop(mat.bounty, "blend_value", slider=True)
+        col.separator()
+        
+        col.prop(mat.bounty, "blendmat_type2", text="Material two")
+        if mat.bounty.blendmat_type2 == "shinydiffusemat":
+            box = layout.box()
+            box.label("Blend material 2: ShinyDiffuse ")
+            TheBountyShinyDiffuse.draw(self, context)
+            TheBountyShinySpecular.draw(self, context)
+        # draw
+    def draw_blend1(self, context, layout):
+        #layout = self.layout
+        box = layout.box()
+        box.label("Blend material 1: ShinyDiffuse")
+        TheBountyShinyDiffuse.draw(self, context)
+        TheBountyShinySpecular.draw(self, context)
+        
+            
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
     bl_label = "Diffuse reflection"
     material_type = 'shinydiffusemat'
@@ -216,8 +253,8 @@ class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
 
 class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
     bl_label = "Specular reflection"
-    material_type = 'shinydiffusemat'
-
+    material_type = 'shinydiffusemat'    
+            
     def draw(self, context):
         layout = self.layout
         mat = active_node_mat(context.material)
@@ -225,7 +262,7 @@ class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
         split = layout.split()
         col = split.column()
         col.label(text="Mirror color:")
-        col.prop(mat, "mirror_color", text="")
+        col.prop(mat.bounty, "mirr_color", text="")
 
         col = split.column()
         col.prop(mat.bounty, "fresnel_effect")
@@ -339,34 +376,7 @@ class TheBountyFakeGlass(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "glass_mir_col")
         layout.row().prop(mat.bounty, "glass_transmit", slider=True)
         layout.row().prop(mat.bounty, "fake_shadows")
-
-
-class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
-    bl_label = "Blend material settings"
-    material_type = 'blend'
-
-    def draw(self, context):
-        layout = self.layout
-        mat = active_node_mat(context.material)
-
-        split = layout.split()
-        col = split.column()
-        col.label(text="")
-        col.prop(mat.bounty, "blend_value", slider=True)
-
-        layout.separator()
-
-        box = layout.box()
-        box.label(text="Choose the two materials you wish to blend.")
-        split = box.split()
-        col = split.column()
-        col.label(text="Material one:")
-        col.prop(mat.bounty, "blendmaterial1", text="")
-
-        col = split.column()
-        col.label(text="Material two:")
-        col.prop(mat.bounty, "blendmaterial2", text="")
-
+        
 class TheBountyScatteringPresets(Menu):
     bl_label = "Scattering Presets"
     preset_subdir = "thebounty/sss"
@@ -380,8 +390,7 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        mat = active_node_mat(context.material)
-                
+        mat = active_node_mat(context.material)                
         #
         split = layout.split()
         col = split.column()

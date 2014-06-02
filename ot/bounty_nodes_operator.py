@@ -23,6 +23,16 @@ Created on 13/05/2014
 '''
 import bpy
 
+TheBountyMaterialNodeTypes = {
+    'shinydiffusemat':'ShinyDiffuseShaderNode',
+    'glossy':'GlossyShaderNode',
+    'coated_glossy':'GlossyShaderNode',
+    'glass':'GlassShaderNode',
+    'rough_glass':'GlassShaderNode',
+    'blend':'BlendShaderNode',
+    'translucent':'TranslucentScattering'
+}
+
 # test for nodetree operator
 class TheBountyAddNodetree(bpy.types.Operator):
     ''''''
@@ -42,23 +52,27 @@ class TheBountyAddNodetree(bpy.types.Operator):
         idblock.bounty.nodetree = nt.name
         # test
         mat = context.material.bounty
-        
-        bountyNodeTypes = {
-                'shinydiffusemat':'ShinyDiffuseShaderNode',
-                'glossy':'GlossyShaderNode',
-                'coated_glossy':'GlossyShaderNode',
-                'glass':'GlassShaderNode',
-                'rough_glass':'GlassShaderNode',
-                'blend':'BlendShaderNode',
-                'translucent':'TranslucentScattering'}
+        #obj = bpy.context.active_object #.active
+        #bpy.context.object.active_material.name = "blend"
         
         #--------------------------------------
-        if idtype == 'material':            
-            shader =  nt.nodes.new(bountyNodeTypes[mat.mat_type])
-            shader.location = 100,250
-            sh_out = nt.nodes.new('MaterialOutputNode')
-            sh_out.location = 300,200
-            nt.links.new(shader.outputs[0],sh_out.inputs[0])
+        if idtype == 'material':
+            '''
+            if mat.mat_type =='blend':
+                y = 100
+                for mat_slot in obj.material_slots:
+                    out = nt.nodes.new('MaterialOutputNode')
+                    out.location = 200,y
+                    y +=100
+            else:
+            '''
+            out = nt.nodes.new('MaterialOutputNode')
+            out.location = 200,100
+                
+            shader =  nt.nodes.new(TheBountyMaterialNodeTypes[mat.mat_type])
+            shader.location = 10,250
+            
+            nt.links.new(shader.outputs[0],out.inputs[0])
         #--------------------------------------            
         
         return {'FINISHED'}
