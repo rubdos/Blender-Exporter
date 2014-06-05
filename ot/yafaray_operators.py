@@ -113,7 +113,7 @@ def sunPosAngle(mode="get", val="position"):
         return "No selected LAMP object in the scene!"
 
 def checkSSS():
-    for mat in [m for m in bpy.data.materials]:
+    for mat in bpy.data.materials:
         if mat.bounty.mat_type == 'translucent':
             return True
     return False
@@ -149,13 +149,12 @@ class RENDER_OT_render_view(Operator):
     def execute(self, context):
         view3d = context.region_data
         bpy.types.THEBOUNTY.useViewToRender = True
-        sceneLights = checkSceneLights()
-        sssMats = checkSSS()
-        
         scene = context.scene
-        # Get the 3d view under the mouse cursor
-        # if the region is not a 3d view
-        # then search for the first active one
+        
+        #------------------------------------------------------
+        # Get the 3d view under the mouse cursor if the region
+        # is not a 3d view then search for the first active one
+        #------------------------------------------------------
         if not view3d:
             for area in [a for a in bpy.context.window.screen.areas if a.type == "VIEW_3D"]:
                 view3d = area.spaces.active.region_3d
@@ -166,19 +165,25 @@ class RENDER_OT_render_view(Operator):
             bpy.types.THEBOUNTY.useViewToRender = False
             return {'CANCELLED'}
 
-        elif not sceneLights and scene.bounty.intg_light_method == "bidirectional":
-            self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            bpy.types.THEBOUNTY.useViewToRender = False
-            return {'CANCELLED'}
+        #----------------------------------------------
+        # Check first the easiest or lighter question
+        # atm, only is need check lights for bidir case
+        #---------------------------------------------- 
+        if scene.bounty.intg_light_method == "bidirectional":
+            if not checkSceneLights():
+                self.report({'WARNING'}, ("You use Bidirectional integrator and NOT have lights in the scene!"))
+                bpy.types.THEBOUNTY.useViewToRender = False
+                return {'CANCELLED'}        
         
-        elif not sssMats and scene.bounty.intg_useSSS == True:
-            self.report({'WARNING'}, ("No SSS materials in the scene and SSS integrator is activate!"))
-            return {'CANCELLED'}
+        if scene.bounty.intg_useSSS:
+            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+                if not checkSSS():
+                    self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
+                    return {'CANCELLED'}
 
-        else:
-            bpy.types.THEBOUNTY.viewMatrix = view3d.view_matrix.copy()
-            bpy.ops.render.render('INVOKE_DEFAULT')
-            return {'FINISHED'}
+        bpy.types.THEBOUNTY.viewMatrix = view3d.view_matrix.copy()
+        bpy.ops.render.render('INVOKE_DEFAULT')
+        return {'FINISHED'}
 
 
 class RENDER_OT_render_animation(Operator):
@@ -192,21 +197,26 @@ class RENDER_OT_render_animation(Operator):
         return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
-        sceneLights = checkSceneLights()
-        sssMats = checkSSS()
         scene = context.scene
-
-        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
-            self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            return {'CANCELLED'}
         
-        elif not sssMats and scene.bounty.intg_useSSS == True:
-            self.report({'WARNING'}, ("No SSS materials in the scene and SSS integrator is activate!"))
-            return {'CANCELLED'}
+        #----------------------------------------------
+        # check first the easiest or lighter question
+        # atm, only is need check lights for bidir case
+        #---------------------------------------------- 
+        if scene.bounty.intg_light_method == "bidirectional":
+            if not checkSceneLights():
+                self.report({'WARNING'}, ("You use Bidirectional integrator and NOT have lights in the scene!"))
+                return {'CANCELLED'}
+        
+        if scene.bounty.intg_useSSS:
+            # check only for a valid integrator method
+            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+                if not checkSSS():
+                    self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
+                    return {'CANCELLED'}
 
-        else:
-            bpy.ops.render.render('INVOKE_DEFAULT', animation=True)
-            return {'FINISHED'}
+        bpy.ops.render.render('INVOKE_DEFAULT')
+        return {'FINISHED'}
 
 
 class RENDER_OT_render_still(Operator):
@@ -220,21 +230,25 @@ class RENDER_OT_render_still(Operator):
         return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
-        sceneLights = checkSceneLights()
-        sssMats = checkSSS()        
         scene = context.scene
-
-        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
-            self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            return {'CANCELLED'}
         
-        elif not sssMats and scene.bounty.intg_useSSS == True:
-            self.report({'WARNING'}, ("No SSS materials in the scene and SSS integrator is activate!"))
-            return {'CANCELLED'}
+        #----------------------------------------------
+        # check first the easiest or lighter question
+        # atm, only is need check lights for bidir case
+        #---------------------------------------------- 
+        if scene.bounty.intg_light_method == "bidirectional":
+            if not checkSceneLights():
+                self.report({'WARNING'}, ("You use Bidirectional integrator and NOT have lights in the scene!"))
+                return {'CANCELLED'}
+        
+        if scene.bounty.intg_useSSS:
+            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+                if not checkSSS():
+                    self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
+                    return {'CANCELLED'}
 
-        else:
-            bpy.ops.render.render('INVOKE_DEFAULT')
-            return {'FINISHED'}
+        bpy.ops.render.render('INVOKE_DEFAULT')
+        return {'FINISHED'}
 
 
 class TheBounty_presets_ior_list(Operator):
@@ -314,18 +328,15 @@ class Thebounty_parseIBL(Operator):
                 self.parseValue(linea, 2) # string
             #
             if linea[:11] == 'PREVIEWfile':
-                #PREVIEWfile = self.parseValue(linea, 2) # string
                 self.iblValues['PRE']= self.parseValue(linea, 2) #PREVIEWfile          
             #
             if linea[:6] == 'BGfile':
-                #BGfile = self.parseValue(linea, 2) # string
                 self.iblValues['BG']= self.parseValue(linea, 2) #BGfile
             #
             if linea[:8] == 'BGheight':
                 self.parseValue(linea, 1) # integer
             #
             if linea[:6] == 'EVfile':
-                #EVfile = self.parseValue(linea, 2) # string
                 self.iblValues['EV']= self.parseValue(linea, 2) #EVfile
             #
             if linea[:8] == 'EVheight':
@@ -335,7 +346,6 @@ class Thebounty_parseIBL(Operator):
                 self.parseValue(linea, 0) # float
                 
             if linea[:7] == 'REFfile':
-                #REFfile = self.parseValue(linea, 2) # string
                 self.iblValues['REF']= self.parseValue(linea, 2) #REFfile
                 
             if linea[:9] == 'REFheight':
