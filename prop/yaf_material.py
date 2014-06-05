@@ -396,7 +396,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
         )
         cls.phaseFuction = FloatProperty(
             name="Phase Function",
-            description="Difference between diffuse reflection (+ values) and glossy reflection (- values)",
+            description="Relative to forward  or backward scattering",
             min=-0.99, max=0.99,
             step=0.01, precision=2,
             default=0.0

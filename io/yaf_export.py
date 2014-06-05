@@ -33,6 +33,15 @@ from . import yaf_scene
 from .yaf_texture import yafTexture
 from .yaf_material import TheBountyMaterialWrite
 
+switchFileType = {
+    'PNG': 'png',
+    'TARGA': 'tga',
+    'TIFF': 'tif',
+    'JPEG': 'jpg',
+    'HDR': 'hdr',
+    'OPEN_EXR': 'exr',
+    'XML': 'xml',
+}
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
     bl_idname = 'THEBOUNTY'
@@ -115,7 +124,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                         self.yaf_texture.writeTexture(self.scene, blendTex.texture)
             else:
                 continue
-        #for mat_slot in [m for m in obj.material_slots if m.material is not None]:
+        #
         for mat_slot in [m for m in obj.material_slots if m.material is not None]:
             for tex in [t for t in mat_slot.material.texture_slots if (t and t.texture and t.use)]:
                 if self.is_preview and tex.texture.name == "fakeshadow":
@@ -131,7 +140,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     def exportObjects(self):
         self.yi.printInfo("Exporter: Processing Lamps...")
 
+        #---------------------------
         # export only visible lamps
+        #---------------------------
         for obj in [o for o in self.scene.objects if not o.hide_render and o.is_visible(self.scene) and o.type == 'LAMP']:
             if obj.is_duplicator:
                 obj.create_dupli_list(self.scene)
@@ -214,11 +225,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         if mat1.name == mat2.name:
             self.yi.printWarning("Exporter: Problem with blend material {0}. {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
             return
-        #--------------------------------------------------------------
+        #----------------------------------------------------------------
         # This is not needed atm because 'blend' materials are excluded 
         # themselves from list. Recursive blend materials aren't allowed. 
         # Now Property sync method is excluded
-        #------------------------------------------------------------
+        #----------------------------------------------------------------
         
         #if mat1.bounty.mat_type == 'blend':
         #    self.handleBlendMat(mat1)        
@@ -278,16 +289,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 self.yaf_material.writeMaterial(material, self.is_preview)
 
     def decideOutputFileName(self, output_path, filetype):
-
-        switchFileType = {
-            'PNG': 'png',
-            'TARGA': 'tga',
-            'TIFF': 'tif',
-            'JPEG': 'jpg',
-            'HDR': 'hdr',
-            'OPEN_EXR': 'exr',
-            'XML': 'xml',
-        }
+                
         filetype = switchFileType.get(filetype, 'png')
         # write image or XML-File with filename from framenumber
         frame_numb_str = "{:0" + str(len(str(self.scene.frame_end))) + "d}"
