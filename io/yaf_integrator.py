@@ -90,7 +90,7 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
 
-        elif light_type == "Bidirectional":
+        elif lightIntegrator == "bidirectional":
             yi.paramsSetInt("maxDepth", scene.intg_maxDepth)
             yi.paramsSetInt("rrDepth", scene.intg_rrDepth)
             yi.paramsSetBool("doLight", scene.intg_dolight)

@@ -26,7 +26,7 @@ from . import properties_yaf_world
 from . import properties_yaf_strand
 from . import properties_yaf_object
 from . import properties_yaf_light
-from . import prop_scene
+#from . import prop_scene
 # for custom nodes..
 #from . import prop_custom_nodes
 

@@ -109,7 +109,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             layout.row().prop(scene, "intg_debug_type")
             layout.row().prop(scene, "intg_show_perturbed_normals")
         
-        elif scene.intg_light_method == "Bidirectional":
+        elif scene.intg_light_method == "bidirectional":
             row = layout.row()
             row.prop(scene, "intg_maxDepth")
             row.prop(scene, "intg_rrDepth")
@@ -127,7 +127,7 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             #sub = layout.column()
             #sub.enabled = True
             if not scene.intg_pm_ire:
-            col.prop(scene, "intg_times")
+                col.prop(scene, "intg_times")
             else:
                 col.prop(scene, "intg_accurate_radius")
         
