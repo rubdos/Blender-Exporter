@@ -1,24 +1,15 @@
-Yafaray exporter for Blender 2.66a:
+TheBounty renderer for Blender 2.70a (forked from YafaRay Blender exporter)
+
+Version 0.1.6 Transitional.
 
 The exporter is in an experimental stage, so use it for testing purposes only.
-For the latest exporter updates check:
 
-https://github.com/YafaRay/Blender-Exporter
+Download and extract the exporter files and folders to:
 
-and for the latest Yafaray builds (including exporter files too) 
-check for builds on graphicall.org:
+'../2.70/scripts/addons/thebounty' directory.
 
-http://www.graphicall.org/yafaray
+We need to test it, please post bug reports and feature requests here:
 
-or look into this forum post for other platform builds:
-
-http://www.yafaray.org/community/forum/viewtopic.php?f=16&t=3520
-
-http://www.yafaray.org/community/forum/viewforum.php?f=12
-
-Download and extract the exporter files and folders to the 'Blender/2.66/scripts/addons/yafaray' directory.
-
-We need to test it, please post bugreports and feature requests here:
-http://www.yafaray.org/development/bugtracker/yafaray
+https://github.com/TheBounty/Blender-Exporter/issues
 
 Thank you.

@@ -21,26 +21,34 @@
 from bpy.types import Panel
 from bl_ui.properties_world import WorldButtonsPanel
 
-WorldButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 # Inherit World data block
 from bl_ui.properties_world import WORLD_PT_context_world
-WORLD_PT_context_world.COMPAT_ENGINES.add('YAFA_RENDER')
+WORLD_PT_context_world.COMPAT_ENGINES.add('THEBOUNTY')
 del WORLD_PT_context_world
 
 # Inherit World Preview Panel
 from bl_ui.properties_world import WORLD_PT_preview
-WORLD_PT_preview.COMPAT_ENGINES.add('YAFA_RENDER')
+WORLD_PT_preview.COMPAT_ENGINES.add('THEBOUNTY')
 del WORLD_PT_preview
 
-
+   
 class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
     bl_label = "Background Settings"
     ibl = True
+    # add
+    bl_context = "world"
+    
+    @classmethod
+    def poll(cls, context):
+        return context.world and WorldButtonsPanel.poll(context)
+
 
     def draw(self, context):
         layout = self.layout
-        world = context.world
+        #blworld = context.world
+        world = context.world.bounty
 
         split = layout.split()
         col = layout.column()
@@ -86,7 +94,7 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
 
             layout.label(text="Background Texture controls")
             layout.prop(world,"bg_rotation")
-            layout.prop(world,"yaf_mapworld_type", text="Mapping Coord")
+            layout.prop(world,"bg_mapping_type", text="Mapping Coord")
             layout.separator()
 
             split = layout.split(percentage=0.33)
@@ -97,10 +105,10 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
                 row = layout.row()
                 row.prop(world, "bg_with_diffuse")
                 row.prop(world, "bg_with_caustic")
-            else:
-                col = layout.column()
-                col.label(text=" ")
-                col.label(text=" ")
+            #else:
+            #    col = layout.column()
+            #    col.label(text=" ")
+            #    col.label(text=" ")
 
         elif world.bg_type == "Sunsky1":
             self.ibl = False
@@ -226,6 +234,22 @@ class YAFWORLD_PT_world(WorldButtonsPanel, Panel):
             col.prop(world, "bg_power", text="Power")
 
 
+class WorldTexture(WorldButtonsPanel, Panel):
+    bl_label = "Image Based Lighting Options"
+    bl_context = "world"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    
+    @classmethod
+    def poll(cls, context):
+        world = context.world.bounty
+        
+        engine = context.scene.render.engine
+        return (world and world.bg_type == 'Texture') and (engine in cls.COMPAT_ENGINES)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="IBL options")
+        
 from . import properties_yaf_volume_integrator
 
 

@@ -22,7 +22,6 @@ import bpy
 import mathutils
 from bpy.types import Operator
 
-
 class OBJECT_OT_get_position(Operator):
     bl_label = "From( get position )"
     bl_idname = "world.get_position"
@@ -68,7 +67,7 @@ class OBJECT_OT_update_sun(Operator):
 def sunPosAngle(mode="get", val="position"):
     active_object = bpy.context.active_object
     scene = bpy.context.scene
-    world = scene.world
+    world = scene.world.bounty
 
     if active_object and active_object.type == "LAMP":
 
@@ -115,11 +114,11 @@ def sunPosAngle(mode="get", val="position"):
 
 def checkSceneLights():
     scene = bpy.context.scene
-    world = scene.world
+    world = scene.world.bounty
     
-    # expand fuction for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
+    # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
     haveLights = False
-     # use light create with sunsky, sunsky2 or with use ibl ON
+    # use light create with sunsky, sunsky2 or with use ibl ON
     if world.bg_add_sun or world.bg_background_light or world.bg_use_ibl:
         return True
     # if above is true, this 'for' is not used
@@ -139,12 +138,13 @@ class RENDER_OT_render_view(Operator):
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
         view3d = context.region_data
-        bpy.types.YAFA_RENDER.useViewToRender = True
+        bpy.types.THEBOUNTY.useViewToRender = True
         sceneLights = checkSceneLights()
+        
         scene = context.scene
         # Get the 3d view under the mouse cursor
         # if the region is not a 3d view
@@ -156,16 +156,16 @@ class RENDER_OT_render_view(Operator):
 
         if not view3d or view3d.view_perspective == "ORTHO":
             self.report({'WARNING'}, ("The selected view is not in perspective mode or there was no 3d view available to render."))
-            bpy.types.YAFA_RENDER.useViewToRender = False
+            bpy.types.THEBOUNTY.useViewToRender = False
             return {'CANCELLED'}
 
-        elif not sceneLights and scene.intg_light_method == "Bidirectional":
+        elif not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            bpy.types.YAFA_RENDER.useViewToRender = False
+            bpy.types.THEBOUNTY.useViewToRender = False
             return {'CANCELLED'}
-
+        
         else:
-            bpy.types.YAFA_RENDER.viewMatrix = view3d.view_matrix.copy()
+            bpy.types.THEBOUNTY.viewMatrix = view3d.view_matrix.copy()
             bpy.ops.render.render('INVOKE_DEFAULT')
             return {'FINISHED'}
 
@@ -178,16 +178,16 @@ class RENDER_OT_render_animation(Operator):
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
         sceneLights = checkSceneLights()
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "Bidirectional":
+        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             return {'CANCELLED'}
-
+        
         else:
             bpy.ops.render.render('INVOKE_DEFAULT', animation=True)
             return {'FINISHED'}
@@ -201,16 +201,16 @@ class RENDER_OT_render_still(Operator):
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
         sceneLights = checkSceneLights()
         scene = context.scene
 
-        if not sceneLights and scene.intg_light_method == "Bidirectional":
+        if not sceneLights and scene.bounty.intg_light_method == "bidirectional":
             self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
             return {'CANCELLED'}
-
+        
         else:
             bpy.ops.render.render('INVOKE_DEFAULT')
             return {'FINISHED'}

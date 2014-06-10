@@ -19,17 +19,23 @@
 # <pep8 compliant>
 
 import bpy
-from yafaray.ui.ior_values import ior_list
+from ..ui.ior_values import ior_list
 from bpy.types import Panel, Menu
 from bl_ui.properties_material import (MaterialButtonsPanel,
                                        active_node_mat,
                                        check_material)
 
-MaterialButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+MaterialButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
+class THEBOUNTY_MT_material_presets(Menu):
+    bl_label = "Material Presets"
+    preset_subdir = "thebounty/material"
+    preset_operator = "script.execute_preset"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    draw = Menu.draw_preset
 
 class MaterialTypePanel(MaterialButtonsPanel):
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -38,11 +44,11 @@ class MaterialTypePanel(MaterialButtonsPanel):
         return check_material(yaf_mat) and (yaf_mat.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
 
 
-class YAF_PT_context_material(MaterialButtonsPanel, Panel):
-    bl_label = ""
+class MAT_PT_context_material(MaterialButtonsPanel, Panel):
+    bl_label = "Material"
     bl_options = {'HIDE_HEADER'}
-    COMPAT_ENGINES = {'YAFA_RENDER'}
-
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    
     @classmethod
     def poll(cls, context):
         # An exception, dont call the parent poll func because
@@ -83,6 +89,13 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
         if ob:
             split.template_ID(ob, "active_material", new="material.new")
             row = split.row()
+            #----------------
+            # test for nodes
+            #----------------
+            mat = context.material
+            if mat:
+                row.prop(mat, "use_nodes", icon='NODETREE', text="")
+            #----------------
             if slot:
                 row.prop(slot, "link", text="")
             else:
@@ -94,11 +107,27 @@ class YAF_PT_context_material(MaterialButtonsPanel, Panel):
 
         if yaf_mat:
             layout.separator()
-            layout.prop(yaf_mat, "mat_type")
-
+            layout.prop(yaf_mat, "mat_type") # expand true..
+            row = layout.row(align=True)
+            row.menu("THEBOUNTY_MT_material_presets", text=bpy.types.THEBOUNTY_MT_material_presets.bl_label)
+            row.operator("bounty.material_preset_add", text="", icon='ZOOMIN')
+            row.operator("bounty.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
+            #-------------------
+            # test for nodes
+            #-------------------
+            if mat.use_nodes:
+                row = layout.row()
+                row.label(text="", icon='NODETREE')
+                if mat.active_node_material:
+                    row.prop(mat.active_node_material, "name", text="")
+                else:
+                    row.label(text="No material node selected")
+            #-------------------
+        
 
 class YAF_MATERIAL_PT_preview(MaterialButtonsPanel, Panel):
-    bl_label = "Preview"
+    bl_label = "Preview" 
+    bl_options = {"DEFAULT_CLOSED"} 
 
     def draw(self, context):
         self.layout.template_preview(context.material)
@@ -166,7 +195,7 @@ class YAF_PT_shinydiffuse_diffuse(MaterialTypePanel, Panel):
         layout.separator()
 
         box = layout.box()
-        box.label(text="Transparency and translucency:")
+        #box.label(text="Transparency and translucency:")
         split = box.split()
         col = split.column()
         col.prop(yaf_mat, "transparency", slider=True)
@@ -182,7 +211,7 @@ class YAF_PT_shinydiffuse_specular(MaterialTypePanel, Panel):
     def draw(self, context):
         layout = self.layout
         yaf_mat = active_node_mat(context.material)
-
+        
         split = layout.split()
         col = split.column()
         col.label(text="Mirror color:")
@@ -330,7 +359,6 @@ class YAF_PT_blend_(MaterialTypePanel, Panel):
         col = split.column()
         col.label(text="Material two:")
         col.prop(yaf_mat, "material2", text="")
-
 
 
 if __name__ == "__main__":  # only for live edit.

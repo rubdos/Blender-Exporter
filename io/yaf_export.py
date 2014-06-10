@@ -18,14 +18,13 @@
 
 # <pep8 compliant>
 
-#TODO: Use Blender enumerators if any
 import bpy
 import os
 import threading
 import time
 import yafrayinterface
-from yafaray import PLUGIN_PATH
-from yafaray import YAF_ID_NAME
+
+from thebounty import PLUGIN_PATH
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -36,39 +35,57 @@ from .yaf_material import yafMaterial
 
 
 class YafaRayRenderEngine(bpy.types.RenderEngine):
-    bl_idname = YAF_ID_NAME
+    bl_idname = 'THEBOUNTY'
     bl_use_preview = True
-    bl_label = "YafaRay Render"
+    bl_label = "TheBounty Render"
     prog = 0.0
     tag = ""
     useViewToRender = False
     viewMatrix = None
+    sceneMat = []
+    
+    # TODO: make more options from UI
+    def verbositylevel(self, level):
+        if level =='info':
+            self.yi.setVerbosityInfo()
+        else:
+            self.yi.setVerbosityMute()
+    
+    ##-----------------------------------------------------
+     
 
     def setInterface(self, yi):
         self.materialMap = {}
         self.materials = set()
         self.yi = yi
-
+        # setup specific values for render preview mode
         if self.is_preview:
             self.yi.setVerbosityMute()
-            self.scene.bg_transp = False #to correct alpha problems in preview roughglass
-            self.scene.bg_transp_refract = False #to correct alpha problems in preview roughglass
-        elif self.scene.gs_verbose:
-            self.yi.setVerbosityInfo()
+            self.scene.bounty.bg_transp = False         #to correct alpha problems in preview roughglass
+            self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
         else:
-            self.yi.setVerbosityMute()
-
-        self.yi.loadPlugins(PLUGIN_PATH)
-        self.yaf_object = yafObject(self.yi, self.materialMap, self.is_preview)
-        self.yaf_lamp = yafLight(self.yi, self.is_preview)
-        self.yaf_world = yafWorld(self.yi)
-        self.yaf_integrator = yafIntegrator(self.yi)
-        self.yaf_texture = yafTexture(self.yi)
+            self.verbositylevel('info')
+        #   
+        # export go.. load plugins
+        self.yi.loadPlugins(PLUGIN_PATH)        
+        # process geometry
+        self.yaf_object = yafObject(self.yi, self.materialMap, self.is_preview)        
+        # process lights
+        self.yaf_lamp = yafLight(self.yi, self.is_preview)        
+        # process environment world
+        self.yaf_world = yafWorld(self.yi)        
+        # process lighting integrators..
+        self.yaf_integrator = yafIntegrator(self.yi)        
+        # textures before materials
+        self.yaf_texture = yafTexture(self.yi)        
+        # and materials
         self.yaf_material = yafMaterial(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
 
     def exportScene(self):
+        #
         for obj in self.scene.objects:
             self.exportTexture(obj)
+            
         self.exportMaterials()
         self.yaf_object.setScene(self.scene)
         self.exportObjects()
@@ -83,16 +100,17 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                     mat1 = bpy.data.materials[mat_slot.material.material1]
                     mat2 = bpy.data.materials[mat_slot.material.material2]
                 except:
-                    self.yi.printWarning("Exporter: Problem with blend material {0}. Could not find one of the two blended materials".format(mat_slot.material.name))
+                    self.yi.printWarning("Exporter: Problem with blend material {0}."
+                                         " Could not find one of the two blended materials".format(mat_slot.material.name))
                     continue
-                for bm in [mat1, mat2]:
-                    for blendtex in [bt for bt in bm.texture_slots if (bt and bt.texture and bt.use)]:
-                        if self.is_preview and blendtex.texture.name == 'fakeshadow':
+                for blendMat in [mat1, mat2]:
+                    for blendTex in [bt for bt in blendMat.texture_slots if (bt and bt.texture and bt.use)]:
+                        if self.is_preview and blendTex.texture.name == 'fakeshadow':
                             continue
-                        self.yaf_texture.writeTexture(self.scene, blendtex.texture)
+                        self.yaf_texture.writeTexture(self.scene, blendTex.texture)
             else:
                 continue
-
+        #for mat_slot in [m for m in obj.material_slots if m.material is not None]:
         for mat_slot in [m for m in obj.material_slots if m.material is not None]:
             for tex in [t for t in mat_slot.material.texture_slots if (t and t.texture and t.use)]:
                 if self.is_preview and tex.texture.name == "fakeshadow":
@@ -221,16 +239,17 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # create a shiny diffuse material for "Clay Render" option in general settings
         self.yi.paramsClearAll()
         self.yi.paramsSetString("type", "shinydiffusemat")
-        cCol = self.scene.gs_clay_col
+        cCol = self.scene.bounty.gs_clay_col
         self.yi.paramsSetColor("color", cCol[0], cCol[1], cCol[2])
         self.yi.printInfo("Exporter: Creating Material \"clayMat\"")
         cmat = self.yi.createMaterial("clayMat")
         self.materialMap["clay"] = cmat
-
-        for obj in self.scene.objects:
-            for mat_slot in obj.material_slots:
-                if mat_slot.material not in self.materials:
-                    self.exportMaterial(mat_slot.material)
+        # povman: first test for override all materials in 'clay render' mode
+        if not self.scene.bounty.gs_clay_render:
+            for obj in self.scene.objects:
+                for mat_slot in obj.material_slots:
+                    if mat_slot.material not in self.materials:
+                        self.exportMaterial(mat_slot.material)
 
     def exportMaterial(self, material):
         if material:
@@ -279,9 +298,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.scene = scene
         render = scene.render
 
-        fp = bpy.path.abspath(render.filepath)
-        fp = os.path.realpath(fp)
-        fp = os.path.normpath(fp)
+        filePath = bpy.path.abspath(render.filepath)
+        filePath = os.path.realpath(filePath)
+        filePath = os.path.normpath(filePath)
 
         [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = yaf_scene.getRenderCoords(scene)
 
@@ -291,13 +310,18 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         else:
             self.resX = self.sizeX
             self.resY = self.sizeY
-
+        #
+        scene = scene.bounty
+        # render type setup
         if scene.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
             self.yi.setInputGamma(scene.gs_gamma_input, True)
-            self.outputFile, self.output, self.file_type = self.decideOutputFileName(fp, scene.img_output)
+            self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.img_output)
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", self.file_type)
+            # povman add options for EXR files
+            if self.file_type == 'exr':
+                pass
             self.yi.paramsSetBool("alpha_channel", render.image_settings.color_mode == "RGBA")
             self.yi.paramsSetBool("z_channel", scene.gs_z_channel)
             self.yi.paramsSetInt("width", self.resX)
@@ -308,18 +332,20 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         elif scene.gs_type_render == "xml":
             self.setInterface(yafrayinterface.xmlInterface_t())
             self.yi.setInputGamma(scene.gs_gamma_input, True)
-            self.outputFile, self.output, self.file_type = self.decideOutputFileName(fp, 'XML')
+            self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'XML')
             self.yi.paramsClearAll()
             self.co = yafrayinterface.imageOutput_t()
             self.yi.setOutfile(self.outputFile)
 
         else:
-            self.setInterface(yafrayinterface.yafrayInterface_t())
+            #
+            self.setInterface(yafrayinterface.yafrayInterface_t()) # to line 68
             self.yi.setInputGamma(scene.gs_gamma_input, True)
-
+        
+        #.. y ahora empezamos el proceso de la escena
         self.yi.startScene()
-        self.exportScene()
-        self.yaf_integrator.exportIntegrator(self.scene)
+        self.exportScene()# to above, line 92
+        self.yaf_integrator.exportIntegrator(self.scene.bounty) # yaf_integrator, line 26
         self.yaf_integrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
@@ -327,11 +353,14 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     # callback to render scene
     def render(self, scene):
+        self.is_preview = False # test
+        scene = scene.bounty
         self.bl_use_postprocess = False
+        
 
         if scene.gs_type_render == "file":
             self.yi.printInfo("Exporter: Rendering to file {0}".format(self.outputFile))
-            self.update_stats("YafaRay Rendering:", "Rendering to {0}".format(self.outputFile))
+            self.update_stats("TheBounty Rendering:", "Rendering to {0}".format(self.outputFile))
             self.yi.render(self.co)
             result = self.begin_result(0, 0, self.resX, self.resY)
             lay = result.layers[0]
@@ -356,17 +385,16 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                         self.tag = args[0]
                     elif command == "progress":
                         self.prog = args[0]
-                    self.update_stats("YafaRay Render: ", "{0}".format(self.tag))
-                    # use blender's progress bar in the header to show progress of render
-                    # update_progress needs float range 0.0 to 1.0, yafaray returns 0.0 to 100.0
-                    self.update_progress(self.prog / 100)
+                    self.update_stats("TheBounty Render: ", "{0}".format(self.tag))
+                    #
+                    self.update_progress(self.prog)
 
             def drawAreaCallback(*args):
                 x, y, w, h, tile = args
                 res = self.begin_result(x, y, w, h)
                 try:
-                    l = res.layers[0]
-                    l.rect, l.passes[0].rect = tile
+                    lay = res.layers[0]
+                    lay.rect, lay.passes[0].rect = tile
                 except:
                     pass
 
@@ -376,30 +404,32 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 w, h, tile = args
                 res = self.begin_result(0, 0, w, h)
                 try:
-                    l = res.layers[0]
-                    l.rect, l.passes[0].rect = tile
+                    lay = res.layers[0]
+                    lay.rect, lay.passes[0].rect = tile
                 except BaseException as e:
                     pass
 
                 self.end_result(res)
+                
+            # define thread
+            thread = threading.Thread(target=self.yi.render,
+                                 args=(self.resX, self.resY,
+                                       self.bStartX, self.bStartY,
+                                       self.is_preview,
+                                       drawAreaCallback,
+                                       flushCallback,
+                                       progressCallback)
+                                 )
+            # run..
+            thread.start()
 
-            t = threading.Thread(
-                                    target=self.yi.render,
-                                    args=(self.resX, self.resY, self.bStartX, self.bStartY,
-                                    self.is_preview,
-                                    drawAreaCallback,
-                                    flushCallback,
-                                    progressCallback)
-                                )
-            t.start()
-
-            while t.isAlive() and not self.test_break():
+            while thread.isAlive() and not self.test_break():
                 time.sleep(0.2)
 
-            if t.isAlive():
+            if thread.isAlive():
                 self.update_stats("", "Aborting...")
                 self.yi.abort()
-                t.join()
+                thread.join()
 
         self.yi.clearAll()
         del self.yi

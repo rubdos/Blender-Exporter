@@ -29,7 +29,7 @@ def multiplyMatrix4x4Vector4(matrix, vector):
     result = mathutils.Vector((0.0, 0.0, 0.0, 0.0))
     for i in range(4):
         result[i] = vector * matrix[i]  # use reverse vector multiply order, API changed with rev. 38674
-
+        
     return result
 
 
@@ -51,14 +51,14 @@ class yafObject(object):
         camera = self.scene.camera
         render = self.scene.render
 
-        if bpy.types.YAFA_RENDER.useViewToRender and bpy.types.YAFA_RENDER.viewMatrix:
+        if bpy.types.THEBOUNTY.useViewToRender and bpy.types.THEBOUNTY.viewMatrix:
             # use the view matrix to calculate the inverted transformed
             # points cam pos (0,0,0), front (0,0,1) and up (0,1,0)
             # view matrix works like the opengl view part of the
             # projection matrix, i.e. transforms everything so camera is
             # at 0,0,0 looking towards 0,0,1 (y axis being up)
 
-            m = bpy.types.YAFA_RENDER.viewMatrix
+            m = bpy.types.THEBOUNTY.viewMatrix
             # m.transpose() --> not needed anymore: matrix indexing changed with Blender rev.42816
             inv = m.inverted()
 
@@ -66,7 +66,7 @@ class yafObject(object):
             aboveCam = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 1, 0, 1)))
             frontCam = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 0, 1, 1)))
 
-            dir = frontCam - pos
+            direction = frontCam - pos
             up = aboveCam
 
         else:
@@ -75,63 +75,67 @@ class yafObject(object):
             # matrix indexing (row, colums) changed in Blender rev.42816, for explanation see also:
             # http://wiki.blender.org/index.php/User:TrumanBlending/Matrix_Indexing
             pos = matrix.col[3]
-            dir = matrix.col[2]
+            direction = matrix.col[2]
             up = pos + matrix.col[1]
 
-        to = pos - dir
+        to = pos - direction
 
         x = int(render.resolution_x * render.resolution_percentage * 0.01)
         y = int(render.resolution_y * render.resolution_percentage * 0.01)
 
         yi.paramsClearAll()
 
-        if bpy.types.YAFA_RENDER.useViewToRender:
+        if bpy.types.THEBOUNTY.useViewToRender:
             yi.paramsSetString("type", "perspective")
             yi.paramsSetFloat("focal", 0.7)
-            bpy.types.YAFA_RENDER.useViewToRender = False
+            bpy.types.THEBOUNTY.useViewToRender = False
 
         else:
-            camera = camera.data
+            # reuse Blender camera properties
+            blcam = camera.data 
+            # exporter camera specific properties
+            camera = camera.data.bounty
+            
             camType = camera.camera_type
 
             yi.paramsSetString("type", camType)
 
             if camera.use_clipping:
-                yi.paramsSetFloat("nearClip", camera.clip_start)
-                yi.paramsSetFloat("farClip", camera.clip_end)
+                yi.paramsSetFloat("nearClip", blcam.clip_start)
+                yi.paramsSetFloat("farClip", blcam.clip_end)
 
             if camType == "orthographic":
-                yi.paramsSetFloat("scale", camera.ortho_scale)
+                yi.paramsSetFloat("scale", blcam.ortho_scale)
 
             elif camType in {"perspective", "architect"}:
                 # Blenders GSOC 2011 project "tomato branch" merged into trunk.
                 # Check for sensor settings and use them in yafaray exporter also.
-                if camera.sensor_fit == 'AUTO':
+                if blcam.sensor_fit == 'AUTO':
                     horizontal_fit = (x > y)
-                    sensor_size = camera.sensor_width
-                elif camera.sensor_fit == 'HORIZONTAL':
+                    sensor_size = blcam.sensor_width
+                elif blcam.sensor_fit == 'HORIZONTAL':
                     horizontal_fit = True
-                    sensor_size = camera.sensor_width
+                    sensor_size = blcam.sensor_width
                 else:
                     horizontal_fit = False
-                    sensor_size = camera.sensor_height
+                    sensor_size = blcam.sensor_height
 
                 if horizontal_fit:
                     f_aspect = 1.0
                 else:
                     f_aspect = x / y
 
-                yi.paramsSetFloat("focal", camera.lens / (f_aspect * sensor_size))
+                yi.paramsSetFloat("focal", blcam.lens / (f_aspect * sensor_size))
 
                 # DOF params, only valid for real camera
                 # use DOF object distance if present or fixed DOF
-                if camera.dof_object is not None:
+                if blcam.dof_object is not None:
                     # use DOF object distance
-                    dist = (pos.xyz - camera.dof_object.location.xyz).length
+                    dist = (pos.xyz - blcam.dof_object.location.xyz).length
                     dof_distance = dist
                 else:
                     # use fixed DOF distance
-                    dof_distance = camera.dof_distance
+                    dof_distance = blcam.dof_distance
 
                 yi.paramsSetFloat("dof_distance", dof_distance)
                 yi.paramsSetFloat("aperture", camera.aperture)
@@ -153,20 +157,20 @@ class yafObject(object):
         yi.paramsSetPoint("to", to[0], to[1], to[2])
         yi.createCamera("cam")
 
-    def getBBCorners(self, object):
-        bb = object.bound_box   # look bpy.types.Object if there is any problem
+    def getBBCorners(self, obj):
+        bb = obj.bound_box   # look bpy.types.Object if there is any problem
 
-        min = [1e10, 1e10, 1e10]
-        max = [-1e10, -1e10, -1e10]
+        bbmin = [1e10, 1e10, 1e10]
+        bbmax = [-1e10, -1e10, -1e10]
 
         for corner in bb:
             for i in range(3):
-                if corner[i] < min[i]:
-                    min[i] = corner[i]
-                if corner[i] > max[i]:
-                    max[i] = corner[i]
+                if corner[i] < bbmin[i]:
+                    bbmin[i] = corner[i]
+                if corner[i] > bbmax[i]:
+                    bbmax[i] = corner[i]
 
-        return min, max
+        return bbmin, bbmax
 
     def get4x4Matrix(self, matrix):
 
@@ -324,7 +328,7 @@ class yafObject(object):
 
         yi.paramsSetFloat("sigma_a", obj.vol_absorp)
         yi.paramsSetFloat("sigma_s", obj.vol_scatter)
-        yi.paramsSetInt("attgridScale", self.scene.world.v_int_attgridres)
+        yi.paramsSetInt("attgridScale", self.scene.world.bounty.v_int_attgridres)
 
         # Calculate BoundingBox: get the low corner (minx, miny, minz)
         # and the up corner (maxx, maxy, maxz) then apply object scale,
@@ -467,7 +471,7 @@ class yafObject(object):
 
         ymaterial = self.materialMap["default"]
 
-        if self.scene.gs_clay_render:
+        if self.scene.bounty.gs_clay_render:
             ymaterial = self.materialMap["clay"]
         elif len(meshMats) and meshMats[matIndex]:
             mat = meshMats[matIndex]
@@ -523,10 +527,11 @@ class yafObject(object):
                             vertex = matrix * location.co  # use reverse vector multiply order, API changed with rev. 38674
                             yi.addVertex(vertex[0], vertex[1], vertex[2])
                         #this section will be changed after the material settings been exported
+                        hairMat = "default"
                         if self.materialMap[pmaterial]:
-                            yi.endCurveMesh(self.materialMap[pmaterial], strandStart, strandEnd, strandShape)
-                        else:
-                            yi.endCurveMesh(self.materialMap["default"], strandStart, strandEnd, strandShape)
+                            hairMat = pmaterial
+                        yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
+                        
                     # TODO: keep object smooth
                     #yi.smoothMesh(0, 60.0)
                         yi.endGeometry()
