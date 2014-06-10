@@ -102,6 +102,13 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
         elif scene.intg_light_method == "Debug":
             layout.row().prop(scene, "intg_debug_type")
             layout.row().prop(scene, "intg_show_perturbed_normals")
+        
+        elif scene.intg_light_method == "Bidirectional":
+            row = layout.row()
+            row.prop(scene, "intg_maxDepth")
+            row.prop(scene, "intg_rrDepth")
+            layout.prop(scene, "intg_dolight")
+            layout.label("Use a high AA samples value to reduce the noise")
 
         elif scene.intg_light_method == "SPPM":
             col = layout.column()

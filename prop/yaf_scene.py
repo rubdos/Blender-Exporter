@@ -354,7 +354,28 @@ def register():
         name="Search radius",
         min=0.0,
         default=1.0)
-
+    #--------------------------
+    # Bidirectional properties
+    #--------------------------
+    Scene.intg_maxDepth = IntProperty(
+        name="Max Depth",
+        description="Max pathracing depth",
+        min = 3,
+        max = 64,
+        default= 32
+    )
+    Scene.intg_rrDepth = IntProperty(
+        name="R.R. Depth",
+        description="Minim russian roulette depth",
+        min = 1,
+        max = 12,
+        default= 3
+    )
+    Scene.intg_dolight = BoolProperty(
+        name="Use light Image",
+        description="",
+        default=False
+    ) 
     ######### YafaRays anti-aliasing properties ###########
     Scene.AA_min_samples = IntProperty(
         name="Samples",
