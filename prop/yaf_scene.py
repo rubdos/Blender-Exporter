@@ -81,7 +81,7 @@ enum_tile_order = (
     ('random', "Random Tiles", ""),
 )
 
-# set fileformat for image saving on same format as in YafaRay, both have default PNG
+# set fileformat for image saving on same format as in the exporter, both have default PNG
 # TODO: need review
 def call_update_fileformat(self, context):
     render = context.scene.render

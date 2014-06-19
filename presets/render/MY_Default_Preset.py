@@ -1,5 +1,6 @@
 import bpy
-scene = bpy.context.scene
+scene = bpy.context.scene.bounty
+#scene = context.scene.bounty
 
 #scene.render.use_color_management = False
 scene.gs_ray_depth = 2

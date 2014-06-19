@@ -39,7 +39,7 @@ class YAF_PT_lens(CameraButtonsPanel, Panel):
         layout = self.layout
 
         cam = context.camera
-        # exporter camera properties
+        # exporter camera subclass
         camera = context.camera.bounty
 
         layout.prop(camera, "camera_type", expand=True)

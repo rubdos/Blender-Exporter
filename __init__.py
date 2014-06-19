@@ -24,7 +24,8 @@ import ctypes
 
 PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
 BIN_PATH = os.path.join(__path__[0], 'bin')
-#YAF_ID_NAME = "THEBOUNTY"
+# test
+EXP_BRANCH = "merge_SSS"
 
 
 sys.path.append(BIN_PATH)
@@ -106,8 +107,8 @@ def register():
     kmi = km.keymap_items.new('render.render_animation', 'F12', 'PRESS', False, False, True, False)
     kmi = km.keymap_items.new('render.render_still', 'F12', 'PRESS', False, False, False, False)
     
-    # for nodes
-    nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)
+    if EXP_BRANCH == "custom_nodes":
+        nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)
     
 
 def unregister():
@@ -122,8 +123,8 @@ def unregister():
     bpy.utils.unregister_module(__name__)
     bpy.app.handlers.load_post.remove(load_handler)
     
-    # for nodes
-    nodeitems_utils.unregister_node_categories("TheBountyMaterial")
+    if EXP_BRANCH == "custom_nodes":
+        nodeitems_utils.unregister_node_categories("TheBountyMaterial")
 
 
 if __name__ == '__main__':
