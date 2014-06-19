@@ -15,9 +15,19 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
+from .. import EXP_BRANCH
 
 # <pep8 compliant>
 
+switchDebugType = {
+    'N': 1,
+    'dPdU': 2,
+    'dPdV': 3,
+    'NU': 4,
+    'NV': 5,
+    'dSdU': 6,
+    'dSdV': 7,
+}
 
 class yafIntegrator:
     def __init__(self, interface):
@@ -39,8 +49,6 @@ class yafIntegrator:
         yi.paramsSetBool("transpShad", scene.gs_transp_shad)
 
         lightIntegrator = scene.intg_light_method
-        # pov: sync variable names by core 'registerFactory' values (btw.. review some names!)
-        # directlighting, photonmapping, pathtracing, DebugIntegrator, bidirectional, SPPM        
         yi.printInfo("Exporting Integrator: {0}".format(lightIntegrator))
 
         if lightIntegrator == "directlighting":
@@ -61,7 +69,8 @@ class yafIntegrator:
                 yi.paramsSetColor("AO_color", c[0], c[1], c[2])
 
             # SSS
-            yi.paramsSetBool("useSSS", scene.intg_useSSS)
+            if EXP_BRANCH =="merge_SSS":
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
         elif lightIntegrator == "photonmapping":
             yi.paramsSetInt("photons", scene.intg_photons)
@@ -79,14 +88,14 @@ class yafIntegrator:
                 yi.paramsSetBool("show_map", scene.intg_show_map)
 
             # SSS
-            yi.paramsSetBool("useSSS", scene.intg_useSSS)
+            if EXP_BRANCH =="merge_SSS":
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
         elif lightIntegrator == "pathtracing":
             yi.paramsSetInt("path_samples", scene.intg_path_samples)
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetBool("no_recursive", scene.intg_no_recursion)
 
-            #-- simplify code
             causticType = scene.intg_caustic_method
             yi.paramsSetString("caustic_type", causticType)
             
@@ -95,27 +104,17 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
+            
             # SSS
-            yi.paramsSetBool("useSSS", scene.intg_useSSS)
+            if EXP_BRANCH =="merge_SSS":
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
         #elif lightIntegrator == "bidirectional":
 
         elif lightIntegrator == "DebugIntegrator":
-            #yi.paramsSetString("type", "DebugIntegrator")
-
+            #
             debugTypeStr = scene.intg_debug_type            
-            switchDebugType = {
-                'N': 1,
-                'dPdU': 2,
-                'dPdV': 3,
-                'NU': 4,
-                'NV': 5,
-                'dSdU': 6,
-                'dSdV': 7,
-            }
-            debugType = switchDebugType.get(debugTypeStr, 1)
-            
-            yi.paramsSetInt("debugType", debugType)
+            yi.paramsSetInt("debugType", switchDebugType.get(debugTypeStr, 1))
             yi.paramsSetBool("showPN", scene.intg_show_perturbed_normals)
         #----------------------------------
         # SPPM integrator
@@ -127,13 +126,12 @@ class yafIntegrator:
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("passNums", scene.intg_pass_num)
             yi.paramsSetBool("pmIRE", scene.intg_pm_ire)
-            #if not scene.intg_pm_ire:
             yi.paramsSetFloat("times", scene.intg_times)             
 
         #----------------------------------
         # Sub-Surface Scattering integrator
         #----------------------------------
-        if scene.intg_useSSS:
+        if EXP_BRANCH == "merge_SSS" and scene.intg_useSSS:
             yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
             yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
             yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
@@ -150,7 +148,7 @@ class yafIntegrator:
         scn_world = scene.world        
 
         if scn_world:
-            # use exporter UI properties
+            # use bounty sub-class
             world = scene.world.bounty
             volIntegratorType = world.v_int_type
             yi.printInfo("Exporting Volume Integrator: {0}".format(volIntegratorType))

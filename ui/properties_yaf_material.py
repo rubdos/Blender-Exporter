@@ -24,6 +24,8 @@ from bpy.types import Panel, Menu
 from bl_ui.properties_material import (active_node_mat,
                                        check_material)
 
+from .. import EXP_BRANCH
+
 #MaterialButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 class TheBountyMaterialButtonsPanel():
@@ -101,10 +103,11 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #----------------
             # test for nodes
             #----------------
-            ymat = context.material
-            if ymat:
-                row.prop(ymat, "use_nodes", icon='NODETREE', text="")
-            #----------------
+            if EXP_BRANCH == "custom_nodes":
+                ymat = context.material
+                if ymat:
+                    row.prop(ymat, "use_nodes", icon='NODETREE', text="")
+                    #----------------
             if slot:
                 row.prop(slot, "link", text="")
             else:
@@ -115,8 +118,10 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             split.separator()
 
         if mat:
-            row = layout.row()
-            row.operator("bounty.add_nodetree", icon='NODETREE')
+            if EXP_BRANCH == "custom_nodes":
+                row = layout.row()
+                row.operator("bounty.add_nodetree", icon='NODETREE')
+            #
             layout.separator()
             layout.prop(mat.bounty, "mat_type") # expand true..
             
@@ -127,14 +132,14 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #-------------------
             # test for nodes
             #-------------------
-            if mat.use_nodes:
-                row = layout.row()
-                row.label(text="", icon='NODETREE')
-                if mat.active_node_material:
-                    row.prop(mat.active_node_material, "name", text="")
-                else:
-                    row.label(text="No material node selected")
-            #-------------------
+            if EXP_BRANCH == "custom_nodes":
+                if mat.use_nodes:
+                    row = layout.row()
+                    row.label(text="", icon='NODETREE')
+                    if mat.active_node_material:
+                        row.prop(mat.active_node_material, "name", text="")
+                    else:
+                        row.label(text="No material node selected")
 
 class TheBountyMaterialPreview(TheBountyMaterialButtonsPanel, Panel):
     bl_label = "Preview" 
@@ -193,31 +198,13 @@ class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
         mat = active_node_mat(context.material)
 
         col = layout.column()
-        #col.prop(mat.bounty, "blend_value", slider=True)
         layout.separator()
-        col.prop(mat.bounty, "blendmat_type1", text="Material one")
-        if mat.bounty.blendmat_type1 == "shinydiffusemat":
-            self.draw_blend1(context, layout)
-            
+        col.prop(mat.bounty, "blendmaterial1", text="Material one")            
         col.separator()
         col.prop(mat.bounty, "blend_value", slider=True)
         col.separator()
-        
-        col.prop(mat.bounty, "blendmat_type2", text="Material two")
-        if mat.bounty.blendmat_type2 == "shinydiffusemat":
-            box = layout.box()
-            box.label("Blend material 2: ShinyDiffuse ")
-            TheBountyShinyDiffuse.draw(self, context)
-            TheBountyShinySpecular.draw(self, context)
-        # draw
-    def draw_blend1(self, context, layout):
-        #layout = self.layout
-        box = layout.box()
-        box.label("Blend material 1: ShinyDiffuse")
-        TheBountyShinyDiffuse.draw(self, context)
-        TheBountyShinySpecular.draw(self, context)
-        
-            
+        col.prop(mat.bounty, "blendmaterial2", text="Material two")
+                    
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
     bl_label = "Diffuse reflection"
     material_type = 'shinydiffusemat'
@@ -250,7 +237,6 @@ class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
         col.prop(mat, "translucency", slider=True)
         box.row().prop(mat.bounty, "transmit_filter", slider=True)
 
-
 class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
     bl_label = "Specular reflection"
     material_type = 'shinydiffusemat'    
@@ -270,7 +256,6 @@ class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
         sub.enabled = mat.bounty.fresnel_effect
         sub.prop(mat.bounty, "IOR_reflection", slider=True)
         layout.row().prop(mat.bounty, "specular_reflect", slider=True)
-
 
 class TheBountyGlossyDiffuse(TheBountyMaterialTypePanel, Panel):
     bl_label = "Diffuse reflection"
@@ -385,13 +370,22 @@ class TheBountyScatteringPresets(Menu):
     draw = Menu.draw_preset
     
 class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
-    bl_label = "Translucent"
+    bl_label = ""
     material_type = 'translucent'
-
+    
     def draw(self, context):
-        layout = self.layout
-        mat = active_node_mat(context.material)                
         #
+        layout = self.layout
+        if EXP_BRANCH == "merge_SSS":
+            self.bl_label="Translucent Scattering Material"
+            
+            self.drawTranslucent(context, layout)
+            self.drawScattering(context, layout)
+
+    def drawTranslucent(self, context, layout):
+        #layout = self.layout
+        mat = active_node_mat(context.material)
+        
         split = layout.split()
         col = split.column()
         col.prop(mat.bounty, "diff_color")
@@ -402,16 +396,12 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         row= layout.row()
         row.prop(mat.bounty, "sssSpecularColor")
         layout.prop(mat.bounty, "exponent", text="Specular Exponent")
-        
-        
-class TheBountySubSurfaceScattering(TheBountyMaterialTypePanel, Panel):
-    bl_label = "SubSurface"
-    material_type = 'translucent'
 
-    def draw(self, context):
-        layout = self.layout
+    def drawScattering(self, context, layout):
+        #layout = self.layout
         mat = active_node_mat(context.material)
-        ##
+        layout.separator() #("Scattering properties")
+        
         row = layout.row()
         row.label("SSS Presets")
         row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
@@ -419,13 +409,13 @@ class TheBountySubSurfaceScattering(TheBountyMaterialTypePanel, Panel):
         split = layout.split()
         col = split.column()        
         
-        col.prop(mat.bounty, "sssSigmaS", text="Scatter color")
+        col.prop(mat.bounty, "sssSigmaS", text="Scattering (Sigma S)")
         col.prop(mat.bounty, "sssSigmaS_factor")
         col.prop(mat.bounty, "phaseFuction")
                 
         col = split.column()
-        col.prop(mat.bounty, "sssSigmaA", text="Absorption color")
-        col.prop(mat.bounty, "sss_transmit", text="Transmit")
+        col.prop(mat.bounty, "sssSigmaA", text="Absorption (Sigma A)")
+        col.prop(mat.bounty, "sss_transmit", text="Translucency")
         col.prop(mat.bounty, "sssIOR")
 
 if __name__ == "__main__":  # only for live edit.

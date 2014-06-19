@@ -26,6 +26,7 @@ from bpy.props import (FloatProperty,
                        PointerProperty,
                        StringProperty)
 
+from .. import EXP_BRANCH
 #----------------------------------
 # test for new material blend code
 #----------------------------------
@@ -46,8 +47,12 @@ enum_material_types = (
     ('glass',           "Glass",            ""),
     ('rough_glass',     "Rough Glass",      ""),
     ('blend',           "Blend",            ""),
-    ('translucent',     "Translucent(SSS)", ""),
+    #('translucent',     "Translucent(SSS)", ""),
 )
+if EXP_BRANCH == "merge_SSS":
+    enum_material_types += (
+    ('translucent',     "Translucent(SSS)", ""),
+    )
 
 enum_reflectance_mode = (
     ('oren-nayar', "Oren-Nayar", "Reflectance Model"),
