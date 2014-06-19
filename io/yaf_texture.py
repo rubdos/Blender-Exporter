@@ -22,6 +22,36 @@ import bpy
 import os
 from bpy.path import abspath, clean_name
 
+switchBlendType = {
+        'LINEAR': 'lin',
+        'QUADRATIC': 'quad',
+        'EASING': 'ease',
+        'DIAGONAL': 'diag',
+        'SPHERICAL': 'sphere',
+        'QUADRATIC_SPHERE': 'halo',
+        'RADIAL': 'radial',
+}
+switchDistMetric = {
+        'DISTANCE_SQUARED': 'squared',
+        'MANHATTAN': 'manhattan',
+        'CHEBYCHEV': 'chebychev',
+        'MINKOVSKY_HALF': 'minkovsky_half',
+        'MINKOVSKY_FOOUR': 'minkovsky_four',
+        'MINKOVSKY': 'minkovsky',
+}
+switchMusgraveType = {
+        'MULTIFRACTAL': 'multifractal',
+        'RIDGED_MULTIFRACTAL': 'ridgedmf',
+        'HYBRID_MULTIFRACTAL': 'hybridmf',
+        'HETERO_TERRAIN': 'heteroterrain',
+        'FBM': 'fBm',
+}
+switchExtension = {
+        'EXTEND': 'extend',
+        'CLIP': 'clip',
+        'CLIP_CUBE': 'clipcube',
+        'CHECKER': 'checker',
+}
 
 def noise2string(ntype):
     a = {
@@ -59,16 +89,6 @@ class yafTexture:
         if tex.yaf_tex_type == 'BLEND':
             yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.yaf_tex_type))
             yi.paramsSetString("type", "blend")
-
-            switchBlendType = {
-                'LINEAR': 'lin',
-                'QUADRATIC': 'quad',
-                'EASING': 'ease',
-                'DIAGONAL': 'diag',
-                'SPHERICAL': 'sphere',
-                'QUADRATIC_SPHERE': 'halo',
-                'RADIAL': 'radial',
-            }
 
             stype = switchBlendType.get(tex.progression, 'lin')  # set blend type for blend texture, default is 'lin'
             yi.paramsSetString("stype", stype)
@@ -210,15 +230,6 @@ class yafTexture:
                 noise_size = 1.0 / noise_size
             yi.paramsSetFloat("size", noise_size)
 
-            switchDistMetric = {
-                'DISTANCE_SQUARED': 'squared',
-                'MANHATTAN': 'manhattan',
-                'CHEBYCHEV': 'chebychev',
-                'MINKOVSKY_HALF': 'minkovsky_half',
-                'MINKOVSKY_FOOUR': 'minkovsky_four',
-                'MINKOVSKY': 'minkovsky',
-            }
-
             ts = switchDistMetric.get(tex.distance_metric, 'minkovsky')  # set distance metric for VORONOI Texture, default is 'minkovsky'
             yi.paramsSetString("distance_metric", ts)
 
@@ -228,13 +239,6 @@ class yafTexture:
             yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.yaf_tex_type))
             yi.paramsSetString("type", "musgrave")
 
-            switchMusgraveType = {
-                'MULTIFRACTAL': 'multifractal',
-                'RIDGED_MULTIFRACTAL': 'ridgedmf',
-                'HYBRID_MULTIFRACTAL': 'hybridmf',
-                'HETERO_TERRAIN': 'heteroterrain',
-                'FBM': 'fBm',
-                }
             ts = switchMusgraveType.get(tex.musgrave_type, 'multifractal')  # set MusgraveType, default is 'multifractal'
 
             yi.paramsSetString("musgrave_type", ts)
@@ -328,14 +332,7 @@ class yafTexture:
             yi.paramsSetInt("yrepeat", repeat_y)
 
             # clipping
-            extension = tex.extension
-            switchExtension = {
-                'EXTEND': 'extend',
-                'CLIP': 'clip',
-                'CLIP_CUBE': 'clipcube',
-                'CHECKER': 'checker',
-                }
-            clipping = switchExtension.get(extension, 'repeat')  # set default clipping to 'repeat'
+            clipping = switchExtension.get(tex.extension, 'repeat')  # set default clipping to 'repeat'
             yi.paramsSetString("clipping", clipping)
             if clipping == 'checker':
                 yi.paramsSetBool("even_tiles", tex.use_checker_even)
