@@ -104,6 +104,7 @@ def register():
             ('ExpDensity Volume', "ExpDensity Volume", ""),
             ('Noise Volume', "Noise Volume", ""),
             ('Uniform Volume', "Uniform Volume", "")
+            ('Grid Volume', "Grid Volume", "")
         ),
         default='ExpDensity Volume')
 
@@ -154,6 +155,12 @@ def register():
         min=0.0, max=1.0,
         precision=4,
         default=0.1000)
+    # grid
+    Object.volDensityFile = StringProperty(
+        name="densityfile",
+        description= "Density file data",
+        subtype='FILE_PATH',
+        default="")
 
 
 def unregister():
@@ -177,3 +184,4 @@ def unregister():
     del Object.vol_density
     del Object.vol_absorp
     del Object.vol_scatter
+    del Object.volDensityFile

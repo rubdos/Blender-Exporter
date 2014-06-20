@@ -320,7 +320,8 @@ class yafObject(object):
                 yi.paramsSetString("texture", texture.name)
 
         elif obj.vol_region == 'Grid Volume':
-            yi.paramsSetString("type", "GridVolume")
+			yi.paramsSetString("density_file", obj.volDensityFile)
+			yi.paramsSetString("type", "GridVolume")
 
         yi.paramsSetFloat("sigma_a", obj.vol_absorp)
         yi.paramsSetFloat("sigma_s", obj.vol_scatter)
