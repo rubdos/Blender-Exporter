@@ -18,6 +18,7 @@
 
 # <pep8 compliant>
 
+import os
 import bpy
 import time
 import math
@@ -187,13 +188,13 @@ class yafObject(object):
         if not matrix:
             matrix = obj.matrix_world.copy()
 
-        if obj.vol_enable:  # Volume region
+        if obj.bounty.geometry_type == "volume_region":
             self.writeVolumeObject(obj, matrix)
 
-        elif obj.ml_enable:  # Meshlight
+        elif obj.bounty.geometry_type == "mesh_light":
             self.writeMeshLight(obj, matrix)
 
-        elif obj.bgp_enable:  # BGPortal Light
+        elif obj.bounty.geometry_type == "portal_light":
             self.writeBGPortal(obj, matrix)
 
         elif obj.particle_systems:  # Particle Hair system
@@ -202,16 +203,16 @@ class yafObject(object):
         else:  # The rest of the object types
             self.writeMesh(obj, matrix)
 
-    def writeInstanceBase(self, obj):
+    def writeInstanceBase(self, object):
 
         # Generate unique object ID
         ID = self.yi.getNextFreeID()
 
-        self.yi.printInfo("Exporting Base Mesh: {0} with ID: {1:d}".format(obj.name, ID))
+        self.yi.printInfo("Exporting Base Mesh: {0} with ID: {1:d}".format(object.name, ID))
 
         obType = 512  # Create this geometry object as a base object for instances
 
-        self.writeGeometry(ID, obj, None, obType)  # We want the vertices in object space
+        self.writeGeometry(ID, object, None, obType)  # We want the vertices in object space
 
         return ID
 
@@ -228,18 +229,20 @@ class yafObject(object):
         del mat4
         del o2w
 
-    def writeMesh(self, obj, matrix):
+    def writeMesh(self, object, matrix):
 
-        self.yi.printInfo("Exporting Mesh: {0}".format(obj.name))
+        self.yi.printInfo("Exporting Mesh: {0}".format(object.name))
 
         # Generate unique object ID
         ID = self.yi.getNextFreeID()
 
-        self.writeGeometry(ID, obj, matrix)  # obType in 0, default, the object is rendered
+        self.writeGeometry(ID, object, matrix)  # obType in 0, default, the object is rendered
 
-    def writeBGPortal(self, obj, matrix):
+    def writeBGPortal(self, object, matrix):
+        # use object subclass properties
+        obj = object.bounty
 
-        self.yi.printInfo("Exporting Background Portal Light: {0}".format(obj.name))
+        self.yi.printInfo("Exporting Background Portal Light: {0}".format(object.name))
 
         # Generate unique object ID
         ID = self.yi.getNextFreeID()
@@ -252,21 +255,23 @@ class yafObject(object):
         self.yi.paramsSetBool("with_caustic", obj.bgp_with_caustic)
         self.yi.paramsSetBool("with_diffuse", obj.bgp_with_diffuse)
         self.yi.paramsSetBool("photon_only", obj.bgp_photon_only)
-        self.yi.createLight(obj.name)
+        self.yi.createLight(object.name)
 
         obType = 256  # Makes object invisible to the renderer (doesn't enter the kdtree)
 
-        self.writeGeometry(ID, obj, matrix, obType)
+        self.writeGeometry(ID, object, matrix, obType)
 
-    def writeMeshLight(self, obj, matrix):
+    def writeMeshLight(self, object, matrix):
+        # use object subclass properties
+        obj = object.bounty        
 
-        self.yi.printInfo("Exporting Meshlight: {0}".format(obj.name))
+        self.yi.printInfo("Exporting Meshlight: {0}".format(object.name))
 
         # Generate unique object ID
         ID = self.yi.getNextFreeID()
 
         ml_matname = "ML_"
-        ml_matname += obj.name + "." + str(obj.__hash__())
+        ml_matname += object.name + "." + str(object.__hash__())
 
         self.yi.paramsClearAll()
         self.yi.paramsSetString("type", "light_mat")
@@ -287,13 +292,15 @@ class yafObject(object):
         self.yi.paramsSetFloat("power", obj.ml_power)
         self.yi.paramsSetInt("samples", obj.ml_samples)
         self.yi.paramsSetInt("object", ID)
-        self.yi.createLight(obj.name)
+        self.yi.createLight(object.name)
 
-        self.writeGeometry(ID, obj, matrix, 0, ml_mat)  # obType in 0, default, the object is rendered
+        self.writeGeometry(ID, object, matrix, 0, ml_mat)  # obType in 0, default, the object is rendered
 
-    def writeVolumeObject(self, obj, matrix):
+    def writeVolumeObject(self, object, matrix):
+        # use object subclass properties
+        obj = object.bounty
 
-        self.yi.printInfo("Exporting Volume Region: {0}".format(obj.name))
+        self.yi.printInfo("Exporting Volume Region: {0}".format(object.name))
 
         yi = self.yi
         # me = obj.data  /* UNUSED */
@@ -310,12 +317,12 @@ class yafObject(object):
             yi.paramsSetString("type", "UniformVolume")
 
         elif obj.vol_region == 'Noise Volume':
-            if not obj.active_material:
-                yi.printError("Volume object ({0}) is missing the materials".format(obj.name))
-            elif not obj.active_material.active_texture:
-                yi.printError("Volume object's material ({0}) is missing the noise texture".format(obj.name))
+            if not object.active_material:
+                yi.printError("Volume object ({0}) is missing the materials".format(object.name))
+            elif not object.active_material.active_texture:
+                yi.printError("Volume object's material ({0}) is missing the noise texture".format(object.name))
             else:
-                texture = obj.active_material.active_texture
+                texture = object.active_material.active_texture
 
                 yi.paramsSetString("type", "NoiseVolume")
                 yi.paramsSetFloat("sharpness", obj.vol_sharpness)
@@ -323,9 +330,16 @@ class yafObject(object):
                 yi.paramsSetFloat("density", obj.vol_density)
                 yi.paramsSetString("texture", texture.name)
 
-        elif obj.vol_region == 'Grid Volume':
+        elif obj.vol_region == 'Grid Volume' and obj.volDensityFile is not "":
+            # allow relative path's
+            volfilePath = bpy.path.abspath(obj.volDensityFile)
+            realfilePath = os.path.realpath(volfilePath)
+            fileDensityPath = os.path.normpath(realfilePath)
+            #
+            yi.paramsSetString("density_file", fileDensityPath)
             yi.paramsSetString("type", "GridVolume")
-
+            
+        # common parameters
         yi.paramsSetFloat("sigma_a", obj.vol_absorp)
         yi.paramsSetFloat("sigma_s", obj.vol_scatter)
         yi.paramsSetInt("attgridScale", self.scene.world.bounty.v_int_attgridres)
@@ -334,7 +348,7 @@ class yafObject(object):
         # and the up corner (maxx, maxy, maxz) then apply object scale,
         # also clamp the values to min: -1e10 and max: 1e10
 
-        mesh = obj.to_mesh(self.scene, True, 'RENDER')
+        mesh = object.to_mesh(self.scene, True, 'RENDER')
         mesh.transform(matrix)
 
         vec = [j for v in mesh.vertices for j in v.co]
@@ -482,25 +496,25 @@ class yafObject(object):
                 ymaterial = self.materialMap[mat_slots.material]
 
         return ymaterial
-
+    
+    def defineStrandValues(self, material):
+        # test
+        if material.strand.use_blender_units:
+            strandStart = material.strand.root_size
+            strandEnd = material.strand.tip_size
+            strandShape = material.strand.shape
+        else:  # Blender unit conversion
+            strandStart = material.strand.root_size / 100
+            strandEnd = material.strand.tip_size / 100
+            strandShape = material.strand.shape
+        return strandStart, strandEnd, strandShape
+    
     def writeParticleStrands(self, obj, matrix):
 
         yi = self.yi
         renderEmitter = False
         if hasattr(obj, 'particle_systems') == False:
             return
-        # test
-        def partStrandmaterial(pmaterial):
-            if pmaterial.strand.use_blender_units:
-                strandStart = pmaterial.strand.root_size
-                strandEnd = pmaterial.strand.tip_size
-                strandShape = pmaterial.strand.shape
-            else:  # Blender unit conversion
-                strandStart = pmaterial.strand.root_size / 100
-                strandEnd = pmaterial.strand.tip_size / 100
-                strandShape = pmaterial.strand.shape
-            return strandStart, strandEnd, strandShape
-        
         # Check for hair particles:
         for pSys in obj.particle_systems:
             for mod in [m for m in obj.modifiers if (m is not None) and (m.type == 'PARTICLE_SYSTEM')]:
@@ -508,13 +522,13 @@ class yafObject(object):
                     yi.printInfo("Exporter: Creating Hair Particle System {!r}".format(pSys.name))
                     tstart = time.time()
                     # TODO: clay particles uses at least materials thikness?
-                    pmaterial = "default"  # No material assigned in blender, use default one
+                    hairMat = "default"  # No material assigned in blender, use default one
                     strandStart = 0.01
                     strandEnd = 0.01
                     strandShape = 0.0
                     if obj.active_material is not None:
-                        pmaterial = obj.active_material
-                        strandStart, strandEnd, strandShape = partStrandmaterial(obj.active_material)
+                        hairMat = obj.active_material
+                        strandStart, strandEnd, strandShape = self.defineStrandValues(hairMat)
                     #
                     for particle in pSys.particles:
                         prtvis = False
@@ -525,18 +539,20 @@ class yafObject(object):
                         yi.paramsClearAll()
                         yi.startGeometry()
                         yi.startCurveMesh(CID, prtvis)
-                        #for vertex in ppoints:
+                        #
                         for location in particle.hair_keys:
-                            vertex = matrix * location.co # use reverse vector multiply order, API changed with rev. 38674
+                            # use reverse vector multiply order, API changed with rev. 38674
+                            vertex = matrix * location.co
                             yi.addVertex(vertex[0], vertex[1], vertex[2])
+                            
                         #this section will be changed after the material settings been exported
-                        hairMat = "default"
-                        if self.materialMap[pmaterial]:
-                            hairMat = pmaterial
+                        if self.scene.bounty.gs_clay_render:
+                            hairMat = "clay"
+                        #                            
                         yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
                         
                         # TODO: keep object smooth
-                        #yi.smoothMesh(0, 60.0)
+                        #yi.smoothMesh(CID, 60.0)
                         yi.endGeometry()
                     yi.printInfo("Exporter: Particle creation time: {0:.3f}".format(time.time() - tstart))
 
