@@ -15,9 +15,10 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
-from .. import EXP_BRANCH
 
 # <pep8 compliant>
+
+from .. import EXP_BRANCH
 
 switchDebugType = {
     'N': 1,

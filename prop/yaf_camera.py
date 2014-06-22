@@ -29,7 +29,7 @@ enum_camera_types =(
     ('architect', "Architect", ""),
     ('angular', "Angular", ""),
     ('orthographic', "Ortho", ""),
-    )
+)
 
 enum_bokeh_types =(
     ('disk1', "Disk1", ""),
@@ -39,13 +39,13 @@ enum_bokeh_types =(
     ('pentagon', "Pentagon", ""),
     ('hexagon', "Hexagon", ""),
     ('ring', "Ring", ""),
-    )
+)
 
 enum_bokeh_bias = (
     ('uniform', "Uniform", ""),
     ('center', "Center", ""),
     ('edge', "Edge", ""),
-    )
+)
 
 def call_camera_update(self, context):
     cam = context.camera

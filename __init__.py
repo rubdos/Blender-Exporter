@@ -24,8 +24,9 @@ import ctypes
 
 PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
 BIN_PATH = os.path.join(__path__[0], 'bin')
-# test
-EXP_BRANCH = "merge_SSS"
+
+# Useful for activate specific code for a differents branchs.
+EXP_BRANCH = "volumegrid"
 
 
 sys.path.append(BIN_PATH)
@@ -42,8 +43,7 @@ bl_info = {
     "category": "Render"
     }
 
-# Preload needed libraries
-# Loading order of the dlls is sensible please do not alter it
+# Loading order of the dlls is sensible, please do not alter it.
 if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC installation
