@@ -23,15 +23,15 @@ from bl_ui.properties_data_lamp import DataButtonsPanel
 
 # Inherit Lamp data block
 from bl_ui.properties_data_lamp import DATA_PT_context_lamp
-DATA_PT_context_lamp.COMPAT_ENGINES.add('YAFA_RENDER')
-del DATA_PT_context_lamp    
+DATA_PT_context_lamp.COMPAT_ENGINES.add('THEBOUNTY')
+del DATA_PT_context_lamp
 
 class YAF_PT_preview(Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "data"
     bl_label = "Preview"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -44,69 +44,60 @@ class YAF_PT_preview(Panel):
 
 class YAF_PT_lamp(DataButtonsPanel, Panel):
     bl_label = "Lamp"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
-
-        lamp = context.lamp
-
+        # use context.lamp for 'blender' Lamp properties
+        # and context.lamp.bounty for a exporter Lamp properties
+        lamp = context.lamp.bounty
+        
+        # commons values
         layout.prop(lamp, "lamp_type", expand=True)
+        layout.prop(context.lamp, "color")
+        layout.prop(lamp, "yaf_energy", text="Power")
 
-        if lamp.lamp_type == "area":
-            layout.prop(lamp, "color")
-            layout.prop(lamp, "yaf_energy", text="Power")
+        if lamp.lamp_type == "AREA":
             layout.prop(lamp, "yaf_samples")
-            layout.prop(lamp, "create_geometry")
+            layout.prop(lamp, "create_geometry", toggle=True)
 
-        elif lamp.lamp_type == "spot":
-            layout.prop(lamp, "color")
-            layout.prop(lamp, "yaf_energy", text="Power")
-            layout.prop(lamp, "spot_soft_shadows", toggle=True)
+        elif lamp.lamp_type == "SPOT":
+            layout.prop(lamp, "photon_only", toggle=True)
+            col = layout.column(align=True)
+            if not lamp.photon_only:
+                col.prop(lamp, "spot_soft_shadows", toggle=True)
+                if lamp.spot_soft_shadows:
+                    col.prop(lamp, "yaf_samples")
+                    col.prop(lamp, "shadow_fuzzyness")            
 
-            if lamp.spot_soft_shadows:
-                box = layout.box()
-                box.prop(lamp, "yaf_samples")
-                box.prop(lamp, "shadow_fuzzyness")
-
-            layout.prop(lamp, "photon_only")
-
-        elif lamp.lamp_type == "sun":
-            layout.prop(lamp, "color")
-            layout.prop(lamp, "yaf_energy", text="Power")
+        elif lamp.lamp_type == "SUN":
             layout.prop(lamp, "yaf_samples")
             layout.prop(lamp, "angle")
 
         elif lamp.lamp_type == "directional":
-            layout.prop(lamp, "color")
-            layout.prop(lamp, "yaf_energy", text="Power")
             layout.prop(lamp, "infinite")
             if not lamp.infinite:
-                layout.prop(lamp, "shadow_soft_size", text="Radius of directional cone")
+                layout.prop(context.lamp, "shadow_soft_size", text="Radius of directional cone")
 
-        elif lamp.lamp_type == "point":
-            layout.prop(lamp, "color")
-            layout.prop(lamp, "yaf_energy", text="Power")
-            if hasattr(lamp, "use_sphere"):
-                layout.prop(lamp, "use_sphere", toggle=True)
-                if lamp.use_sphere:
-                    box = layout.box()
-                    box.prop(lamp, "yaf_sphere_radius")
-                    box.prop(lamp, "yaf_samples")
-                    box.prop(lamp, "create_geometry")
+        elif lamp.lamp_type == "POINT":
+            col = layout.column(align=True)
+            col.prop(lamp, "use_sphere", toggle=True)
+            if lamp.use_sphere:
+                col.prop(lamp, "yaf_sphere_radius")
+                col.prop(lamp, "yaf_samples")
+                col.prop(lamp, "create_geometry", toggle=True)
 
         elif lamp.lamp_type == "ies":
-            layout.prop(lamp, "color")
-            layout.prop(lamp, "yaf_energy", text="Power")
             layout.prop(lamp, "ies_file")
-            layout.prop(lamp, "ies_soft_shadows", toggle=True)
+            col = layout.column(align=True)            
+            col.prop(lamp, "ies_soft_shadows", toggle=True)
             if lamp.ies_soft_shadows:
-                layout.box().prop(lamp, "yaf_samples")
+                col.prop(lamp, "yaf_samples")
 
 # povman test
 class YAF_PT_area(DataButtonsPanel, Panel):
     bl_label = "Area Shape"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -116,7 +107,6 @@ class YAF_PT_area(DataButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-
         lamp = context.lamp
 
         col = layout.column()
@@ -128,38 +118,40 @@ class YAF_PT_area(DataButtonsPanel, Panel):
         elif lamp.shape == 'RECTANGLE':
             sub.prop(lamp, "size", text="Size X")
             sub.prop(lamp, "size_y", text="Size Y")
+        col = layout.row()
+        col.prop(lamp, "distance")
 # end
 
 class YAF_PT_spot(DataButtonsPanel, Panel):
     bl_label = "Spot Shape"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
         lamp = context.lamp
         engine = context.scene.render.engine
-        return (lamp and lamp.lamp_type == "spot") and (engine in cls.COMPAT_ENGINES)
+        return (lamp and lamp.type == "SPOT") and (engine in cls.COMPAT_ENGINES)
 
     def draw(self, context):
         layout = self.layout
-        lamp = context.lamp
+        lamp = context.lamp.bounty
 
         split = layout.split()
 
         col = split.column()
-        col.prop(lamp, "spot_size", text="Size")
+        col.prop(context.lamp, "spot_size", text="Size")
         col.prop(lamp, "yaf_show_dist_clip")
         if lamp.yaf_show_dist_clip:
-            col.prop(lamp, "distance")
-            col.prop(lamp, "shadow_buffer_clip_start", text="Clip Start")
+            col.prop(context.lamp, "distance")
+            col.prop(context.lamp, "shadow_buffer_clip_start", text="Clip Start")
 
         col = split.column()
 
-        col.prop(lamp, "spot_blend", text="Blend", slider=True)
-        col.prop(lamp, "show_cone")
+        col.prop(context.lamp, "spot_blend", text="Blend", slider=True)
+        col.prop(context.lamp, "show_cone")
         if lamp.yaf_show_dist_clip:
             col.label(text="")
-            col.prop(lamp, "shadow_buffer_clip_end", text=" Clip End")
+            col.prop(context.lamp, "shadow_buffer_clip_end", text=" Clip End")
 
 
 if __name__ == "__main__":  # only for live edit.

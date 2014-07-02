@@ -22,15 +22,20 @@ import bpy
 from bpy.types import Panel
 from bl_ui.properties_world import WorldButtonsPanel
 
-WorldButtonsPanel.COMPAT_ENGINES = {'YAFA_RENDER'}
+WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):
     bl_label = "YafaRay Volume Integrator"
+    
+    @classmethod
+    def poll(cls, context):
+        return context.world and WorldButtonsPanel.poll(context)
 
     def draw(self, context):
         layout = self.layout
-        world = context.world
+        #blworld = context.world
+        world = context.world.bounty
 
         layout.prop(world, "v_int_type")
         layout.separator()

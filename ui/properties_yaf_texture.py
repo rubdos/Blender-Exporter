@@ -20,20 +20,15 @@
 
 import bpy
 from bl_ui.properties_material import active_node_mat
-from bl_ui.properties_texture import context_tex_datablock
-from bpy.types import (Panel,
-                       Texture,
-                       Brush,
-                       Material,
-                       World,
-                       ParticleSettings)
+from bl_ui.properties_texture import context_tex_datablock, id_tex_datablock
+from bpy.types import (Panel, Texture, Brush, Material, World, ParticleSettings)
 
 
 class YAF_TextureButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "texture"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -44,20 +39,28 @@ class YAF_TextureButtonsPanel():
 class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
     bl_label = "YafaRay Textures"
     bl_options = {'HIDE_HEADER'}
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
         engine = context.scene.render.engine
-        if not hasattr(context, "texture_slot"):
+        #if not hasattr(context, "texture_slot"):
+        #    return False
+        if context.lamp:
             return False
 
-        return ((context.material or context.world or context.brush or context.texture \
-        or context.particle_system or isinstance(context.space_data.pin_id, ParticleSettings)) \
-        and (engine in cls.COMPAT_ENGINES))
+        return ((context.material or 
+                 context.world or
+                 #context.lamp or context.brush or 
+                 context.texture or
+                 context.particle_system or
+                 isinstance(context.space_data.pin_id, ParticleSettings) or 
+                 context.texture_user) and
+                (engine in cls.COMPAT_ENGINES))
 
     def draw(self, context):
         layout = self.layout
+        
         slot = getattr(context, "texture_slot", None)
         node = getattr(context, "texture_node", None)
         space = context.space_data
@@ -67,10 +70,43 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
 
         if space.use_pin_id and not isinstance(pin_id, Texture):
             idblock = pin_id
+            #idblock = context_tex_datablock(pin_id) # is use for texture lamp??
             pin_id = None
 
         if not space.use_pin_id:
             layout.prop(space, "texture_context", expand=True)
+            pin_id = None
+        
+        # copied from Blender, but not use atm
+        # TODO: review
+        """
+        if space.texture_context == 'OTHER':
+            if not pin_id:
+                layout.template_texture_user()
+            user = context.texture_user
+            if user or pin_id:
+                layout.separator()
+
+                split = layout.split(percentage=0.65)
+                col = split.column()
+
+                if pin_id:
+                    col.template_ID(space, "pin_id")
+                else:
+                    propname = context.texture_user_property.identifier
+                    col.template_ID(user, propname, new="texture.new")
+
+                if tex:
+                    split = layout.split(percentage=0.2)
+                    if tex.use_nodes:
+                        if slot:
+                            split.label(text="Output:")
+                            split.prop(slot, "output_node", text="")
+                    else:
+                        split.label(text="Type:")
+                        split.prop(tex, "type", text="")
+            return
+        """
 
         tex_collection = (pin_id is None) and (node is None) and (not isinstance(idblock, Brush))
 
@@ -117,7 +153,7 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
 
 class YAF_TEXTURE_PT_preview(YAF_TextureButtonsPanel, Panel):
     bl_label = "Preview"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -137,7 +173,7 @@ class YAF_TEXTURE_PT_preview(YAF_TextureButtonsPanel, Panel):
 
 
 class YAF_TextureSlotPanel(YAF_TextureButtonsPanel):
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -149,20 +185,22 @@ class YAF_TextureSlotPanel(YAF_TextureButtonsPanel):
 
 
 class YAF_TextureTypePanel(YAF_TextureButtonsPanel):
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
         tex = context.texture
         engine = context.scene.render.engine
-        return tex and ((tex.yaf_tex_type == cls.tex_type and not tex.use_nodes) and (engine in cls.COMPAT_ENGINES))
+        return tex and ((tex.yaf_tex_type == cls.tex_type and 
+                         not tex.use_nodes) and 
+                        (engine in cls.COMPAT_ENGINES))
 
 
 # --- YafaRay's own Texture Type Panels --- #
 class YAF_TEXTURE_PT_clouds(YAF_TextureTypePanel, Panel):
     bl_label = "Clouds"
     tex_type = 'CLOUDS'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -184,7 +222,7 @@ class YAF_TEXTURE_PT_clouds(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_wood(YAF_TextureTypePanel, Panel):
     bl_label = "Wood"
     tex_type = 'WOOD'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -211,7 +249,7 @@ class YAF_TEXTURE_PT_wood(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_marble(YAF_TextureTypePanel, Panel):
     bl_label = "Marble"
     tex_type = 'MARBLE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -235,7 +273,7 @@ class YAF_TEXTURE_PT_marble(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_blend(YAF_TextureTypePanel, Panel):
     bl_label = "Blend"
     tex_type = 'BLEND'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -251,90 +289,98 @@ class YAF_TEXTURE_PT_blend(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_image(YAF_TextureTypePanel, Panel):
     bl_label = "Map Image"
     tex_type = 'IMAGE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
 
         tex = context.texture
         layout.template_image(tex, "image", tex.image_user)
-
+        
+def imageTexturePoll(cls, context):
+    idblock = context_tex_datablock(context)
+    engine = context.scene.render.engine
+    tex = context.texture
+    return tex and (tex.yaf_tex_type == cls.tex_type and not isinstance(idblock, World) and (engine in cls.COMPAT_ENGINES))
 
 class YAF_TEXTURE_PT_image_sampling(YAF_TextureTypePanel, Panel):
     bl_label = "Image Sampling"
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
-
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    # test
+    @classmethod
+    def poll(cls, context):
+        return imageTexturePoll(cls, context)
+    # end
     def draw(self, context):
         layout = self.layout
-        idblock = context_tex_datablock(context)
-
         tex = context.texture
-        layout.label(text="Image:")
+        #
+        #idblock = context_tex_datablock(context)
+        #if not isinstance(idblock, World):
         row = layout.row(align=True)
-        if not isinstance(idblock, World):
-            '''povman: change layout to row for save space
-                and show only options in each context
-            '''
-            row.prop(tex, "yaf_use_alpha", text="Use Alpha")
-            row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
-            layout.prop(tex, "use_flip_axis", text="Flip X/Y Axis")
-        else:
-            row.prop(tex, "use_interpolation", text="Use image background interpolation")
-            #row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
-
+        row.prop(tex, "yaf_use_alpha", text="Use Alpha")
+        row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
+        layout.prop(tex, "use_flip_axis", text="Flip X/Y Axis")
+        
 
 class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
     bl_label = "Image Mapping"
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
-
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    
+    # test
+    @classmethod
+    def poll(cls, context):
+        return imageTexturePoll(cls, context)
+        
+    
     def draw(self, context):
-        layout = self.layout
-
-        tex = context.texture
-
-        layout.prop(tex, "extension")
-
-        split = layout.split()
-
-        if tex.extension == 'REPEAT':
-            row = layout.row(align=True)
-            row.prop(tex, "repeat_x", text="X Repeat")
-            row.prop(tex, "repeat_y", text="Y Repeat")
-
-            layout.separator()
-
-        elif tex.extension == 'CHECKER':
-            col = split.column(align=True)
-            row = col.row()
-            row.prop(tex, "use_checker_even", text="Even")
-            row.prop(tex, "use_checker_odd", text="Odd")
-
-            col = split.column()
-            col.prop(tex, "checker_distance", text="Distance")
-
-            layout.separator()
-
-        split = layout.split()
-
-        col = split.column(align=True)
-        col.label(text="Crop Minimum:")
-        col.prop(tex, "crop_min_x", text="X")
-        col.prop(tex, "crop_min_y", text="Y")
-
-        col = split.column(align=True)
-        col.label(text="Crop Maximum:")
-        col.prop(tex, "crop_max_x", text="X")
-        col.prop(tex, "crop_max_y", text="Y")
+        idblock = context_tex_datablock(context)
+        if not isinstance(idblock, World):            
+            tex = context.texture
+            layout = self.layout
+            layout.prop(tex, "extension")
+        
+            split = layout.split()
+        
+            if tex.extension == 'REPEAT':
+                row = layout.row(align=True)
+                row.prop(tex, "repeat_x", text="X Repeat")
+                row.prop(tex, "repeat_y", text="Y Repeat")
+        
+                layout.separator()
+        
+            elif tex.extension == 'CHECKER':
+                col = split.column(align=True)
+                row = col.row()
+                row.prop(tex, "use_checker_even", text="Even")
+                row.prop(tex, "use_checker_odd", text="Odd")
+        
+                col = split.column()
+                col.prop(tex, "checker_distance", text="Distance")
+        
+                layout.separator()
+        
+                split = layout.split()
+        
+                col = split.column(align=True)
+                col.label(text="Crop Minimum:")
+                col.prop(tex, "crop_min_x", text="X")
+                col.prop(tex, "crop_min_y", text="Y")
+        
+                col = split.column(align=True)
+                col.label(text="Crop Maximum:")
+                col.prop(tex, "crop_max_x", text="X")
+                col.prop(tex, "crop_max_y", text="Y")
 
 
 class YAF_TEXTURE_PT_musgrave(YAF_TextureTypePanel, Panel):
     bl_label = "Musgrave"
     tex_type = 'MUSGRAVE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -370,7 +416,7 @@ class YAF_TEXTURE_PT_musgrave(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_voronoi(YAF_TextureTypePanel, Panel):
     bl_label = "Voronoi"
     tex_type = 'VORONOI'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -405,7 +451,7 @@ class YAF_TEXTURE_PT_voronoi(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_distortednoise(YAF_TextureTypePanel, Panel):
     bl_label = "Distorted Noise"
     tex_type = 'DISTORTED_NOISE'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -425,7 +471,7 @@ class YAF_TEXTURE_PT_distortednoise(YAF_TextureTypePanel, Panel):
 class YAF_TEXTURE_PT_ocean(YAF_TextureTypePanel, Panel):
     bl_label = "Ocean"
     tex_type = 'OCEAN'
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     def draw(self, context):
         layout = self.layout
@@ -439,8 +485,8 @@ class YAF_TEXTURE_PT_ocean(YAF_TextureTypePanel, Panel):
 
 
 class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
-    bl_label = "YafaRay Mapping (Map Input)"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    bl_label = "Texture Mapping"
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -460,16 +506,16 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
         idblock = context_tex_datablock(context)
 
         tex = context.texture_slot
-        # textype = context.texture
 
         if not isinstance(idblock, Brush):
             if isinstance(idblock, World):
                 split = layout.split(percentage=0.3)
                 col = split.column()
-                world = context.world
+                world = context.world.bounty
                 col.label(text="Coordinates:")
                 col = split.column()
-                col.prop(world, "yaf_mapworld_type", text="")
+                col.prop(world, "bg_mapping_type", text="")
+                #col.prop(tex, "use_interpolation", text="Use image background interpolation")
             else:
                 split = layout.split(percentage=0.3)
                 col = split.column()
@@ -477,11 +523,11 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
                 col = split.column()
                 col.prop(tex, "texture_coords", text="")
 
-
+            """
             if tex.texture_coords == 'UV':
                 pass
+                
                 #### UV layers not supported in yafaray engine ###
-                """
                 split = layout.split(percentage=0.3)
                 split.label(text="Layer:")
                 ob = context.object
@@ -489,9 +535,10 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
                     split.prop_search(tex, "uv_layer", ob.data, "uv_textures", text="")
                 else:
                     split.prop(tex, "uv_layer", text="")
-                """
+            """
 
-            elif tex.texture_coords == 'OBJECT':
+            #el
+            if tex.texture_coords == 'OBJECT':
                 split = layout.split(percentage=0.3)
                 split.label(text="Object:")
                 split.prop(tex, "object", text="")
@@ -526,7 +573,7 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
                 row.prop(tex, "mapping_y", text="")
                 row.prop(tex, "mapping_z", text="")
 
-        # tes povman
+        # not use offset and scale in world texture
         if not isinstance(idblock, World):
             row = layout.row()
             row.column().prop(tex, "offset")
@@ -535,12 +582,12 @@ class YAF_TEXTURE_PT_mapping(YAF_TextureSlotPanel, Panel):
 
 class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
     bl_label = "YafaRay Influence (Map To)"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
         idblock = context_tex_datablock(context)
-        if isinstance(idblock, Brush):
+        if ( isinstance(idblock, Brush) or isinstance(idblock, World)):
             return False
 
         if not getattr(context, "texture_slot", None):
@@ -576,6 +623,9 @@ class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
         shaderNodes["Transparency"] = ["use_map_alpha", "alpha_factor", "Transparency"]
         shaderNodes["Translucency"] = ["use_map_translucency", "translucency_factor", "Translucency"]
         shaderNodes["BlendAmount"] = ["use_map_diffuse", "diffuse_factor", "Blending Amount"]
+        #
+        #shaderNodes["ScatterColor"]=["use_map_translucency", "translucency_factor", "Scatter Color"]
+        #shaderNodes["Absorption"] = ["use_map_alpha", "alpha_factor", "Absorption Color"]
 
         materialShaderNodes = dict()
         materialShaderNodes["glass"] = ["Bump", "MirrorColor"]
@@ -584,9 +634,11 @@ class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
         materialShaderNodes["coated_glossy"] = ["DiffuseColor", "GlossyColor", "GlossyAmount", "Bump"]
         materialShaderNodes["shinydiffusemat"] = ["DiffuseColor", "MirrorAmount", "MirrorColor", "Transparency", "Translucency", "Bump"]
         materialShaderNodes["blend"] = ["BlendAmount"]
+        #
+        materialShaderNodes["translucent"] = ["DiffuseColor", "GlossyColor", "GlossyAmount", "Transparency", "Translucency", "Bump"]
 
         if isinstance(idblock, Material):
-            nodes = materialShaderNodes[idblock.mat_type]
+            nodes = materialShaderNodes[idblock.bounty.mat_type]
             col = layout.column()
 
             for node in nodes:
@@ -624,5 +676,5 @@ class YAF_TEXTURE_PT_influence(YAF_TextureSlotPanel, Panel):
 
 
 if __name__ == "__main__":  # only for live edit.
-    import bpy
+    #import bpy
     bpy.utils.register_module(__name__)
