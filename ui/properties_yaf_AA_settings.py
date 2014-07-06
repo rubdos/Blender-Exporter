@@ -39,7 +39,7 @@ class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
         col.prop(scene, "AA_filter_type", text="")
         col.prop(scene, "AA_min_samples")
         col.prop(scene, "AA_pixelwidth")
-        # fix suggest by 'samo' in http://www.yafaray.org/node/581
+        # 
         col = split.column()
         spp = col.column()
         sub = col.column()
