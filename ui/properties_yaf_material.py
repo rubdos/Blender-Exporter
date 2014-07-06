@@ -376,11 +376,10 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
     def draw(self, context):
         #
         layout = self.layout
-        if EXP_BRANCH == "merge_SSS":
-            self.bl_label="Translucent Scattering Material"
+        self.bl_label="Translucent Scattering Material"
             
-            self.drawTranslucent(context, layout)
-            self.drawScattering(context, layout)
+        self.drawTranslucent(context, layout)
+        self.drawScattering(context, layout)
 
     def drawTranslucent(self, context, layout):
         #layout = self.layout
