@@ -563,5 +563,4 @@ class yafObject(object):
 
         # We only need to render emitter object once
         if renderEmitter:
-            # ymat = self.materialMap["default"]  /* UNUSED */
             self.writeMesh(obj, matrix)
