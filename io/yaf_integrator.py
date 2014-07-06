@@ -69,10 +69,6 @@ class yafIntegrator:
                 c = scene.intg_AO_color
                 yi.paramsSetColor("AO_color", c[0], c[1], c[2])
 
-            # SSS
-            if EXP_BRANCH =="merge_SSS":
-                yi.paramsSetBool("useSSS", scene.intg_useSSS)
-
         elif lightIntegrator == "photonmapping":
             yi.paramsSetInt("photons", scene.intg_photons)
             yi.paramsSetInt("cPhotons", scene.intg_cPhotons)
@@ -88,10 +84,6 @@ class yafIntegrator:
                 yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
                 yi.paramsSetBool("show_map", scene.intg_show_map)
 
-            # SSS
-            if EXP_BRANCH =="merge_SSS":
-                yi.paramsSetBool("useSSS", scene.intg_useSSS)
-
         elif lightIntegrator == "pathtracing":
             yi.paramsSetInt("path_samples", scene.intg_path_samples)
             yi.paramsSetInt("bounces", scene.intg_bounces)
@@ -105,10 +97,6 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
-            
-            # SSS
-            if EXP_BRANCH =="merge_SSS":
-                yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
         #elif lightIntegrator == "bidirectional":
 
@@ -132,11 +120,14 @@ class yafIntegrator:
         #----------------------------------
         # Sub-Surface Scattering integrator
         #----------------------------------
-        if EXP_BRANCH == "merge_SSS" and scene.intg_useSSS:
-            yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
-            yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
-            yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
-            yi.paramsSetFloat("sssScale", scene.intg_sssScale)
+        for branch in EXP_BRANCH:
+            if branch == "merge_SSS" and lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
+                if scene.intg_useSSS:
+                    yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
+                    yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
+                    yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
+                    yi.paramsSetFloat("sssScale", scene.intg_sssScale)
         
         yi.paramsSetString("type", lightIntegrator)
         yi.createIntegrator("default")
