@@ -92,10 +92,8 @@ class TheBounty_PT_color_management(TheBountySceneButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-
         scene = context.scene
         #rd = scene.render
-
         col = layout.column()
         col.label(text="Display color space:")
         col.prop(scene.display_settings, "display_device", text= "Device")

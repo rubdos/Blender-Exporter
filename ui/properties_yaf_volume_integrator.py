@@ -26,7 +26,7 @@ WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):
-    bl_label = "YafaRay Volume Integrator"
+    bl_label = "Volume Integrator"
     
     @classmethod
     def poll(cls, context):
@@ -34,7 +34,6 @@ class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        #blworld = context.world
         world = context.world.bounty
 
         layout.prop(world, "v_int_type")
@@ -42,10 +41,12 @@ class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):
 
         if world.v_int_type == "Single Scatter":
             layout.prop(world, "v_int_step_size")
-            layout.prop(world, "v_int_adaptive")
-            layout.prop(world, "v_int_optimize")
-            if world.v_int_optimize:
-                layout.prop(world, "v_int_attgridres")
+            row = layout.row()
+            row.prop(world, "v_int_adaptive", toggle=True)
+            row.prop(world, "v_int_optimize", toggle=True)
+            sub = layout.row()
+            sub.enabled = world.v_int_optimize
+            sub.prop(world, "v_int_attgridres")
 
         if world.v_int_type == "Sky":
             layout.prop(world, "v_int_step_size")

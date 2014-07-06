@@ -24,10 +24,9 @@ import ctypes
 
 PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
 BIN_PATH = os.path.join(__path__[0], 'bin')
-
-# Useful for activate specific code for a differents branchs.
-EXP_BRANCH = "volumegrid"
-
+# allowed branchs..
+#branchs=('master','volumegrid','merge_SSS')
+EXP_BRANCH = (("master"),)
 
 sys.path.append(BIN_PATH)
 
@@ -46,11 +45,11 @@ bl_info = {
 # Loading order of the dlls is sensible, please do not alter it.
 if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
-        # load dll's from a MSVC installation
+        # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
             dllArray = ['zlib1', 'iconv', 'zlib', 'libpng15', 'libxml2', 'yafaraycore', 'yafarayplugin']
             break
-        # load dll's from a MinGW installation
+        # load dll's from a MinGW build's
         else:
             dllArray = ['zlib', 'libxml2-2', 'libgcc_s_sjlj-1', 'libHalf', 'libIex-2_1', 'libImath-2_1', \
                         'libIlmThread-2_1', 'libIlmImf-2_1', 'libjpeg-8', 'libpng14', 'libtiff-3', \
@@ -58,14 +57,22 @@ if sys.platform == 'win32':
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
-else:
+    
+else: # linux
     dllArray = ['libyafaraycore.so', 'libyafarayplugin.so']
+    # test
+    for file in os.listdir(PLUGIN_PATH):
+        if file in {'libGridVolume.so'}:
+            EXP_BRANCH +=(("volumegrid"),)
+        if file in {'libtranslucent.so'}:
+            EXP_BRANCH +=(("merge_SSS"),)
 
 for dll in dllArray:
     try:
         ctypes.cdll.LoadLibrary(os.path.join(BIN_PATH, dll))
     except Exception as e:
         print("ERROR: Failed to load library {0}, {1}".format(dll, repr(e)))
+
 
 if "bpy" in locals():
     import imp
@@ -107,8 +114,9 @@ def register():
     kmi = km.keymap_items.new('render.render_animation', 'F12', 'PRESS', False, False, True, False)
     kmi = km.keymap_items.new('render.render_still', 'F12', 'PRESS', False, False, False, False)
     
-    if EXP_BRANCH == "custom_nodes":
-        nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)
+    for branch in EXP_BRANCH:
+        if branch == "custom_nodes":
+            nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)
     
 
 def unregister():
@@ -117,14 +125,15 @@ def unregister():
     # unregister keys for 'render 3d view', 'render still' and 'render animation'
     kma = bpy.context.window_manager.keyconfigs.addon.keymaps['Screen']
     for kmi in kma.keymap_items:
-        if kmi.idname == 'render.render_view' or kmi.idname == 'render.render_animation' \
-        or kmi.idname == 'render.render_still':
+        #if kmi.idname == 'render.render_view' or kmi.idname == 'render.render_animation' or kmi.idname == 'render.render_still':
+        if kmi.idname in {'render.render_view','render.render_animation','render.render_still'}:
             kma.keymap_items.remove(kmi)
     bpy.utils.unregister_module(__name__)
     bpy.app.handlers.load_post.remove(load_handler)
     
-    if EXP_BRANCH == "custom_nodes":
-        nodeitems_utils.unregister_node_categories("TheBountyMaterial")
+    for branch in EXP_BRANCH:
+        if branch == "custom_nodes":
+            nodeitems_utils.unregister_node_categories("TheBountyMaterial")
 
 
 if __name__ == '__main__':

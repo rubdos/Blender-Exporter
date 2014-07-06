@@ -36,10 +36,10 @@ enum_world_types =(
 )
 
 enum_color_space=(
-    ('CIE (E)', "CIE (E)", "Select color space model"),
-    ('CIE (D50)', "CIE (D50)", "Select color space model"),
-    ('sRGB (D65)', "sRGB (D65)", "Select color space model"),
-    ('sRGB (D50)', "sRGB (D50)", "Select color space model"),
+    ('CIE (E)', "Color space CIE (E)", "Select color space model"),
+    ('CIE (D50)', "Color space CIE (D50)", "Select color space model"),
+    ('sRGB (D65)', "Color space sRGB (D65)", "Select color space model"),
+    ('sRGB (D50)', "Color space sRGB (D50)", "Select color space model"),
 )
 
 enum_mapping_type =(
@@ -258,7 +258,7 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
         )
         '''
         cls.v_int_type = EnumProperty(
-            name="Volume integrator",
+            name="Integrator type",
             description="Set the volume integrator",
             items=enum_volume_integrator_type,
             default='None'
