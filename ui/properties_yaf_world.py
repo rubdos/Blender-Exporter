@@ -133,6 +133,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             row.prop(world, "bg_light_samples")
             #
             if world.bg_type == "Sunsky2":
+                layout.prop(world, "bg_dsnight", toggle= True)
                 self.draw_influence(context)
                 
                 row = layout.row()
@@ -140,7 +141,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
                 row.prop(world, "bg_dsbright")
             
                 row = layout.row()
-                row.prop(world, "bg_color_space")
+                layout.prop(world, "bg_color_space", text="")
         #---------------------------------------
         # Color background
         #---------------------------------------    
