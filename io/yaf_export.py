@@ -24,7 +24,7 @@ import threading
 import time
 import yafrayinterface
 
-from thebounty import PLUGIN_PATH
+from .. import PLUGIN_PATH
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -54,8 +54,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     sceneMat = []
     
     # TODO: make more options from UI
-    def verbositylevel(self, level):
-        if level =='info':
+    def verbositylevel(self, info):
+        if info:
             self.yi.setVerbosityInfo()
         else:
             self.yi.setVerbosityMute()   
@@ -72,7 +72,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.scene.bounty.bg_transp = False         #to correct alpha problems in preview roughglass
             self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
         else:
-            self.verbositylevel('info')
+            self.verbositylevel(self.scene.bounty.gs_verbose)
         
         # export go.. load plugins
         self.yi.loadPlugins(PLUGIN_PATH)
@@ -365,82 +365,18 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # must be called last as the params from here will be used by render()
         yaf_scene.exportRenderSettings(self.yi, self.scene)
 
-    def render_preview(self, scene):
-        # callback to render scene
-        self.is_preview = True
-        #scene = scene.bounty
-        self.bl_use_postprocess = False
-        #
-        
-        def progressCallback(command, *args):
-            #
-            if not self.test_break():
-                if command == "tag":
-                    self.tag = args[0]
-                elif command == "progress":
-                    self.prog = args[0]
-                self.update_stats("TheBounty Render: ", "{0}".format(self.tag))
-                #
-                self.update_progress(self.prog)
-        
-        def drawAreaCallback(*args):
-            x, y, w, h, tile = args
-            res = self.begin_result(x, y, w, h)
-            try:
-                lay = res.layers[0]
-                lay.rect, lay.passes[0].rect = tile
-            except:
-                pass
-
-            self.end_result(res)
-
-        def flushCallback(*args):
-            w, h, tile = args
-            res = self.begin_result(0, 0, w, h)
-            try:
-                lay = res.layers[0]
-                lay.rect, lay.passes[0].rect = tile
-            except BaseException as e:
-                pass
-
-            self.end_result(res)
-                
-        # define thread
-        thread = threading.Thread(target = self.yi.render, 
-                                  args=(self.resX, self.resY, 
-                                        self.bStartX, self.bStartY, 
-                                        self.is_preview, drawAreaCallback, 
-                                        flushCallback, progressCallback))
-
-        # run..
-        thread.start()
-    
-        #while thread.isAlive() and not self.test_break():
-        while thread.is_alive() and not self.test_break():
-            time.sleep(0.5) #2)
-            
-        #if thread.isAlive():
-        if thread.is_alive():
-            self.update_stats("", "Aborting...")
-            self.yi.abort()
-            thread.join()
-    
-        self.yi.clearAll()
-        del self.yi
-        self.update_stats("", "Done!")
-        self.bl_use_postprocess = True
-    
-    def render_scene(self, scene):
-        # callback to render scene
-        self.is_preview = False
+    def render(self, scene):
+        # callback to render scene if not scene.name == 'preview':
+        if scene.name == 'preview':
+            self.is_preview = True
         scene = scene.bounty
         # test for keep postprocess state
         postprocess = self.bl_use_postprocess
         #
-        if self.bl_use_postprocess:
-            self.bl_use_postprocess = False        
+        #if self.bl_use_postprocess:
+        self.bl_use_postprocess = False   
 
-        if scene.gs_type_render == "file":
+        if scene.gs_type_render == "file" and not self.is_preview:
             self.yi.printInfo("Exporter: Rendering to file {0}".format(self.outputFile))
             
             self.yi.render(self.co)
@@ -454,11 +390,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 lay.load_from_file(self.outputFile)
             self.end_result(result)
 
-        elif scene.gs_type_render == "xml":
+        elif scene.gs_type_render == "xml" and not self.is_preview:
             self.yi.printInfo("Exporter: Writing XML to file {0}".format(self.outputFile))
             self.yi.render(self.co)
 
-        else:
+        else:# into blender
 
             def progressCallback(command, *args):
                 if not self.test_break():
@@ -515,11 +451,4 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.clearAll()
         del self.yi
         self.update_stats("", "Done!")
-        self.bl_use_postprocess = postprocess #True
-
-    def render(self, scene):
-        #
-        if not scene.name == 'preview':
-            self.render_scene(scene)
-        else:
-            self.render_preview(scene)
+        self.bl_use_postprocess = postprocess
