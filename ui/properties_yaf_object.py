@@ -37,11 +37,8 @@ class TheBountyGeometryTypes(Panel):
     def draw(self, context):
         layout = self.layout
         ob = context.object.bounty
-        '''
-        Change design for apply only one type of special geometry at time.
-        Per example, if you apply 'portal light' and 'volume object', only
-        one of this types are applied.
-        '''
+        
+        # geometry types..
         layout.prop(ob,"geometry_type", text="", toggle=True)
         
         if ob.geometry_type == "mesh_light":
