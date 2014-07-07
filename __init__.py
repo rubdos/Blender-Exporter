@@ -34,8 +34,8 @@ bl_info = {
     "name": "TheBounty",
     "description": "TheBounty Renderer for Blender (based on YafaRay Exporter)",
     "author": "Pedro Alcaide (povmaniaco)",
-    "version": (0, 1, 6, 'Transitional'),
-    "blender": (2, 7, 0),
+    "version": (0, 1, 6, 0),
+    "blender": (2, 7, 1),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
     "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
@@ -60,19 +60,20 @@ elif sys.platform == 'darwin':
     
 else: # linux
     dllArray = ['libyafaraycore.so', 'libyafarayplugin.so']
-    # test
-    for file in os.listdir(PLUGIN_PATH):
-        if file in {'libGridVolume.so'}:
-            EXP_BRANCH +=(("volumegrid"),)
-        if file in {'libtranslucent.so'}:
-            EXP_BRANCH +=(("merge_SSS"),)
 
+# lad libraries
 for dll in dllArray:
     try:
         ctypes.cdll.LoadLibrary(os.path.join(BIN_PATH, dll))
     except Exception as e:
         print("ERROR: Failed to load library {0}, {1}".format(dll, repr(e)))
 
+# test in all OS
+for file in os.listdir(PLUGIN_PATH):
+    if file[:13]=='libGridVolume':
+        EXP_BRANCH +=(("volumegrid"),)
+    if file[:14]=='libtranslucent':
+        EXP_BRANCH +=(("merge_SSS"),)
 
 if "bpy" in locals():
     import imp

@@ -32,8 +32,9 @@ from . import prop_render_layer
 
 # test for custom nodes..
 from .. import EXP_BRANCH
-if EXP_BRANCH=="custom_nodes":
-    from . import prop_custom_nodes
+for branch in EXP_BRANCH:
+    if branch =="custom_nodes":
+        from . import prop_custom_nodes
 
 from bl_ui import properties_object as properties_object
 for member in dir(properties_object):  # add all "object" panels from blender
