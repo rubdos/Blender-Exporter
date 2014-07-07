@@ -373,7 +373,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # test for keep postprocess state
         postprocess = self.bl_use_postprocess
         #
-        #if self.bl_use_postprocess:
         self.bl_use_postprocess = False   
 
         if scene.gs_type_render == "file" and not self.is_preview:

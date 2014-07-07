@@ -274,7 +274,7 @@ class TheBounty_presets_ior_list(Operator):
 import re
 import os
    
-class Thebounty_parseIBL(Operator):
+class ThebountyParseIBL(Operator):
     bl_idname = "world.parse_ibl"
     bl_label = "Parse IBL"
     iblValues = {}
@@ -366,7 +366,7 @@ def register():
     bpy.utils.register_class(RENDER_OT_render_animation)
     bpy.utils.register_class(RENDER_OT_render_still)
     bpy.utils.register_class(YAF_OT_presets_ior_list)
-    bpy.utils.register_class(Thebounty_parseIBL)
+    bpy.utils.register_class(ThebountyParseIBL)
     
 
 def unregister():
@@ -377,5 +377,5 @@ def unregister():
     bpy.utils.unregister_class(RENDER_OT_render_animation)
     bpy.utils.unregister_class(RENDER_OT_render_still)
     bpy.utils.unregister_class(YAF_OT_presets_ior_list)
-    bpy.utils.unregister_class(Thebounty_parseIBL)
+    bpy.utils.unregister_class(ThebountyParseIBL)
 

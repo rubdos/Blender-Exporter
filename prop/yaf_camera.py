@@ -63,7 +63,7 @@ class TheBountyCameraSettings(bpy.types.PropertyGroup):
     def register(cls):
         bpy.types.Camera.bounty = PointerProperty(
             name="",
-            description="YafaRay Camera settings",
+            description="TheBounty Camera settings",
             type=cls,
         )
         cls.camera_type = EnumProperty(
