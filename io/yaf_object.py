@@ -94,7 +94,7 @@ class yafObject(object):
         else:
             # use Blender camera properties
             cam = camera.data 
-            # exporter camera specific properties
+            # thebounty camera subclass properties
             camera = camera.data.bounty
             
             camType = camera.camera_type
@@ -132,8 +132,8 @@ class yafObject(object):
                 # use DOF object distance if present or fixed DOF
                 if cam.dof_object is not None:
                     # use DOF object distance
-                    dist = (pos.xyz - cam.dof_object.location.xyz).length
-                    dof_distance = dist
+                    #dist = (pos.xyz - cam.dof_object.location.xyz).length
+                    dof_distance = (pos.xyz - cam.dof_object.location.xyz).length #dist
                 else:
                     # use fixed DOF distance
                     dof_distance = cam.dof_distance
@@ -142,6 +142,7 @@ class yafObject(object):
                 yi.paramsSetFloat("aperture", camera.aperture)
                 # bokeh params
                 yi.paramsSetString("bokeh_type", camera.bokeh_type)
+                yi.paramsSetString("bokeh_bias", camera.bokeh_bias)
                 yi.paramsSetFloat("bokeh_rotation", camera.bokeh_rotation)
 
             elif camType == "angular":

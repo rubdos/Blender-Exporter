@@ -113,15 +113,16 @@ class yafLight:
 
         if lampType == "POINT":
             yi.paramsSetString("type", "pointlight")
-            #povman test
             yi.paramsSetBool("useGeometry", lamp.create_geometry)
+            #
             if lamp.use_sphere:
-                if lamp.create_geometry:
-                    ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
-                    yi.paramsSetInt("object", ID)
                 yi.paramsSetString("type", "spherelight")
                 yi.paramsSetInt("samples", lamp.yaf_samples)
                 yi.paramsSetFloat("radius", lamp.yaf_sphere_radius)
+                #
+                if lamp.create_geometry:
+                    ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
+                    yi.paramsSetInt("object", ID)
 
         elif lampType == "SPOT":
             if self.preview and lamp_name == "Lamp.002":
@@ -173,19 +174,18 @@ class yafLight:
                 sizeY = lamp_data.size_y
             matrix = lamp_object.matrix_world.copy()
 
-
-            # generate an untransformed rectangle in the XY plane with
-            # the light's position as the centerpoint and transform it
-            # using its transformation matrix
+            # generate an untransformed rectangle in the XY plane
+            # with the light's position as the centerpoint and
+            # transform it using its transformation matrix
             point = Vector((-sizeX / 2, -sizeY / 2, 0))
             corner1 = Vector((-sizeX / 2, sizeY / 2, 0))
             corner2 = Vector((sizeX / 2, sizeY / 2, 0))
             corner3 = Vector((sizeX / 2, -sizeY / 2, 0))
 
-            point = matrix * point  # use reverse vector multiply order, API changed with rev. 38674
-            corner1 = matrix * corner1  # use reverse vector multiply order, API changed with rev. 38674
-            corner2 = matrix * corner2  # use reverse vector multiply order, API changed with rev. 38674
-            corner3 = matrix * corner3  # use reverse vector multiply order, API changed with rev. 38674
+            point = matrix * point      # ----------------------------------
+            corner1 = matrix * corner1  # use reverse vector multiply order
+            corner2 = matrix * corner2  # API changed with rev. 38674
+            corner3 = matrix * corner3  # ----------------------------------
 
             yi.paramsClearAll()
             if lamp.create_geometry:
@@ -209,14 +209,13 @@ class yafLight:
             yi.paramsSetPoint("point1", corner1[0], corner1[1], corner1[2])
             yi.paramsSetPoint("point2", corner3[0], corner3[1], corner3[2])
 
+        # sunlight and directional light don't use 'from' parameter
         if lampType not in {"SUN", "directional"}:
-            # "from" is not used for sunlight and infinite directional light
             yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
-        if lampType in {"POINT", "SPOT"}:
-            if getattr(lamp, "use_sphere", False) and lampType == "point":
-                power = power # 0.5 * power * power / (lamp.yaf_sphere_radius * lamp.yaf_sphere_radius)
-            else:
-                power = 0.5 * power * power
+        
+        # use sphere light attenuation  
+        if lampType == 'POINT' and lamp.use_sphere:
+            power = 0.5 * power * power
 
         yi.paramsSetColor("color", color[0], color[1], color[2])
         yi.paramsSetFloat("power", power)
