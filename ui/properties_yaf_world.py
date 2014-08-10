@@ -141,7 +141,6 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
                 row.prop(world, "bg_exposure")
                 row.prop(world, "bg_dsbright")
             
-                #row = layout.row()
                 layout.prop(world, "bg_color_space", text="")
         #---------------------------------------
         # Color background
@@ -216,7 +215,8 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             layout.operator("world.parse_ibl")
 
         
-from . import properties_yaf_volume_integrator
+from . import properties_yaf_volume_integrator as volum
+volum.YAF_PT_vol_integrator.draw
 
 
 if __name__ == "__main__":  # only for live edit.
