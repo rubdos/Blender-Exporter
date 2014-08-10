@@ -130,7 +130,7 @@ def checkSceneLights():
     # if above is true, this 'for' is not used
     for sceneObj in scene.objects:
         if not sceneObj.hide_render and sceneObj.is_visible(scene): # check lamp, meshlight or portal light object
-            if sceneObj.type == "LAMP" or sceneObj.ml_enable or sceneObj.bgp_enable:
+            if sceneObj.type == "LAMP" or sceneObj.bounty.geometry_type in {'mesh_light', 'portal_light'}:
                 haveLights = True
                 break
     #
@@ -271,8 +271,7 @@ class TheBounty_presets_ior_list(Operator):
 #-------------------------------------------
 # Add support for use ibl files
 #-------------------------------------------
-import re
-import os
+import re, os
    
 class ThebountyParseIBL(Operator):
     bl_idname = "world.parse_ibl"
