@@ -69,8 +69,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # setup specific values for render preview mode
         if self.is_preview:
             self.yi.setVerbosityMute()
-            self.scene.bounty.bg_transp = False         #to correct alpha problems in preview roughglass
-            self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
+            #to correct alpha problems in preview roughglass
+            self.scene.bounty.bg_transp = False
+            self.scene.bounty.bg_transp_refract = False
         else:
             self.verbositylevel(self.scene.bounty.gs_verbose)
         
@@ -87,7 +88,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_world = yafWorld(self.yi)
               
         # process lighting integrators..
-        self.yaf_integrator = yafIntegrator(self.yi)
+        self.yaf_integrator = yafIntegrator(self.yi, self.is_preview)
               
         # textures before materials
         self.yaf_texture = yafTexture(self.yi)
