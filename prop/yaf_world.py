@@ -48,9 +48,9 @@ enum_mapping_type =(
 )
 
 enum_volume_integrator_type =(
-    ('None', "None", ""),
-    ('Sky', "Sky", ""),
-    ('Single Scatter', "Single Scatter", ""),
+    ('none', "None", ""),
+    ('SkyIntegrator', "Sky", ""),
+    ('SingleScatterIntegrator', "Single Scatter", ""),
 )
 
 class TheBountyWorldSettings(bpy.types.PropertyGroup):
@@ -261,7 +261,7 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
             name="Integrator type",
             description="Set the volume integrator",
             items=enum_volume_integrator_type,
-            default='None'
+            default='none'
         )    
         cls.v_int_step_size = FloatProperty(
             name="Step size",

@@ -31,8 +31,9 @@ switchDebugType = {
 }
 
 class yafIntegrator:
-    def __init__(self, interface):
+    def __init__(self, interface, preview):
         self.yi = interface
+        self.preview = preview
 
     def exportIntegrator(self, scene):
         yi = self.yi
@@ -143,24 +144,24 @@ class yafIntegrator:
         if scn_world:
             # use bounty sub-class
             world = scene.world.bounty
-            volIntegratorType = world.v_int_type
-            yi.printInfo("Exporting Volume Integrator: {0}".format(volIntegratorType))
+            #volIntegratorType = world.v_int_type
+            yi.printInfo("Exporting Volume Integrator: {0}".format(world.v_int_type))
 
-            if volIntegratorType == 'Single Scatter':
-                yi.paramsSetString("type", "SingleScatterIntegrator")
+            if world.v_int_type == 'SingleScatterIntegrator':
+                #yi.paramsSetString("type", "SingleScatterIntegrator")
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetBool("adaptive", world.v_int_adaptive)
                 yi.paramsSetBool("optimize", world.v_int_optimize)
 
-            elif volIntegratorType == 'Sky':
-                yi.paramsSetString("type", "SkyIntegrator")
+            elif world.v_int_type == 'SkyIntegrator':
+                #yi.paramsSetString("type", "SkyIntegrator")
                 yi.paramsSetFloat("turbidity", world.v_int_dsturbidity)
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetFloat("alpha", world.v_int_alpha)
                 yi.paramsSetFloat("sigma_t", world.v_int_scale)
 
-            else:
-                yi.paramsSetString("type", "none")
+            #else:
+            yi.paramsSetString("type", world.v_int_type)
         else:
             yi.paramsSetString("type", "none")
 
