@@ -59,6 +59,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.setVerbosityInfo()
         else:
             self.yi.setVerbosityMute()   
+            yin.colorOutput_t.flushArea(self) 
     
     ##-----------------------------------------------------     
 
@@ -108,7 +109,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def exportTexture(self, obj):
         # First export the textures of the materials type 'blend'
-        for mat_slot in [m for m in obj.material_slots if m.material is not None]:#.bounty is not None]:
+        for mat_slot in [m for m in obj.material_slots if m.material is not None]:
             if mat_slot.material.bounty.mat_type == 'blend':
                 try:
                     mat1 = bpy.data.materials[mat_slot.material.bounty.blendmaterial1]
