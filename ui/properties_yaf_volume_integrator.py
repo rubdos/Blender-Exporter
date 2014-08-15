@@ -39,7 +39,7 @@ class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):
         layout.prop(world, "v_int_type")
         layout.separator()
 
-        if world.v_int_type == "Single Scatter":
+        if world.v_int_type == "SingleScatterIntegrator":
             layout.prop(world, "v_int_step_size")
             row = layout.row()
             row.prop(world, "v_int_adaptive", toggle=True)
@@ -48,7 +48,7 @@ class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):
             sub.enabled = world.v_int_optimize
             sub.prop(world, "v_int_attgridres")
 
-        if world.v_int_type == "Sky":
+        if world.v_int_type == "SkyIntegrator":
             layout.prop(world, "v_int_step_size")
             layout.prop(world, "v_int_dsturbidity")
             split = layout.split()

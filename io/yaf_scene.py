@@ -95,7 +95,7 @@ def exportRenderSettings(yi, scene):
     
     # use exporter params from UI
     # gamma output
-    yi.paramsSetFloat("gamma", scene.view_settings.gamma) # = 1.8
+    yi.paramsSetFloat("gamma", scene.view_settings.gamma)
     #yi.paramsSetFloat("gamma", scene.gs_gamma)
     
     exportAA(yi, scene)

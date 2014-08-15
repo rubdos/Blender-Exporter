@@ -109,7 +109,7 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         
         split = layout.split(percentage=0.58)
         col = layout.column()
-        col.prop(scene, "gs_draw_params", text="Draw params and custom string", expand=True)
+        col.prop(scene, "gs_draw_params", expand=True)
         
         col = layout.column()
         col.enabled = scene.gs_draw_params

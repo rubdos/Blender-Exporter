@@ -26,6 +26,10 @@ from bl_ui.properties_material import (active_node_mat,
 
 from .. import EXP_BRANCH
 
+nodes = False
+for branch in EXP_BRANCH:
+    if branch == 'custom_nodes':
+        nodes = True
 #MaterialButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 class TheBountyMaterialButtonsPanel():
@@ -103,7 +107,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #----------------
             # test for nodes
             #----------------
-            if EXP_BRANCH == "custom_nodes":
+            if nodes:
                 ymat = context.material
                 if ymat:
                     row.prop(ymat, "use_nodes", icon='NODETREE', text="")
@@ -118,7 +122,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             split.separator()
 
         if mat:
-            if EXP_BRANCH == "custom_nodes":
+            if nodes:
                 row = layout.row()
                 row.operator("bounty.add_nodetree", icon='NODETREE')
             #
@@ -132,7 +136,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #-------------------
             # test for nodes
             #-------------------
-            if EXP_BRANCH == "custom_nodes":
+            if nodes:
                 if mat.use_nodes:
                     row = layout.row()
                     row.label(text="", icon='NODETREE')

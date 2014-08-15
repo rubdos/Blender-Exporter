@@ -171,7 +171,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         )    
         cls.gs_draw_params = BoolProperty(
             name="Draw parameters",
-            description="Write the render parameters below the image",
+            description="Draw params and custom string on image",
             default=False
         )    
         cls.bg_transp = BoolProperty(
