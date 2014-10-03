@@ -18,6 +18,17 @@
 
 # <pep8 compliant>
 
+from .. import EXP_BRANCH
+
+switchDebugType = {
+    'N': 1,
+    'dPdU': 2,
+    'dPdV': 3,
+    'NU': 4,
+    'NV': 5,
+    'dSdU': 6,
+    'dSdV': 7,
+}
 
 class yafIntegrator:
     def __init__(self, interface):
@@ -38,12 +49,10 @@ class yafIntegrator:
         yi.paramsSetInt("shadowDepth", scene.gs_shadow_depth)
         yi.paramsSetBool("transpShad", scene.gs_transp_shad)
 
-        light_type = scene.intg_light_method
-        yi.printInfo("Exporting Integrator: {0}".format(light_type))
+        lightIntegrator = scene.intg_light_method
+        yi.printInfo("Exporting Integrator: {0}".format(lightIntegrator))
 
-        if light_type == "Direct Lighting":
-            yi.paramsSetString("type", "directlighting")
-
+        if lightIntegrator == "directlighting":
             yi.paramsSetBool("caustics", scene.intg_use_caustics)
 
             if scene.intg_use_caustics:
@@ -51,7 +60,7 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
-                
+
             yi.paramsSetBool("do_AO", scene.intg_use_AO)
                 
             if scene.intg_use_AO:
@@ -60,79 +69,76 @@ class yafIntegrator:
                 c = scene.intg_AO_color
                 yi.paramsSetColor("AO_color", c[0], c[1], c[2])
 
-        elif light_type == "Photon Mapping":
-            yi.paramsSetString("type", "photonmapping")
-            yi.paramsSetInt("bounces", scene.intg_bounces)
+            # SSS
+            if EXP_BRANCH =="merge_SSS":
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
+
+        elif lightIntegrator == "photonmapping":
             yi.paramsSetInt("photons", scene.intg_photons)
             yi.paramsSetInt("cPhotons", scene.intg_cPhotons)
             yi.paramsSetFloat("diffuseRadius", scene.intg_diffuse_radius)
             yi.paramsSetFloat("causticRadius", scene.intg_caustic_radius)
+            yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("search", scene.intg_search)
             yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
-            #
-            yi.paramsSetBool("finalGather", scene.intg_final_gather)            
+            yi.paramsSetBool("finalGather", scene.intg_final_gather)
             #
             if scene.intg_final_gather:
                 yi.paramsSetInt("fg_bounces", scene.intg_fg_bounces)
                 yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
                 yi.paramsSetBool("show_map", scene.intg_show_map)
-                
 
-        elif light_type == "Pathtracing":
-            yi.paramsSetString("type", "pathtracing")
+            # SSS
+            if EXP_BRANCH =="merge_SSS":
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
+
+        elif lightIntegrator == "pathtracing":
             yi.paramsSetInt("path_samples", scene.intg_path_samples)
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetBool("no_recursive", scene.intg_no_recursion)
 
-            #-- test for simplify code
-            causticTypeStr = scene.intg_caustic_method
-            switchCausticType = {
-                'None': 'none',
-                'Path': 'path',
-                'Photon': 'photon',
-                'Path+Photon': 'both',
-            }
-
-            causticType = switchCausticType.get(causticTypeStr)
+            causticType = scene.intg_caustic_method
             yi.paramsSetString("caustic_type", causticType)
-
-            if causticType not in {'none', 'path'}:
+            
+            if causticType in {'photon','both'}:
                 yi.paramsSetInt("photons", scene.intg_photons)
                 yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
+            
+            # SSS
+            if EXP_BRANCH =="merge_SSS":
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
-        elif light_type == "Bidirectional":
-            yi.paramsSetString("type", "bidirectional")
+        #elif lightIntegrator == "bidirectional":
 
-        elif light_type == "Debug":
-            yi.paramsSetString("type", "DebugIntegrator")
-
-            debugTypeStr = scene.intg_debug_type
-            switchDebugType = {
-                'N': 1,
-                'dPdU': 2,
-                'dPdV': 3,
-                'NU': 4,
-                'NV': 5,
-                'dSdU': 6,
-                'dSdV': 7,
-            }
-
-            debugType = switchDebugType.get(debugTypeStr)
-            yi.paramsSetInt("debugType", debugType)
+        elif lightIntegrator == "DebugIntegrator":
+            #
+            debugTypeStr = scene.intg_debug_type            
+            yi.paramsSetInt("debugType", switchDebugType.get(debugTypeStr, 1))
             yi.paramsSetBool("showPN", scene.intg_show_perturbed_normals)
-
-        elif light_type == "SPPM":
-            yi.paramsSetString("type", "SPPM")
+        #----------------------------------
+        # SPPM integrator
+        #----------------------------------
+        elif lightIntegrator == "SPPM":
             yi.paramsSetInt("photons", scene.intg_photons)
-            yi.paramsSetFloat("photonRadius", scene.intg_diffuse_radius)
+            yi.paramsSetFloat("photonRadius", scene.intg_accurate_radius)
             yi.paramsSetInt("searchNum", scene.intg_search)
-            yi.paramsSetFloat("times", scene.intg_times)
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("passNums", scene.intg_pass_num)
             yi.paramsSetBool("pmIRE", scene.intg_pm_ire)
+            yi.paramsSetFloat("times", scene.intg_times)             
 
+        #----------------------------------
+        # Sub-Surface Scattering integrator
+        #----------------------------------
+        if EXP_BRANCH == "merge_SSS" and scene.intg_useSSS:
+            yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
+            yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
+            yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
+            yi.paramsSetFloat("sssScale", scene.intg_sssScale)
+        
+        yi.paramsSetString("type", lightIntegrator)
         yi.createIntegrator("default")
         return True
 
@@ -140,19 +146,21 @@ class yafIntegrator:
         yi = self.yi
         yi.paramsClearAll()
 
-        world = scene.world
+        scn_world = scene.world        
 
-        if world:
-            vint_type = world.v_int_type
-            yi.printInfo("Exporting Volume Integrator: {0}".format(vint_type))
+        if scn_world:
+            # use bounty sub-class
+            world = scene.world.bounty
+            volIntegratorType = world.v_int_type
+            yi.printInfo("Exporting Volume Integrator: {0}".format(volIntegratorType))
 
-            if vint_type == 'Single Scatter':
+            if volIntegratorType == 'Single Scatter':
                 yi.paramsSetString("type", "SingleScatterIntegrator")
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetBool("adaptive", world.v_int_adaptive)
                 yi.paramsSetBool("optimize", world.v_int_optimize)
 
-            elif vint_type == 'Sky':
+            elif volIntegratorType == 'Sky':
                 yi.paramsSetString("type", "SkyIntegrator")
                 yi.paramsSetFloat("turbidity", world.v_int_dsturbidity)
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)

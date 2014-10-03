@@ -21,12 +21,12 @@
 from bpy.types import Panel
 
 
-class YAF_PT_object_light(Panel):
-    bl_label = "YafaRay Object Properties"
+class TheBountyGeometryTypes(Panel):
+    bl_label = "TheBounty Special Geometry"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "object"
-    COMPAT_ENGINES = {'YAFA_RENDER'}
+    COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
     def poll(cls, context):
@@ -36,47 +36,54 @@ class YAF_PT_object_light(Panel):
 
     def draw(self, context):
         layout = self.layout
-        ob = context.object
+        ob = context.object.bounty
+        '''
+        Change design for apply only one type of special geometry at time.
+        Per example, if you apply 'portal light' and 'volume object', only
+        one of this types are applied.
+        '''
+        layout.prop(ob,"geometry_type", text="", toggle=True)
+        
+        if ob.geometry_type == "mesh_light":
 
-        layout.prop(ob, "ml_enable", toggle=True)
-
-        if ob.ml_enable:
             col = layout.column(align=True)
             col.prop(ob, "ml_color")
             col.prop(ob, "ml_power")
-            layout.prop(ob, "ml_samples")
-            layout.prop(ob, "ml_double_sided")
-
-        layout.prop(ob, "bgp_enable", toggle=True)
-
-        if ob.bgp_enable:
+            col.prop(ob, "ml_samples")
+            col.prop(ob, "ml_double_sided")
+    
+        elif ob.geometry_type == "portal_light":
+    
             layout.prop(ob, "bgp_power")
             layout.prop(ob, "bgp_samples")
             split = layout.split()
             split.prop(ob, "bgp_with_diffuse")
             split.prop(ob, "bgp_with_caustic")
             layout.prop(ob, "bgp_photon_only")
-
-        layout.prop(ob, "vol_enable", toggle=True)
-
-        if ob.vol_enable:
+    
+        elif ob.geometry_type == "volume_region":
+    
             layout.separator()
             layout.prop(ob, "vol_region")
             layout.separator()
             col = layout.column(align=True)
             col.prop(ob, "vol_absorp", text="Absorption")
             col.prop(ob, "vol_scatter", text="Scatter")
-
+    
             if ob.vol_region == "ExpDensity Volume":
                 col = layout.column(align=True)
                 col.prop(ob, "vol_height")
                 col.prop(ob, "vol_steepness")
-
+    
             if ob.vol_region == "Noise Volume":
                 col = layout.column(align=True)
                 col.prop(ob, "vol_sharpness")
                 col.prop(ob, "vol_cover")
                 col.prop(ob, "vol_density")
+            #
+            if ob.vol_region == "Grid Volume":
+                col = layout.column(align=True)
+                col.prop(ob, "volDensityFile",text="Density file")
 
 
 if __name__ == "__main__":  # only for live edit.

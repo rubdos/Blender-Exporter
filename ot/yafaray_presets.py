@@ -18,96 +18,143 @@
 
 # <pep8 compliant>
 
-import bpy
-from bpy.types import Operator
+
+# review for fix error with path
+#from bl_operators.presets import AddPresetBase
+#from bpy.types import Operator
+
 import os
-import sys
-from bpy.path import clean_name, display_name
-from bpy_types import StructRNA, _GenericUI, RNAMeta
+from bpy.props import StringProperty, EnumProperty, BoolProperty
+from bpy.types import Menu, Operator
+import bpy
 
 
-def yaf_preset_find(name, preset_path, disp_name=False):
-    if not name:
-        return None
+class TheBountyPresetBase():
+    """Base preset class, only for subclassing
+    subclasses must define
+     - preset_values
+     - preset_subdir """
+    # bl_idname = "script.preset_base_add"
+    # bl_label = "Add a Python Preset"
 
-    if display_name:
-        filename = ""
-        for fn in os.listdir(preset_path):
-            if fn.endswith(".py") and name == display_name(fn):
-                filename = fn
-                break
-    else:
-        filename = name + ".py"
+    # only because invoke_props_popup requires. Also do not add to search menu.
+    bl_options = {'REGISTER', 'INTERNAL'}
 
-    if filename:
-        filepath = os.path.join(preset_path, filename)
-        if os.path.exists(filepath):
-            return filepath
+    name = StringProperty(
+            name="Name",
+            description="Name of the preset, used to make the path name",
+            maxlen=64,
+            options={'SKIP_SAVE'},
+            )
+    remove_active = BoolProperty(
+            default=False,
+            options={'HIDDEN', 'SKIP_SAVE'},
+            )
 
-
-class YAF_AddPresetBase():
-    bl_options = {'REGISTER'}  # only because invoke_props_popup requires.
-    name = bpy.props.StringProperty(name="Name", description="Name of the preset, used to make the path name", maxlen=64, default="")
-    remove_active = bpy.props.BoolProperty(default=False, options={'HIDDEN'})
+    @staticmethod
+    def as_filename(name):  # could reuse for other presets
+        for char in " !@#$%^&*(){}:\";'[]<>,.\\/?":
+            name = name.replace(char, '_')
+        return name.lower().strip()
 
     def execute(self, context):
+        #import os
 
         if hasattr(self, "pre_cb"):
             self.pre_cb(context)
 
         preset_menu_class = getattr(bpy.types, self.preset_menu)
 
-        if not self.remove_active:
+        is_xml = getattr(preset_menu_class, "preset_type", None) == 'XML'
 
-            if not self.name:
+        if is_xml:
+            ext = ".xml"
+        else:
+            ext = ".py"
+
+        if not self.remove_active:
+            name = self.name.strip()
+            if not name:
                 return {'FINISHED'}
 
-            filename = clean_name(self.name)
-            target_path = os.path.join(sys.path[0], "yafaray", "presets", self.preset_subdir)
-
+            filename = self.as_filename(name)
+            #target_path = os.path.join("presets", self.preset_subdir)            
+            preset_subdir = os.path.join("presets", self.preset_subdir)
+            target_path = os.path.join(bpy.utils.script_path_user(), preset_subdir)           
+            if not os.path.exists(target_path):
+                os.mkdir(target_path)
+            #target_path = bpy.utils.user_resource('SCRIPTS', target_path, create=True)
+            
             if not target_path:
                 self.report({'WARNING'}, "Failed to create presets path")
                 return {'CANCELLED'}
 
-            filepath = os.path.join(target_path, filename) + ".py"
+            filepath = os.path.join(target_path, filename) + ext
 
             if hasattr(self, "add"):
                 self.add(context, filepath)
             else:
-                file_preset = open(filepath, 'w')
-                file_preset.write("import bpy\n")
+                print("Writing Preset: %r" % filepath)
 
-                if hasattr(self, "preset_defines"):
-                    for rna_path in self.preset_defines:
-                        exec(rna_path)
-                        file_preset.write("%s\n" % rna_path)
-                    file_preset.write("\n")
+                if is_xml:
+                    import rna_xml
+                    rna_xml.xml_file_write(context,
+                                           filepath,
+                                           preset_menu_class.preset_xml_map)
+                else:
 
-                for rna_path in self.preset_values:
-                    value = eval(rna_path)
-                    if type(value) == float:  # formatting of the floating point values
-                        value = round(value, 4)
-                    if str(value).startswith('Color'):  # formatting of the Color Vectors (r,g,b)
-                        r, g, b = round(value.r, 3), round(value.g, 3), round(value.b, 3)
-                        file_preset.write("%s = %r, %r, %r\n" % (rna_path, r, g, b))
-                    else:
-                        try:  # convert thin wrapped sequences to simple lists to repr()
-                            value = value[:]
-                        except:
-                            pass
-                        file_preset.write("%s = %r\n" % (rna_path, value))
+                    def rna_recursive_attr_expand(value, rna_path_step, level):
+                        if isinstance(value, bpy.types.PropertyGroup):
+                            for sub_value_attr in value.bl_rna.properties.keys():
+                                if sub_value_attr == "rna_type":
+                                    continue
+                                sub_value = getattr(value, sub_value_attr)
+                                rna_recursive_attr_expand(sub_value, "%s.%s" % (rna_path_step, sub_value_attr), level)
+                        elif type(value).__name__ == "bpy_prop_collection_idprop":  # could use nicer method
+                            file_preset.write("%s.clear()\n" % rna_path_step)
+                            for sub_value in value:
+                                file_preset.write("item_sub_%d = %s.add()\n" % (level, rna_path_step))
+                                rna_recursive_attr_expand(sub_value, "item_sub_%d" % level, level + 1)
+                        else:
+                            # convert thin wrapped sequences
+                            # to simple lists to repr()
+                            try:
+                                value = value[:]
+                            except:
+                                pass
 
-                file_preset.close()
+                            file_preset.write("%s = %r\n" % (rna_path_step, value))
 
-            preset_menu_class.bl_label = display_name(filename)
+                    file_preset = open(filepath, 'w')
+                    file_preset.write("import bpy\n")
+
+                    if hasattr(self, "preset_defines"):
+                        for rna_path in self.preset_defines:
+                            exec(rna_path)
+                            file_preset.write("%s\n" % rna_path)
+                        file_preset.write("\n")
+
+                    for rna_path in self.preset_values:
+                        value = eval(rna_path)
+                        rna_recursive_attr_expand(value, rna_path, 1)
+
+                    file_preset.close()
+
+            preset_menu_class.bl_label = bpy.path.display_name(filename)
 
         else:
             preset_active = preset_menu_class.bl_label
-            target_path = os.path.join(sys.path[0], "yafaray", "presets", self.preset_subdir)
-            filepath = yaf_preset_find(preset_active, target_path)
+
+            # fairly sloppy but convenient.
+            filepath = bpy.utils.preset_find(preset_active,
+                                             self.preset_subdir,
+                                             ext=ext)
 
             if not filepath:
-                filepath = yaf_preset_find(preset_active, target_path, disp_name=True)
+                filepath = bpy.utils.preset_find(preset_active,
+                                                 self.preset_subdir,
+                                                 display_name=True,
+                                                 ext=ext)
 
             if not filepath:
                 return {'CANCELLED'}
@@ -119,9 +166,10 @@ class YAF_AddPresetBase():
                     os.remove(filepath)
                 except:
                     import traceback
-                    print("No Preset there to remove...")
-            # XXX stupid: Print bl_label on menu selector...
-            preset_menu_class.bl_label = self.bl_label
+                    traceback.print_exc()
+
+            # XXX, stupid!
+            preset_menu_class.bl_label = "Presets"
 
         if hasattr(self, "post_cb"):
             self.post_cb(context)
@@ -129,7 +177,7 @@ class YAF_AddPresetBase():
         return {'FINISHED'}
 
     def check(self, context):
-        self.name = clean_name(self.name)
+        self.name = self.as_filename(self.name.strip())
 
     def invoke(self, context, event):
         if not self.remove_active:
@@ -139,16 +187,19 @@ class YAF_AddPresetBase():
             return self.execute(context)
 
 
-class YAFARAY_OT_presets_renderset(YAF_AddPresetBase, Operator):
-    '''Add a Yafaray Render Preset'''
-    bl_idname = "yafaray.preset_add"
-    bl_label = "Yafaray Render Presets"
-    preset_menu = "YAFARAY_MT_presets_render"
+class TheBountyOperatorSettingsPresets(TheBountyPresetBase, bpy.types.Operator):
+    # Add render presets
+    bl_idname = "bounty.render_preset_add"
+    bl_label = "TheBounty Settings Presets"
+    preset_menu = "THEBOUNTY_MT_render_presets"
+    
     preset_defines = [
-        "scene = bpy.context.scene"
+        "scene = bpy.context.scene.bounty",
+        "render = bpy.context.scene.render"
     ]
     preset_values = [
-        "scene.render.use_color_management",
+        "render.resolution_x",
+        "render.resolution_y",
         "scene.gs_ray_depth",
         "scene.gs_shadow_depth",
         "scene.gs_threads",
@@ -201,50 +252,72 @@ class YAFARAY_OT_presets_renderset(YAF_AddPresetBase, Operator):
         "scene.AA_filter_type"
     ]
 
-    preset_subdir = "render"
+    preset_subdir = "thebounty/render"
 
-
-class Yafaray_Menu(StructRNA, _GenericUI, metaclass=RNAMeta):  # Yafaray's own Preset Menu drawing: search method for files changed
-    __slots__ = ()
-
-    def path_menu(self, searchpaths, operator, props_default={}):
-        layout = self.layout
-        # hard coded to set the operators 'filepath' to the filename.
-
-        import os
-        import bpy.utils
-
-        layout = self.layout
-
-        if not searchpaths:
-            layout.label("* Missing Paths *")
-
-        # collect paths
-        files = []
-        for directory in searchpaths:
-            files.extend([(f, os.path.join(directory, f)) for f in os.listdir(directory)])
-
-        files.sort()
-
-        for f, filepath in files:
-
-            if f.startswith("."):
-                continue
-
-            preset_name = display_name(f)
-            props = layout.operator(operator, text=preset_name)
-
-            for attr, value in props_default.items():
-                setattr(props, attr, value)
-
-            props.filepath = filepath
-            if operator == "script.execute_preset":
-                props.menu_idname = self.bl_idname
-
-    def draw_preset(self, context):
-        """Define these on the subclass
-         - preset_operator
-         - preset_subdir
-        """
-        search_path = [os.path.join(sys.path[0], "yafaray", "presets", self.preset_subdir)]
-        self.path_menu(search_path, self.preset_operator)
+    
+class TheBountyOperatorMaterialPresets(TheBountyPresetBase, bpy.types.Operator):
+    # Add material presets
+    bl_idname = "bounty.material_preset_add"
+    bl_label = "Material Presets"
+    preset_menu = "TheBountyMaterialPresets"
+    
+    preset_defines = [
+        "material = bpy.context.object.active_material",
+        "mat = material.bounty"
+    ]    
+    preset_values = [    
+        "mat.absorption",
+        "material.diffuse_color",
+        "mat.absorption_dist",
+        "mat.anisotropic",
+        "mat.as_diffuse",
+        "mat.brdf_type",
+        "mat.coat_mir_col",
+        "mat.diffuse_reflect",
+        "mat.dispersion_power",
+        "mat.exp_u",
+        "mat.exp_v",
+        "mat.exponent",
+        "mat.fake_shadows",
+        "mat.filter_color",
+        "mat.fresnel_effect",
+        "mat.glass_mir_col",
+        "mat.glass_transmit",
+        "mat.glossy_color",
+        "mat.glossy_reflect",
+        "mat.IOR_reflection",
+        "mat.IOR_refraction",
+        "mat.mat_type",
+        # "mat.material1", # blend material not work
+        # "mat.material2",
+        # "mat.blend_value",
+        "mat.refr_roughness",
+        "mat.sigma",
+        "mat.specular_reflect",
+        "mat.transmit_filter",
+        "mat.transparency",
+        # sss
+        "mat.phaseFuction",
+        "mat.sss_transmit",
+        "mat.sssColor",
+        "mat.sssIOR",
+        "mat.sssSigmaA",
+        "mat.sssSigmaS",
+        "mat.sssSigmaS_factor",
+        "mat.sssSpecularColor"
+    ]
+    preset_subdir = "thebounty/material"    
+                
+    
+def register():
+    #pass
+    bpy.utils.register_class(TheBountyOperatorSettingsPresets)
+    bpy.utils.register_class(TheBountyOperatorMaterialPresets)
+    
+def unregister():
+    #pass
+    bpy.utils.unregister_class(TheBountyOperatorSettingsPresets)
+    bpy.utils.unregister_class(TheBountyOperatorMaterialPresets)
+    
+if __name__ == "__main__":
+    register()

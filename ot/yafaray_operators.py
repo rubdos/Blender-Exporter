@@ -21,7 +21,7 @@
 import bpy
 import mathutils
 from bpy.types import Operator
-
+from bpy.props import PointerProperty, StringProperty
 
 class OBJECT_OT_get_position(Operator):
     bl_label = "From( get position )"
@@ -68,7 +68,7 @@ class OBJECT_OT_update_sun(Operator):
 def sunPosAngle(mode="get", val="position"):
     active_object = bpy.context.active_object
     scene = bpy.context.scene
-    world = scene.world
+    world = scene.world.bounty
 
     if active_object and active_object.type == "LAMP":
 
@@ -112,14 +112,19 @@ def sunPosAngle(mode="get", val="position"):
     else:
         return "No selected LAMP object in the scene!"
 
+def checkSSS():
+    for mat in bpy.data.materials:
+        if mat.bounty.mat_type == 'translucent':
+            return True
+    return False
 
 def checkSceneLights():
     scene = bpy.context.scene
-    world = scene.world
+    world = scene.world.bounty
     
-    # expand fuction for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
+    # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
     haveLights = False
-     # use light create with sunsky, sunsky2 or with use ibl ON
+    # use light create with sunsky, sunsky2 or with use ibl ON
     if world.bg_add_sun or world.bg_background_light or world.bg_use_ibl:
         return True
     # if above is true, this 'for' is not used
@@ -139,16 +144,17 @@ class RENDER_OT_render_view(Operator):
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
         view3d = context.region_data
-        bpy.types.YAFA_RENDER.useViewToRender = True
-        sceneLights = checkSceneLights()
+        bpy.types.THEBOUNTY.useViewToRender = True
         scene = context.scene
-        # Get the 3d view under the mouse cursor
-        # if the region is not a 3d view
-        # then search for the first active one
+        
+        #------------------------------------------------------
+        # Get the 3d view under the mouse cursor if the region
+        # is not a 3d view then search for the first active one
+        #------------------------------------------------------
         if not view3d:
             for area in [a for a in bpy.context.window.screen.areas if a.type == "VIEW_3D"]:
                 view3d = area.spaces.active.region_3d
@@ -156,67 +162,96 @@ class RENDER_OT_render_view(Operator):
 
         if not view3d or view3d.view_perspective == "ORTHO":
             self.report({'WARNING'}, ("The selected view is not in perspective mode or there was no 3d view available to render."))
-            bpy.types.YAFA_RENDER.useViewToRender = False
+            bpy.types.THEBOUNTY.useViewToRender = False
             return {'CANCELLED'}
 
-        elif not sceneLights and scene.intg_light_method == "Bidirectional":
-            self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            bpy.types.YAFA_RENDER.useViewToRender = False
-            return {'CANCELLED'}
+        #----------------------------------------------
+        # Check first the easiest or lighter question
+        # atm, only is need check lights for bidir case
+        #---------------------------------------------- 
+        if scene.bounty.intg_light_method == "bidirectional":
+            if not checkSceneLights():
+                self.report({'WARNING'}, ("You use Bidirectional integrator and NOT have lights in the scene!"))
+                bpy.types.THEBOUNTY.useViewToRender = False
+                return {'CANCELLED'}        
+        
+        if scene.bounty.intg_useSSS:
+            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+                if not checkSSS():
+                    self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
+                    return {'CANCELLED'}
 
-        else:
-            bpy.types.YAFA_RENDER.viewMatrix = view3d.view_matrix.copy()
-            bpy.ops.render.render('INVOKE_DEFAULT')
-            return {'FINISHED'}
+        bpy.types.THEBOUNTY.viewMatrix = view3d.view_matrix.copy()
+        bpy.ops.render.render('INVOKE_DEFAULT')
+        return {'FINISHED'}
 
 
 class RENDER_OT_render_animation(Operator):
-    bl_label = "YafaRay render animation"
+    bl_label = "TheBounty render animation"
     bl_idname = "render.render_animation"
     bl_description = "Render active scene"
 
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
-        sceneLights = checkSceneLights()
         scene = context.scene
+        
+        #----------------------------------------------
+        # check first the easiest or lighter question
+        # atm, only is need check lights for bidir case
+        #---------------------------------------------- 
+        if scene.bounty.intg_light_method == "bidirectional":
+            if not checkSceneLights():
+                self.report({'WARNING'}, ("You use Bidirectional integrator and NOT have lights in the scene!"))
+                return {'CANCELLED'}
+        
+        if scene.bounty.intg_useSSS:
+            # check only for a valid integrator method
+            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+                if not checkSSS():
+                    self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
+                    return {'CANCELLED'}
 
-        if not sceneLights and scene.intg_light_method == "Bidirectional":
-            self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            return {'CANCELLED'}
-
-        else:
-            bpy.ops.render.render('INVOKE_DEFAULT', animation=True)
-            return {'FINISHED'}
+        bpy.ops.render.render('INVOKE_DEFAULT')
+        return {'FINISHED'}
 
 
 class RENDER_OT_render_still(Operator):
-    bl_label = "YafaRay render still"
+    bl_label = "TheBounty render still"
     bl_idname = "render.render_still"
     bl_description = "Render active scene"
 
     @classmethod
     def poll(cls, context):
 
-        return context.scene.render.engine == 'YAFA_RENDER'
+        return context.scene.render.engine == 'THEBOUNTY'
 
     def execute(self, context):
-        sceneLights = checkSceneLights()
         scene = context.scene
+        
+        #----------------------------------------------
+        # check first the easiest or lighter question
+        # atm, only is need check lights for bidir case
+        #---------------------------------------------- 
+        if scene.bounty.intg_light_method == "bidirectional":
+            if not checkSceneLights():
+                self.report({'WARNING'}, ("You use Bidirectional integrator and NOT have lights in the scene!"))
+                return {'CANCELLED'}
+        
+        if scene.bounty.intg_useSSS:
+            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+                if not checkSSS():
+                    self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
+                    return {'CANCELLED'}
 
-        if not sceneLights and scene.intg_light_method == "Bidirectional":
-            self.report({'WARNING'}, ("No lights in the scene and lighting method is Bidirectional!"))
-            return {'CANCELLED'}
-
-        else:
-            bpy.ops.render.render('INVOKE_DEFAULT')
-            return {'FINISHED'}
+        bpy.ops.render.render('INVOKE_DEFAULT')
+        return {'FINISHED'}
 
 
-class YAF_OT_presets_ior_list(Operator):
+class TheBounty_presets_ior_list(Operator):
     bl_idname = "material.set_ior_preset"
     bl_label = "IOR presets"
     index = bpy.props.FloatProperty()
@@ -224,11 +259,123 @@ class YAF_OT_presets_ior_list(Operator):
 
     @classmethod
     def poll(cls, context):
-        yaf_mat = context.material
-        return yaf_mat.mat_type in {"glass", "rough_glass"}
+        mat = context.material
+        return mat.bounty.mat_type in {"glass", "rough_glass"}
 
     def execute(self, context):
-        yaf_mat = context.material
-        bpy.types.YAF_MT_presets_ior_list.bl_label = self.name
-        yaf_mat.IOR_refraction = self.index
+        mat = context.material
+        bpy.types.TheBounty_presets_ior_list.bl_label = self.name
+        mat.bounty.IOR_refraction = self.index
         return {'FINISHED'}
+
+#-------------------------------------------
+# Add support for use ibl files
+#-------------------------------------------
+import re
+import os
+   
+class Thebounty_parseIBL(Operator):
+    bl_idname = "world.parse_ibl"
+    bl_label = "Parse IBL"
+    iblValues = {}
+    
+    @classmethod
+    def poll(cls, context):
+        world = context.world
+        return world and (world.bounty.bg_type == "Texture")
+    #
+    def execute(self, context):
+        world = context.world.bounty
+        scene = context.scene
+        file = world.ibl_file
+        # parse..
+        self.iblValues = self.parseIbl(file)
+        # maybe dirname only work with Win OS ??
+        # TODO: test on linux OS
+        iblFolder = os.path.dirname(file) 
+        print(iblFolder)
+        worldTexture = scene.world.active_texture
+        if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
+            evfile = self.iblValues.get('EV')
+            newval = os.path.join(iblFolder, evfile) 
+            worldTexture.image.filepath = newval #self.iblValues.get('EV')
+        
+        return {'FINISHED'}
+    
+    #---------------------
+    # some parse helpers
+    #---------------------
+    def parseValue(self, linea, valueType):
+        items = re.split(" ", linea)
+        item = items[2]  # items[1] is '='
+        if valueType == 2:
+            ext = (len(item) - 2)
+            return item[1:ext]            
+        elif valueType == 1:
+            return int(item)
+        elif valueType == 0:
+            return float(item)
+    
+    #---------------------
+    # parse .ibl file
+    #---------------------
+    def parseIbl(self, filename):
+        f = open(filename, 'r')
+        linea = f.readline()
+        while linea != "":
+            linea = f.readline()
+            if linea[:7] == 'ICOfile':
+                self.parseValue(linea, 2) # string
+            #
+            if linea[:11] == 'PREVIEWfile':
+                self.iblValues['PRE']= self.parseValue(linea, 2) #PREVIEWfile          
+            #
+            if linea[:6] == 'BGfile':
+                self.iblValues['BG']= self.parseValue(linea, 2) #BGfile
+            #
+            if linea[:8] == 'BGheight':
+                self.parseValue(linea, 1) # integer
+            #
+            if linea[:6] == 'EVfile':
+                self.iblValues['EV']= self.parseValue(linea, 2) #EVfile
+            #
+            if linea[:8] == 'EVheight':
+                self.parseValue(linea, 1) # integer
+            #
+            if linea[:7] == 'EVgamma':
+                self.parseValue(linea, 0) # float
+                
+            if linea[:7] == 'REFfile':
+                self.iblValues['REF']= self.parseValue(linea, 2) #REFfile
+                
+            if linea[:9] == 'REFheight':
+                self.parseValue(linea, 1) # integer
+                
+            if linea[:8] == 'REFgamma':
+                self.parseValue(linea, 0) # float
+                     
+        f.close()
+        return self.iblValues
+# test
+
+def register():
+    bpy.utils.register_class(OBJECT_OT_get_position)
+    bpy.utils.register_class(OBJECT_OT_get_angle)
+    bpy.utils.register_class(OBJECT_OT_update_sun)
+    bpy.utils.register_class(RENDER_OT_render_view)
+    bpy.utils.register_class(RENDER_OT_render_animation)
+    bpy.utils.register_class(RENDER_OT_render_still)
+    bpy.utils.register_class(YAF_OT_presets_ior_list)
+    bpy.utils.register_class(Thebounty_parseIBL)
+    
+
+def unregister():
+    bpy.utils.unregister_class(OBJECT_OT_get_position)
+    bpy.utils.unregister_class(OBJECT_OT_get_angle)
+    bpy.utils.unregister_class(OBJECT_OT_update_sun)
+    bpy.utils.unregister_class(RENDER_OT_render_view)
+    bpy.utils.unregister_class(RENDER_OT_render_animation)
+    bpy.utils.unregister_class(RENDER_OT_render_still)
+    bpy.utils.unregister_class(YAF_OT_presets_ior_list)
+    bpy.utils.unregister_class(Thebounty_parseIBL)
+
