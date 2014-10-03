@@ -47,7 +47,8 @@ if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1', 'iconv', 'zlib', 'libpng15', 'libxml2', 'yafaraycore', 'yafarayplugin']
+            dllArray = ['zlib1', 'libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
+                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1','yafaraycore', 'yafarayplugin']
             break
         # load dll's from a MinGW build's
         else:
@@ -68,11 +69,11 @@ for dll in dllArray:
     except Exception as e:
         print("ERROR: Failed to load library {0}, {1}".format(dll, repr(e)))
 
-# test in all OS
+# test in all OS.. with gcc builds or msvc builds
 for file in os.listdir(PLUGIN_PATH):
-    if file[:13]=='libGridVolume':
+    if file[:13]=='libGridVolume' or file[:10]=='GridVolume':
         EXP_BRANCH +=(("volumegrid"),)
-    if file[:14]=='libtranslucent':
+    if file[:14]=='libtranslucent' or file[:11]=='translucent':
         EXP_BRANCH +=(("merge_SSS"),)
 
 if "bpy" in locals():
