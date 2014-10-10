@@ -142,5 +142,5 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
 
 
 if __name__ == "__main__":  # only for live edit.
-    import bpy
+    #import bpy
     bpy.utils.register_module(__name__)

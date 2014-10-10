@@ -59,6 +59,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.setVerbosityInfo()
         else:
             self.yi.setVerbosityMute()   
+            yin.colorOutput_t.flushArea(self) 
     
     ##-----------------------------------------------------     
 
@@ -69,8 +70,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # setup specific values for render preview mode
         if self.is_preview:
             self.yi.setVerbosityMute()
-            self.scene.bounty.bg_transp = False         #to correct alpha problems in preview roughglass
-            self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
+            #to correct alpha problems in preview roughglass
+            self.scene.bounty.bg_transp = False
+            self.scene.bounty.bg_transp_refract = False
         else:
             self.verbositylevel(self.scene.bounty.gs_verbose)
         
@@ -87,7 +89,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_world = yafWorld(self.yi)
               
         # process lighting integrators..
-        self.yaf_integrator = yafIntegrator(self.yi)
+        self.yaf_integrator = yafIntegrator(self.yi, self.is_preview)
               
         # textures before materials
         self.yaf_texture = yafTexture(self.yi)
@@ -108,7 +110,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def exportTexture(self, obj):
         # First export the textures of the materials type 'blend'
-        for mat_slot in [m for m in obj.material_slots if m.material is not None]:#.bounty is not None]:
+        for mat_slot in [m for m in obj.material_slots if m.material is not None]:
             if mat_slot.material.bounty.mat_type == 'blend':
                 try:
                     mat1 = bpy.data.materials[mat_slot.material.bounty.blendmaterial1]
