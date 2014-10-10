@@ -77,7 +77,7 @@ def register():
     Scene.gs_tile_size = IntProperty(
         name="Tile size",
         description="Size of the render buckets (tiles)",
-        min=0, max=1024, default=32)
+        min=4, max=1024, default=32) # if min = 0, Blender crash
 
     Scene.gs_tile_order = EnumProperty(
         name="Tile order",
