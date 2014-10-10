@@ -139,7 +139,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         cls.gs_tile_size = IntProperty(
             name="Tile size",
             description="Size of the render buckets (tiles)",
-            min=0, max=1024, default=32
+            min=4, max=1024, default=32
         )    
         cls.gs_tile_order = EnumProperty(
             name="Tile order",
