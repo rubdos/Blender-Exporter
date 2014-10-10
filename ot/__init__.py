@@ -25,3 +25,6 @@ from . import yafaray_presets
 from .. import EXP_BRANCH
 if EXP_BRANCH== "custom_nodes":
     from . import bounty_nodes_operator
+for branch in EXP_BRANCH:
+    if branch == "custom_nodes":
+        from . import bounty_nodes_operator
