@@ -58,8 +58,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         if info:
             self.yi.setVerbosityInfo()
         else:
-            self.yi.setVerbosityMute()   
-            yin.colorOutput_t.flushArea(self) 
+            self.yi.setVerbosityMute()    
     
     ##-----------------------------------------------------     
 

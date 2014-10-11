@@ -52,6 +52,14 @@ switchExtension = {
         'CLIP_CUBE': 'clipcube',
         'CHECKER': 'checker',
 }
+lowerImageExtension = {
+        'PNG': 'png',
+        'TARGA': 'tga',
+        'TIFF': 'tif',
+        'JPEG': 'jpg',
+        'HDR': 'hdr',
+        'OPEN_EXR': 'exr',
+}
 
 def noise2string(ntype):
     a = {
@@ -284,7 +292,9 @@ class yafTexture:
                 save_dir = "//"
 
             filename = clean_name(filename)
-            fileformat = scene.render.image_settings.file_format.lower()
+            # 
+            fileformat = lowerImageExtension.get(scene.render.image_settings.file_format)
+            #fileformat = scene.render.image_settings.file_format.lower()
             extract_path = os.path.join(filename, "{:05d}".format(scene.frame_current))
 
             if tex.image.source == 'GENERATED':

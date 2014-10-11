@@ -35,7 +35,7 @@ bl_info = {
     "description": "TheBounty Renderer for Blender (based on YafaRay Exporter)",
     "author": "Pedro Alcaide (povmaniaco)",
     "version": (0, 1, 6, 0),
-    "blender": (2, 7, 1),
+    "blender": (2, 7, 2),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
     "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",

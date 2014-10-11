@@ -148,7 +148,7 @@ class yafIntegrator:
             yi.printInfo("Exporting Volume Integrator: {0}".format(world.v_int_type))
 
             if world.v_int_type == 'SingleScatterIntegrator':
-                #yi.paramsSetString("type", "SingleScatterIntegrator")
+                # Single Scatter mode
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetBool("adaptive", world.v_int_adaptive)
                 yi.paramsSetBool("optimize", world.v_int_optimize)

@@ -70,15 +70,15 @@ enum_debug_integrator_type =(
 )
 
 enum_filter_type =(
-    ('box', "AA Filter Box", "Anti-Aliasing filter type Box"),
+    ('box',      "AA Filter Box",      "Anti-Aliasing filter type Box"),
     ('mitchell', "AA Filter Mitchell", "Anti-Aliasing filter type Michel-Netravali"),
-    ('gauss', "AA Filter Gauss", "Anti-Aliasing filter type Gaussian"),
-    ('lanczos', "AA Filter Lanczos", "Anti-Aliasing filter type Lanczos"),
+    ('gauss',    "AA Filter Gauss",    "Anti-Aliasing filter type Gaussian"),
+    ('lanczos',  "AA Filter Lanczos",  "Anti-Aliasing filter type Lanczos"),
 )
 
 enum_tile_order = (
-    ('linear', "Linear Tiles", ""),
-    ('random', "Random Tiles", ""),
+    ('linear', "Linear Tiles", "Linear buckets ( by a set size) from to  top-left image to bottom-right"),
+    ('random', "Random Tiles", "Random buckts by arbitray order"),
 )
 
 # set fileformat for image saving on same format as in the exporter, both have default PNG
@@ -116,7 +116,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         )    
         cls.gs_threads = IntProperty(
             name="Threads",
-            description="Number of threads to use (0 = auto)",
+            description="Number of threads to use, try '0' for use all threads",
             min=0, default=0
         )        
         cls.gs_gamma = FloatProperty(
@@ -129,7 +129,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         cls.gs_gamma_input = FloatProperty(
             name="Gamma input",
             description="Gamma correction applied to input images",
-            min=0, max=5, default=2.2
+            min=0, max=5, default=2.2 # 1.0 for linear mode ??
         )
         cls.sc_apply_gammaInput = BoolProperty(
             name="Use Gamma",
