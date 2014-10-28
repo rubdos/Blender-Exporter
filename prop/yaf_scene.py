@@ -307,7 +307,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         cls.intg_cPhotons = IntProperty(
             name="Count",
             description="Number of caustic photons to be shot",
-            min=1, default=500000
+            min=2, default=500000
         )    
         cls.intg_search = IntProperty(
             name="Search count",
