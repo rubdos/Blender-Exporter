@@ -87,9 +87,10 @@ class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
     
     @classmethod
     def poll(cls, context):
-        if  bpy.context.scene.bounty.gs_type_render == 'into_blender':
-            return False
-        return True
+        scene = context.scene
+        engine = context.scene.render.engine
+        toimagefile = scene.bounty.gs_type_render == 'file'
+        return toimagefile and (engine in cls.COMPAT_ENGINES)
 
     def draw(self, context):
         layout = self.layout
