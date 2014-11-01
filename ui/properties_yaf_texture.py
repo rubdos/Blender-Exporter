@@ -51,7 +51,6 @@ class YAF_TEXTURE_PT_context_texture(YAF_TextureButtonsPanel, Panel):
 
         return ((context.material or 
                  context.world or
-                 #context.lamp or context.brush or 
                  context.texture or
                  context.particle_system or
                  isinstance(context.space_data.pin_id, ParticleSettings) or 
@@ -297,28 +296,30 @@ class YAF_TEXTURE_PT_image(YAF_TextureTypePanel, Panel):
         tex = context.texture
         layout.template_image(tex, "image", tex.image_user)
         
+        
 def imageTexturePoll(cls, context):
     idblock = context_tex_datablock(context)
     engine = context.scene.render.engine
     tex = context.texture
-    return tex and (tex.yaf_tex_type == cls.tex_type and not isinstance(idblock, World) and (engine in cls.COMPAT_ENGINES))
+    return tex and (tex.yaf_tex_type == cls.tex_type and 
+                    not isinstance(idblock, World) and 
+                    (engine in cls.COMPAT_ENGINES))
+    
 
 class YAF_TEXTURE_PT_image_sampling(YAF_TextureTypePanel, Panel):
     bl_label = "Image Sampling"
     bl_options = {'DEFAULT_CLOSED'}
     tex_type = 'IMAGE'
     COMPAT_ENGINES = {'THEBOUNTY'}
-    # test
+    
     @classmethod
     def poll(cls, context):
         return imageTexturePoll(cls, context)
-    # end
+    #
     def draw(self, context):
         layout = self.layout
         tex = context.texture
         #
-        #idblock = context_tex_datablock(context)
-        #if not isinstance(idblock, World):
         row = layout.row(align=True)
         row.prop(tex, "yaf_use_alpha", text="Use Alpha")
         row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
@@ -331,7 +332,7 @@ class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
     tex_type = 'IMAGE'
     COMPAT_ENGINES = {'THEBOUNTY'}
     
-    # test
+    
     @classmethod
     def poll(cls, context):
         return imageTexturePoll(cls, context)
@@ -339,42 +340,42 @@ class YAF_TEXTURE_PT_image_mapping(YAF_TextureTypePanel, Panel):
     
     def draw(self, context):
         idblock = context_tex_datablock(context)
-        if not isinstance(idblock, World):            
-            tex = context.texture
-            layout = self.layout
-            layout.prop(tex, "extension")
+        #if not isinstance(idblock, World):            
+        tex = context.texture
+        layout = self.layout
+        layout.prop(tex, "extension")
+        
+        split = layout.split()
+        
+        if tex.extension == 'REPEAT':
+            row = layout.row(align=True)
+            row.prop(tex, "repeat_x", text="X Repeat")
+            row.prop(tex, "repeat_y", text="Y Repeat")
+        
+            layout.separator()
+        
+        elif tex.extension == 'CHECKER':
+            col = split.column(align=True)
+            row = col.row()
+            row.prop(tex, "use_checker_even", text="Even")
+            row.prop(tex, "use_checker_odd", text="Odd")
+        
+            col = split.column()
+            col.prop(tex, "checker_distance", text="Distance")
+        
+            layout.separator()
         
             split = layout.split()
         
-            if tex.extension == 'REPEAT':
-                row = layout.row(align=True)
-                row.prop(tex, "repeat_x", text="X Repeat")
-                row.prop(tex, "repeat_y", text="Y Repeat")
+            col = split.column(align=True)
+            col.label(text="Crop Minimum:")
+            col.prop(tex, "crop_min_x", text="X")
+            col.prop(tex, "crop_min_y", text="Y")
         
-                layout.separator()
-        
-            elif tex.extension == 'CHECKER':
-                col = split.column(align=True)
-                row = col.row()
-                row.prop(tex, "use_checker_even", text="Even")
-                row.prop(tex, "use_checker_odd", text="Odd")
-        
-                col = split.column()
-                col.prop(tex, "checker_distance", text="Distance")
-        
-                layout.separator()
-        
-                split = layout.split()
-        
-                col = split.column(align=True)
-                col.label(text="Crop Minimum:")
-                col.prop(tex, "crop_min_x", text="X")
-                col.prop(tex, "crop_min_y", text="Y")
-        
-                col = split.column(align=True)
-                col.label(text="Crop Maximum:")
-                col.prop(tex, "crop_max_x", text="X")
-                col.prop(tex, "crop_max_y", text="Y")
+            col = split.column(align=True)
+            col.label(text="Crop Maximum:")
+            col.prop(tex, "crop_max_x", text="X")
+            col.prop(tex, "crop_max_y", text="Y")
 
 
 class YAF_TEXTURE_PT_musgrave(YAF_TextureTypePanel, Panel):
