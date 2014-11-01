@@ -57,6 +57,7 @@ def call_update_sphere(self, context):
     lamp = context.lamp
     if context.lamp.bounty.use_sphere:
         lamp.use_sphere = True
+        lamp.distance = 1
     else:
         lamp.use_sphere = False
 
@@ -64,7 +65,7 @@ def sync_with_distance(self, context):
     #lamp = context.lamp
     if context.lamp.bounty.yaf_sphere_radius != context.lamp.distance:
         context.lamp.distance = context.lamp.bounty.yaf_sphere_radius
-
+       
 class TheBountyLightSettings(bpy.types.PropertyGroup):
     #
     @classmethod
@@ -155,7 +156,7 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             default=16
         )    
         cls.yaf_show_dist_clip = BoolProperty(
-            name="Show distance and clipping",
+            name="Show distance / clipping",
             description="Show distance, clip start and clip end settings for spot lamp in 3D view",
             default=False, update=set_shadow_method
         )

@@ -112,13 +112,13 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
             default=(0.7, 0.7, 0.7)
         )    
         cls.bg_use_ibl = BoolProperty(
-            name="Use IBL",
+            name="Use Background light info",
             description="Use the background as the light source for your image",
             default=False
         )
         cls.ibl_file = StringProperty(
-            name="IBL File",
-            description="File to be used as background image settings",
+            name="Smart IBL File",
+            description="Smart IBL file to be used as background image settings",
             subtype='FILE_PATH',
             default=""
         )        
