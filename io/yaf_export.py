@@ -29,9 +29,10 @@ from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
 from .yaf_integrator import yafIntegrator
-from . import yaf_scene
+from . import tby_scene
 from .yaf_texture import yafTexture
 from .yaf_material import TheBountyMaterialWrite
+from bpy import context
 
 switchFileType = {
     'PNG': 'png',
@@ -322,7 +323,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         filePath = os.path.realpath(filePath)
         filePath = os.path.normpath(filePath)
 
-        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = yaf_scene.getRenderCoords(scene)
+        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
 
         if render.use_border:
             self.resX = self.bsizeX
@@ -364,7 +365,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_integrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
-        yaf_scene.exportRenderSettings(self.yi, self.scene)
+        tby_scene.exportRenderSettings(self.yi, self.scene)
 
     def render(self, scene):
         # callback to render scene if not scene.name == 'preview':
@@ -385,7 +386,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
             # exr format has z-buffer included, so no need to load '_zbuffer' - file
             if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':
-                lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
+                # TODO: need review that option for load both files when z-depth is rendered
+                # except when use exr format
+                lay.load_from_file("{0}.{1}".format(self.output, self.file_type))
+                #lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
+                
             else:
                 lay.load_from_file(self.outputFile)
             self.end_result(result)
