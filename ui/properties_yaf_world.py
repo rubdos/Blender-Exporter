@@ -46,7 +46,6 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        #blworld = context.world
         world = context.world.bounty
 
         split = layout.split()
