@@ -31,17 +31,17 @@ enum_lamp_type = (
     ('POINT', "Point", "Omnidirectional point light source"),
     ('SUN',   "Sun",   "Constant direction parallel ray light source"),
     ('SPOT',  "Spot",  "Directional cone light source"),
-    ('ies',   "IES",   "Directional cone light source from ies file"),
+    ('IES',   "IES",   "Directional cone light source from ies file"),
     ('AREA',  "Area",  "Directional area light source"),
-    ('directional', "Directional", "Directional Sun light"),
+    ('DIRECTIONAL', "Directional", "Directional Sun light"),
 )
 
 def call_lighttype_update(self, context):
     lamp = context.lamp
     bounty = context.lamp.bounty
     if lamp is not None:
-        if bounty.lamp_type in {'ies','directional'}:
-            switchLampType = {'ies': 'SPOT','directional': 'SUN'}
+        if bounty.lamp_type in {'IES','DIRECTIONAL'}:
+            switchLampType = {'IES': 'SPOT','DIRECTIONAL': 'SUN'}
             lamp.type = switchLampType.get(bounty.lamp_type)
         else:
             lamp.type = bounty.lamp_type
@@ -74,6 +74,11 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             name="TheBounty Light Settings",
             description="TheBounty light settings",
             type=cls,
+        )
+        cls.nodetree = StringProperty(
+            name="Node Tree",
+            description="Name of the node tree for this light",
+            default=""
         ) 
         cls.lamp_type = EnumProperty(
             name="Light type",
@@ -117,7 +122,7 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             default=True
         )    
         cls.spot_soft_shadows = BoolProperty(
-            name="Soft shadows (not use with photon only)",
+            name="Soft shadows (unused with photon only)",
             description="Use soft shadows(turn disabled with 'photon only')",
             default=False
         )    
@@ -156,8 +161,8 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             default=16
         )    
         cls.yaf_show_dist_clip = BoolProperty(
-            name="Show distance / clipping",
-            description="Show distance, clip start and clip end settings for spot lamp in 3D view",
+            name="Show clipping",
+            description="Show clip start and clip end settings for spot lamp in 3D view",
             default=False, update=set_shadow_method
         )
     #    
