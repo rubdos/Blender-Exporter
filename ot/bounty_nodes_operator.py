@@ -32,7 +32,16 @@ TheBountyMaterialNodeTypes = {
     'blend':'BlendShaderNode',
     'translucent':'TranslucentScattering'
 }
-
+'''
+TheBountyLightNodeTypes = {
+    'POINT':'PointLightNode',
+    'SUN':'SunLightNode',
+    'SPOT':'SpotLightNode',
+    'IES':'IesLightNode',
+    'AREA':'AreaLightNode',
+    'DIRECTIONAL':'DirectionalLightNode'
+}
+'''
 # test for nodetree operator
 class TheBountyAddNodetree(bpy.types.Operator):
     ''''''
@@ -42,7 +51,7 @@ class TheBountyAddNodetree(bpy.types.Operator):
 
     def execute(self, context):
         idtype = 'material'
-        context_data = {'material':context.material}
+        context_data = {'material':context.material,'lamp':context.lamp}
         idblock = context_data[idtype]
         # node_active = context.active_node
         # node_selected = context.selected_nodes
@@ -52,6 +61,7 @@ class TheBountyAddNodetree(bpy.types.Operator):
         idblock.bounty.nodetree = nt.name
         # test
         mat = context.material.bounty
+        #light = context.lamp.bounty
         #obj = bpy.context.active_object #.active
         #bpy.context.object.active_material.name = "blend"
         
@@ -73,8 +83,19 @@ class TheBountyAddNodetree(bpy.types.Operator):
             shader.location = 10,250
             
             nt.links.new(shader.outputs[0],out.inputs[0])
-        #--------------------------------------            
-        
+        #--------------------------------------
+        '''
+        if idtype == 'lamp':
+            #
+            out = nt.nodes.new('LampOutputNode')
+            out.location = 200,100
+                
+            shader =  nt.nodes.new(TheBountyLightNodeTypes[light.lamp_type])
+            shader.location = 10,250
+            
+            nt.links.new(shader.outputs[0],out.inputs[0])
+        #--------------------------------------          
+        '''
         return {'FINISHED'}
 
 
