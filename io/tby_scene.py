@@ -43,11 +43,12 @@ def getRenderCoords(scene):
                 break
 
     # Shift only available if camera is selected
-    if not cam_data:
-        shiftX = 0
-        shiftY = 0
+    #if not cam_data:
+    shiftX = 0
+    shiftY = 0
 
-    else:
+    #else:
+    if cam_data:
         # Sanne: get lens shift
         #camera = self.scene.objects.camera.getData()
         maxsize = max(sizeX, sizeY)
@@ -127,8 +128,7 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetBool("drawParams", scene.bounty.gs_draw_params)
     yi.paramsSetString("customString", scene.bounty.gs_custom_string)
 
-    # change to new mode without 'threads auto' option
-    # set to '-1' value for use 'auto'
+    # by default is -1, for use all allowed threads
     threads = -1
     if scene.bounty.gs_threads > 0:
         threads = scene.bounty.gs_threads

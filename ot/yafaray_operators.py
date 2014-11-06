@@ -115,12 +115,12 @@ def sunPosAngle(mode="get", val="position"):
 def checkSSS():
     for mat in bpy.data.materials:
         if mat.bounty.mat_type == 'translucent':
-            return True
+            return True    
     return False
 
 def checkSceneLights():
     scene = bpy.context.scene
-    world = scene.world.bounty
+    world = bpy.context.scene.world.bounty
     
     # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
     haveLights = False

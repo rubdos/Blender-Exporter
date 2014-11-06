@@ -26,7 +26,7 @@ PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
 BIN_PATH = os.path.join(__path__[0], 'bin')
 # allowed branchs..
 #branchs=('master','volumegrid','merge_SSS')
-EXP_BRANCH = (("master"),)
+EXP_BRANCH = (("master"),("custom_nodes"),)
 
 sys.path.append(BIN_PATH)
 

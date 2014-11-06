@@ -119,6 +119,8 @@ class yafLight:
                 yi.paramsSetString("type", "spherelight")
                 yi.paramsSetInt("samples", lamp.yaf_samples)
                 yi.paramsSetFloat("radius", lamp.yaf_sphere_radius)
+                # use sphere light attenuation  
+                power = 0.5 * power * power
                 #
                 if lamp.create_geometry:
                     ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
@@ -148,7 +150,7 @@ class yafLight:
             yi.paramsSetFloat("angle", lamp.angle)
             yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])
 
-        elif lampType == "directional":
+        elif lampType == "DIRECTIONAL":
             yi.paramsSetString("type", "directional")
             yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])
             yi.paramsSetBool("infinite", lamp.infinite)
@@ -156,7 +158,7 @@ class yafLight:
                 yi.paramsSetFloat("radius", lamp_data.shadow_soft_size)
                 yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
 
-        elif lampType == "ies":
+        elif lampType == "IES":
             yi.paramsSetString("type", "ieslight")
             yi.paramsSetPoint("to", to[0], to[1], to[2])
             ies_file = abspath(lamp.ies_file)
@@ -213,10 +215,7 @@ class yafLight:
         if lampType not in {"SUN", "directional"}:
             yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
         
-        # use sphere light attenuation  
-        if lampType == 'POINT' and lamp.use_sphere:
-            power = 0.5 * power * power
-
+        #
         yi.paramsSetColor("color", color[0], color[1], color[2])
         yi.paramsSetFloat("power", power)
         yi.createLight(lamp_name)

@@ -92,16 +92,17 @@ class TheBounty_PT_dimensions(RenderButtonsPanel, Panel):
 
 from . import properties_yaf_general_settings
 from . import properties_yaf_integrator
-from . import properties_yaf_AA_settings
+from . import prop_AA_settings
 
 class TheBounty_PT_output(RenderButtonsPanel, Panel):
     bl_label = "Output"
     
     @classmethod
     def poll(cls, context):
-        if  bpy.context.scene.bounty.gs_type_render == 'into_blender':
-            return False
-        return True
+        scene = context.scene
+        engine = context.scene.render.engine
+        toimagefile = scene.bounty.gs_type_render == 'file'
+        return toimagefile and (engine in cls.COMPAT_ENGINES)
 
     def draw(self, context):
         layout = self.layout
