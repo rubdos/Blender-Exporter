@@ -356,6 +356,7 @@ class TheBountyMaterialWrite:
         yi.paramsSetFloat("glossy_reflect", mat.bounty.glossy_reflect)
         yi.paramsSetFloat("sss_transmit", mat.bounty.sss_transmit)
         yi.paramsSetFloat("exponent", mat.bounty.exponent)
+        yi.paramsSetFloat("g", mat.bounty.phaseFuction) # fix phase function, report by wizofboz
         
         # init shader values..
         diffRoot = glossRoot = glRefRoot = transpRoot = translRoot = bumpRoot = ''
