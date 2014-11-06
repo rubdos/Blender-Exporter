@@ -160,7 +160,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         self.yi.printInfo("Exporter: Processing Geometry...")
 
+        #-----------------------------
         # export only visible objects
+        #-----------------------------
         baseIds = {}
         dupBaseIds = {}
 
@@ -220,11 +222,13 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             mat1 = bpy.data.materials[mat.bounty.blendmaterial1]
             mat2 = bpy.data.materials[mat.bounty.blendmaterial2]
         except:
-            self.yi.printWarning("Exporter: Problem with blend material {0}. Could not find one of the two blended materials".format(mat.name))
+            self.yi.printWarning("Exporter: Problem with blend material {0}."
+                                 " Could not find one of the two blended materials".format(mat.name))
             return
             
         if mat1.name == mat2.name:
-            self.yi.printWarning("Exporter: Problem with blend material {0}. {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
+            self.yi.printWarning("Exporter: Problem with blend material {0}."
+                                 " {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
             return
         #----------------------------------------------------------------
         # This is not needed atm because 'blend' materials are excluded 
@@ -259,10 +263,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
         ymat = self.yi.createMaterial("defaultMat")
         self.materialMap["default"] = ymat
-        #--------------------------------------------------
+        #---------------------------------------------------
         # create a shinydiffuse material for "Clay Render"
         # exception: don't create for material preview mode
-        #--------------------------------------------------
+        #---------------------------------------------------
         if not self.is_preview:
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", "shinydiffusemat")
@@ -271,9 +275,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.printInfo("Exporter: Creating Material \"clayMat\"")
             cmat = self.yi.createMaterial("clayMat")
             self.materialMap["clay"] = cmat
-        #---------------------------------------------
+        #----------------------------------------------
         # override all materials in 'clay render' mode
-        #---------------------------------------------
+        #----------------------------------------------
         for obj in [o for o in self.scene.objects if not self.scene.bounty.gs_clay_render]:
             for mat_slot in obj.material_slots:
                 if mat_slot.material not in self.materials:
