@@ -47,8 +47,8 @@ if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1', 'libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
-                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1','yafaraycore', 'yafarayplugin']
+            #dllArray = ['zlib1','libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', 'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1','yafaraycore', 'yafarayplugin']
+            dllArray = ['libxml2', 'Half', 'Iex-2_1', 'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1']#,'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a MinGW build's
         else:
@@ -112,9 +112,9 @@ def register():
     bpy.app.handlers.load_post.append(load_handler)
     # register keys for 'render 3d view', 'render still' and 'render animation'
     km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='Screen')
-    kmi = km.keymap_items.new('render.render_view', 'F12', 'PRESS', False, False, False, True)
-    kmi = km.keymap_items.new('render.render_animation', 'F12', 'PRESS', False, False, True, False)
-    kmi = km.keymap_items.new('render.render_still', 'F12', 'PRESS', False, False, False, False)
+    kmi = km.keymap_items.new('bounty.render_view', 'F12', 'PRESS', False, False, False, True)
+    kmi = km.keymap_items.new('bounty.render_animation', 'F12', 'PRESS', False, False, True, False)
+    kmi = km.keymap_items.new('bounty.render_still', 'F12', 'PRESS', False, False, False, False)
     
     for branch in EXP_BRANCH:
         if branch == "custom_nodes":
@@ -128,7 +128,7 @@ def unregister():
     kma = bpy.context.window_manager.keyconfigs.addon.keymaps['Screen']
     for kmi in kma.keymap_items:
         #if kmi.idname == 'render.render_view' or kmi.idname == 'render.render_animation' or kmi.idname == 'render.render_still':
-        if kmi.idname in {'render.render_view','render.render_animation','render.render_still'}:
+        if kmi.idname in {'bounty.render_view','bounty.render_animation','bounty.render_still'}:
             kma.keymap_items.remove(kmi)
     bpy.utils.unregister_module(__name__)
     bpy.app.handlers.load_post.remove(load_handler)

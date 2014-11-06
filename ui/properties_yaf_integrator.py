@@ -20,14 +20,15 @@
 
 import bpy
 from bpy.types import Panel
-from bl_ui.properties_render import RenderButtonsPanel
-#
+#from bl_ui.properties_render import RenderButtonsPanel
+
+from . properties_yaf_render import RenderButtonsPanel
 from .. import EXP_BRANCH
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
-class YAF_PT_render(RenderButtonsPanel, Panel):
+class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
     bl_label = "Lighting Integrator Method"
 
     def draw(self, context):

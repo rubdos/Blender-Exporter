@@ -20,12 +20,24 @@
 
 import bpy
 from bpy.types import Panel
-from bl_ui.properties_render import RenderButtonsPanel
+#from bl_ui.properties_render import RenderButtonsPanel
 
-RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
+class RenderButtonsPanel():
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "render"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    # COMPAT_ENGINES must be defined in each subclass, external engines can add themselves here
+
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        return scene and (scene.render.engine in cls.COMPAT_ENGINES)
+    
+#RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
-class YAFRENDER_PT_render(RenderButtonsPanel, Panel):
+class TheBounty_PT_render(RenderButtonsPanel, Panel):
     bl_label = "Render"
 
     def draw(self, context):
@@ -34,14 +46,14 @@ class YAFRENDER_PT_render(RenderButtonsPanel, Panel):
         rd = context.scene.render
 
         row = layout.row()
-        row.operator("render.render_still", text="Image", icon='RENDER_STILL')
-        row.operator("render.render_animation", text="Animation", icon='RENDER_ANIMATION')
-        layout.row().operator("render.render_view", text="Render 3D View", icon='VIEW3D')
+        row.operator("bounty.render_still", text="Image", icon='RENDER_STILL')
+        row.operator("bounty.render_animation", text="Animation", icon='RENDER_ANIMATION')
+        layout.row().operator("bounty.render_view", text="Render 3D View", icon='VIEW3D')
         layout.prop(rd, "display_mode", text="Display")
 
 
     
-class YAFRENDER_PT_dimensions(RenderButtonsPanel, Panel):
+class TheBounty_PT_dimensions(RenderButtonsPanel, Panel):
     bl_label = "Dimensions"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -82,7 +94,7 @@ from . import properties_yaf_general_settings
 from . import properties_yaf_integrator
 from . import properties_yaf_AA_settings
 
-class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
+class TheBounty_PT_output(RenderButtonsPanel, Panel):
     bl_label = "Output"
     
     @classmethod
@@ -113,7 +125,7 @@ class YAFRENDER_PT_output(RenderButtonsPanel, Panel):
             layout.prop(image_settings, "exr_codec")
 
 
-class YAFRENDER_PT_post_processing(RenderButtonsPanel, Panel):
+class TheBounty_PT_post_processing(RenderButtonsPanel, Panel):
     bl_label = "Post Processing"
     bl_options = {'DEFAULT_CLOSED'}
 

@@ -20,12 +20,12 @@
 
 import bpy
 from bpy.types import Panel
-from bl_ui.properties_world import WorldButtonsPanel
+from . properties_yaf_world import WorldButtonsPanel
 
 WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
-class YAF_PT_vol_integrator(WorldButtonsPanel, Panel):
+class TheBounty_PT_vol_integrator(WorldButtonsPanel, Panel):
     bl_label = "Volume Integrator"
     
     @classmethod

@@ -20,7 +20,9 @@
 
 import bpy
 from ..ot import yafaray_presets
-from bl_ui.properties_render import RenderButtonsPanel
+#from bl_ui.properties_render import RenderButtonsPanel 
+
+from . properties_yaf_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
@@ -34,7 +36,7 @@ class THEBOUNTY_MT_render_presets(Menu):
     draw = Menu.draw_preset
 
 # povman: test for next panel distribution
-class YAF_PT_pass_settings(RenderButtonsPanel, Panel):
+class THEBOUNTY_PT_pass_settings(RenderButtonsPanel, Panel):
     bl_label = "Render Passes"
 
     def draw(self, context):
@@ -55,7 +57,7 @@ class YAF_PT_pass_settings(RenderButtonsPanel, Panel):
         sub.enabled = scene.gs_clay_render
         sub.prop(scene, "gs_clay_col", text="")
 
-class YAF_PT_general_settings(RenderButtonsPanel, Panel):
+class THEBOUNTY_PT_general_settings(RenderButtonsPanel, Panel):
     bl_label = "General Settings"
 
     def draw(self, context):

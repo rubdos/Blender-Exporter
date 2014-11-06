@@ -19,14 +19,25 @@
 # <pep8 compliant>
 
 from bpy.types import Panel
-from bl_ui.properties_data_lamp import DataButtonsPanel
+#from bl_ui.properties_data_lamp import DataButtonsPanel
+
+class DataButtonsPanel():
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "data"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+
+    @classmethod
+    def poll(cls, context):
+        engine = context.scene.render.engine
+        return context.lamp and (engine in cls.COMPAT_ENGINES)
 
 # Inherit Lamp data block
 from bl_ui.properties_data_lamp import DATA_PT_context_lamp
 DATA_PT_context_lamp.COMPAT_ENGINES.add('THEBOUNTY')
 del DATA_PT_context_lamp
 
-class YAF_PT_preview(Panel):
+class THEBOUNTY_PT_preview(Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "data"
@@ -42,7 +53,7 @@ class YAF_PT_preview(Panel):
         self.layout.template_preview(context.lamp)
 
 
-class YAF_PT_lamp(DataButtonsPanel, Panel):
+class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
     bl_label = "Lamp"
     COMPAT_ENGINES = {'THEBOUNTY'}
 
@@ -95,7 +106,7 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
                 col.prop(lamp, "yaf_samples")
 
 # povman test
-class YAF_PT_area(DataButtonsPanel, Panel):
+class THEBOUNTY_PT_area(DataButtonsPanel, Panel):
     bl_label = "Area Shape"
     COMPAT_ENGINES = {'THEBOUNTY'}
 
@@ -122,7 +133,7 @@ class YAF_PT_area(DataButtonsPanel, Panel):
         col.prop(lamp, "distance")
 # end
 
-class YAF_PT_spot(DataButtonsPanel, Panel):
+class THEBOUNTY_PT_spot(DataButtonsPanel, Panel):
     bl_label = "Spot Shape"
     COMPAT_ENGINES = {'THEBOUNTY'}
 

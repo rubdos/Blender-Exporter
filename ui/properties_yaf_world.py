@@ -19,9 +19,6 @@
 # <pep8 compliant>
 
 from bpy.types import Panel
-from bl_ui.properties_world import WorldButtonsPanel
-
-WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 # Inherit World data block
 from bl_ui.properties_world import WORLD_PT_context_world
@@ -33,6 +30,16 @@ from bl_ui.properties_world import WORLD_PT_preview
 WORLD_PT_preview.COMPAT_ENGINES.add('THEBOUNTY')
 del WORLD_PT_preview
 
+class WorldButtonsPanel():
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "world"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.world and context.scene.render.engine in cls.COMPAT_ENGINES)
+    
    
 class TheBounty_PT_world(WorldButtonsPanel, Panel):
     bl_label = "Background Settings"
@@ -216,7 +223,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
 
         
 from . import properties_yaf_volume_integrator as volum
-volum.YAF_PT_vol_integrator.draw
+volum.TheBounty_PT_vol_integrator.draw
 
 
 if __name__ == "__main__":  # only for live edit.
