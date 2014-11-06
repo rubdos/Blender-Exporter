@@ -114,7 +114,7 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetBool("clamp_rgb", scene.bounty.gs_clamp_rgb)
     yi.paramsSetBool("show_sam_pix", scene.bounty.gs_show_sam_pix)
     # change to True for fix volume domain issue
-    yi.paramsSetBool("premult", False) # scene.bounty.gs_premult)# unused..?
+    yi.paramsSetBool("premult", scene.bounty.bg_transp) # scene.bounty.gs_premult)# unused..?
 
     yi.paramsSetInt("tile_size", scene.bounty.gs_tile_size)
     yi.paramsSetString("tiles_order", scene.bounty.gs_tile_order)
