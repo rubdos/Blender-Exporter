@@ -19,9 +19,7 @@
 # <pep8 compliant>
 
 import bpy
-from ..ot import yafaray_presets
-#from bl_ui.properties_render import RenderButtonsPanel 
-
+from ..ot import bounty_presets
 from . prop_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
@@ -84,13 +82,11 @@ class THEBOUNTY_PT_general_settings(RenderButtonsPanel, Panel):
         sub.enabled = scene.gs_transp_shad
         sub = col.column()
         #test..
-        threadMode ="Threads (0=Auto)" if scene.gs_threads == 0 else "Threads used"
+        threadMode ="Threads (Auto)" if scene.gs_threads == 0 else "Threads used"
         col.prop(scene, "gs_threads", text= threadMode)
         sub = col.column()
         sub.enabled = scene.gs_type_render == "into_blender"
         sub.prop(scene, "gs_tile_size")
-
-        #layout.separator()
 
         split = layout.split()
         col = split.column()

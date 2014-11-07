@@ -163,7 +163,8 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
         cls.yaf_show_dist_clip = BoolProperty(
             name="Show clipping",
             description="Show clip start and clip end settings for spot lamp in 3D view",
-            default=False, update=set_shadow_method
+            default=False, 
+            update=set_shadow_method
         )
     #    
     @classmethod

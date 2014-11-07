@@ -133,7 +133,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         )
         cls.sc_apply_gammaInput = BoolProperty(
             name="Use Gamma",
-            description="Apply gamma correction to image",
+            description="Apply gamma correction to image input file",
             default=True
         )    
         cls.gs_tile_size = IntProperty(

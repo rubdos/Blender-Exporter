@@ -281,7 +281,7 @@ class TheBounty_PT_blend_texture(TextureTypePanel, Panel):
         tex = context.texture
         layout.prop(tex, "progression")
         if tex.progression not in 'LINEAR':  # TODO: remove this if other progression types are supported
-            layout.label(text="Not yet supported in YafaRay")
+            layout.label(text="Not yet supported")
         else:
             layout.label(text=" ")
 
@@ -344,7 +344,7 @@ class TheBounty_PT_image_mapping(TextureTypePanel, Panel):
     @classmethod
     def poll(cls, context):
         idblock = context_tex_datablock(context)
-        #if not isinstance(idblock, World): 
+        #
         return imageTexturePoll(cls, context) and not isinstance(idblock, World)
         
     

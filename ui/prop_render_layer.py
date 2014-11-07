@@ -16,11 +16,8 @@
 #  or visit https://www.fsf.org for more info.
 #
 # -------------------------------------------------------------------------#
-'''
-Created on 09/05/2014
 
-@author: Pedro
-'''
+
 import bpy
 from bpy.types import Menu, Panel, UIList
 
