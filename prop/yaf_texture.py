@@ -45,6 +45,11 @@ enum_texture_type = (
     ('DISTORTED_NOISE', "Distorted Noise", ""),
     ('IMAGE', "Image", ""),
 )
+enum_interpolation_type=(
+    ('none', "None", ""),
+    ('bilinear', "Bilinear", ""),
+    ('bicubic', "Bicubic", ""),
+)
 
 def register():
     Texture.yaf_tex_type = EnumProperty(
@@ -62,6 +67,12 @@ def register():
         name="Use alpha image info",
         description="Use alpha values for image mapping",
         default=False)
+    
+    Texture.interpolation_type= EnumProperty(
+        name="Interpolation", 
+        description="Use image interpolation",
+        items=enum_interpolation_type, 
+        default="bilinear")
 
 
 def unregister():

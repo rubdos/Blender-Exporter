@@ -78,7 +78,7 @@ enum_filter_type =(
 
 enum_tile_order = (
     ('linear', "Linear Tiles", "Linear buckets ( by a set size) from to  top-left image to bottom-right"),
-    ('random', "Random Tiles", "Random buckts by arbitray order"),
+    ('random', "Random Tiles", "Random buckets by arbitray order"),
 )
 
 # set fileformat for image saving on same format as in the exporter, both have default PNG
@@ -89,8 +89,8 @@ def call_update_fileformat(self, context):
     
     if scene.img_output is not render.image_settings.file_format:
         render.image_settings.file_format = scene.img_output
-        if render.image_settings.file_format == "OPEN_EXR" and scene.gs_z_channel:
-            render.image_settings.use_zbuffer = True
+        #if render.image_settings.file_format == "OPEN_EXR" and scene.gs_z_channel:
+        #    render.image_settings.use_zbuffer = True
 
 class TheBountySceneSettings(bpy.types.PropertyGroup):
     @classmethod

@@ -47,8 +47,9 @@ if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            #dllArray = ['zlib1','libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', 'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1','yafaraycore', 'yafarayplugin']
-            dllArray = ['libxml2', 'Half', 'Iex-2_1', 'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1']#,'yafaraycore', 'yafarayplugin']
+            dllArray = ['zlib1','libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
+                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1','yafaraycore', 'yafarayplugin']
+            #dllArray = ['libxml2', 'Half', 'Iex-2_1', 'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1']#,'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a MinGW build's
         else:
