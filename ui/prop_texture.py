@@ -302,9 +302,8 @@ def imageTexturePoll(cls, context):
     idblock = context_tex_datablock(context)
     engine = context.scene.render.engine
     tex = context.texture
-    return tex and (tex.yaf_tex_type == cls.tex_type and 
-                    not isinstance(idblock, World) and 
-                    (engine in cls.COMPAT_ENGINES))
+    
+    return tex and (tex.yaf_tex_type == cls.tex_type and (engine in cls.COMPAT_ENGINES))
     
 
 class TheBounty_PT_image_sampling(TextureTypePanel, Panel):
@@ -318,13 +317,21 @@ class TheBounty_PT_image_sampling(TextureTypePanel, Panel):
         return imageTexturePoll(cls, context)
     #
     def draw(self, context):
+        idblock = context_tex_datablock(context)
         layout = self.layout
         tex = context.texture
+        row= layout.row()
+        
+        if not isinstance(idblock, World):
+            row = layout.row(align=True)
+            row.prop(tex, "yaf_use_alpha", text="Use Alpha")
+            row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
+        
+            row = layout.row(align=True)
+            row.prop(tex, "use_flip_axis", text="Flip X/Y Axis")
         #
-        row = layout.row(align=True)
-        row.prop(tex, "yaf_use_alpha", text="Use Alpha")
-        row.prop(tex, "use_calculate_alpha", text="Calculate Alpha")
-        layout.prop(tex, "use_flip_axis", text="Flip X/Y Axis")
+        layout.prop(tex,"interpolation_type")
+
         
 
 class TheBounty_PT_image_mapping(TextureTypePanel, Panel):
@@ -336,12 +343,13 @@ class TheBounty_PT_image_mapping(TextureTypePanel, Panel):
     
     @classmethod
     def poll(cls, context):
-        return imageTexturePoll(cls, context)
+        idblock = context_tex_datablock(context)
+        #if not isinstance(idblock, World): 
+        return imageTexturePoll(cls, context) and not isinstance(idblock, World)
         
     
     def draw(self, context):
-        idblock = context_tex_datablock(context)
-        #if not isinstance(idblock, World):            
+        #           
         tex = context.texture
         layout = self.layout
         layout.prop(tex, "extension")

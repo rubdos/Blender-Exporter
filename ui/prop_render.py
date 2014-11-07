@@ -97,8 +97,8 @@ class TheBounty_PT_output(RenderButtonsPanel, Panel):
     def poll(cls, context):
         scene = context.scene
         engine = context.scene.render.engine
-        toimagefile = scene.bounty.gs_type_render == 'file'
-        return toimagefile and (engine in cls.COMPAT_ENGINES)
+        #toimagefile = scene.bounty.gs_type_render == 'file'
+        return engine in cls.COMPAT_ENGINES
 
     def draw(self, context):
         layout = self.layout
@@ -120,6 +120,9 @@ class TheBounty_PT_output(RenderButtonsPanel, Panel):
             row.label("Color Depth")
             row.prop(image_settings, "color_depth", expand=True)
             layout.prop(image_settings, "exr_codec")
+            row = layout.row()
+            row.active = scene.gs_z_channel
+            row.prop(image_settings, "use_zbuffer", text ='Save Z depth', toggle=True)
 
 
 class TheBounty_PT_post_processing(RenderButtonsPanel, Panel):
