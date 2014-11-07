@@ -20,21 +20,17 @@
 
 import bpy
 from bpy.types import Panel
-#from bl_ui.properties_render import RenderButtonsPanel
 
 class RenderButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "render"
     COMPAT_ENGINES = {'THEBOUNTY'}
-    # COMPAT_ENGINES must be defined in each subclass, external engines can add themselves here
-
+    
     @classmethod
     def poll(cls, context):
         scene = context.scene
         return scene and (scene.render.engine in cls.COMPAT_ENGINES)
-    
-#RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
 class TheBounty_PT_render(RenderButtonsPanel, Panel):
@@ -90,8 +86,8 @@ class TheBounty_PT_dimensions(RenderButtonsPanel, Panel):
         sub.prop(scene, "frame_end", text="End")
         sub.prop(scene, "frame_step", text="Step")
 
-from . import properties_yaf_general_settings
-from . import properties_yaf_integrator
+from . import prop_general_settings
+from . import prop_integrator
 from . import prop_AA_settings
 
 class TheBounty_PT_output(RenderButtonsPanel, Panel):
