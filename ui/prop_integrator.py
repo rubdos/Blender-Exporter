@@ -22,7 +22,7 @@ import bpy
 from bpy.types import Panel
 #from bl_ui.properties_render import RenderButtonsPanel
 
-from . properties_yaf_render import RenderButtonsPanel
+from . prop_render import RenderButtonsPanel
 from .. import EXP_BRANCH
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}

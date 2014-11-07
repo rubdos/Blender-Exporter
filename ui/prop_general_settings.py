@@ -22,7 +22,7 @@ import bpy
 from ..ot import yafaray_presets
 #from bl_ui.properties_render import RenderButtonsPanel 
 
-from . properties_yaf_render import RenderButtonsPanel
+from . prop_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}

@@ -18,14 +18,14 @@
 
 # <pep8 compliant>
 
-from . import properties_yaf_render
-from . import properties_yaf_camera
-from . import properties_yaf_material
-from . import properties_yaf_texture
-from . import properties_yaf_world
-from . import properties_yaf_strand
-from . import properties_yaf_object
-from . import properties_yaf_light
+from . import prop_render
+from . import prop_camera
+from . import prop_material
+from . import prop_texture
+from . import prop_world
+from . import prop_strand
+from . import prop_object
+from . import prop_light
 
 from . import prop_scene
 from . import prop_render_layer

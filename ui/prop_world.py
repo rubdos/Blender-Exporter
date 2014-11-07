@@ -221,7 +221,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             layout.operator("world.parse_ibl")
 
         
-from . import properties_yaf_volume_integrator as volum
+from . import prop_volume_integrator as volum
 volum.TheBounty_PT_vol_integrator.draw
 
 

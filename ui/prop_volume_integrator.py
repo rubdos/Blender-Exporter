@@ -20,7 +20,7 @@
 
 import bpy
 from bpy.types import Panel
-from . properties_yaf_world import WorldButtonsPanel
+from . prop_world import WorldButtonsPanel
 
 WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 

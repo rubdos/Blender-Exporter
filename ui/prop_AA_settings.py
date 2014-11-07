@@ -21,13 +21,13 @@
 #import bpy
 #from bl_ui.properties_render import RenderButtonsPanel
 
-from . properties_yaf_render import RenderButtonsPanel
+from . prop_render import RenderButtonsPanel
 from bpy.types import Panel
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
-class THEBOUNTY_PT_AA_settings(RenderButtonsPanel, Panel):
+class TheBounty_PT_AA_settings(RenderButtonsPanel, Panel):
     bl_label = "Anti-Aliasing"
 
     def draw(self, context):
