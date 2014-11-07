@@ -20,7 +20,7 @@
 
 from . import yafaray_operators
 from . import yafaray_converter
-from . import yafaray_presets
+from . import bounty_presets
 #
 from .. import EXP_BRANCH
 
