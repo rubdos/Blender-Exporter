@@ -212,7 +212,7 @@ class yafLight:
             yi.paramsSetPoint("point2", corner3[0], corner3[1], corner3[2])
 
         # sunlight and directional light don't use 'from' parameter
-        if lampType not in {"SUN", "directional"}:
+        if lampType not in {"SUN", "DIRECTIONAL"}:
             yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
         
         #
