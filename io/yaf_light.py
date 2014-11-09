@@ -135,7 +135,12 @@ class yafLight:
                 angle = degrees(lamp_data.spot_size) * 0.5
 
             yi.paramsSetString("type", "spotlight")
-
+            ''' 
+            fix issue when some spot_blend >= 0.70 with caustic photons
+            ERROR: Index out of bounds in pdf1D_t::Sample: index, u, ptr, cdf = -1, 0, 00000000082D7840, 00000000082D7840
+            '''
+            if lamp_data.spot_blend > 0.650:
+                lamp_data.spot_blend = 0.650
             yi.paramsSetFloat("cone_angle", angle)
             yi.paramsSetFloat("blend", lamp_data.spot_blend)
             yi.paramsSetPoint("to", to[0], to[1], to[2])
