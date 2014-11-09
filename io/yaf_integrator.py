@@ -31,8 +31,9 @@ switchDebugType = {
 }
 
 class yafIntegrator:
-    def __init__(self, interface):
+    def __init__(self, interface, preview):
         self.yi = interface
+        self.preview = preview
 
     def exportIntegrator(self, scene):
         yi = self.yi
@@ -40,10 +41,11 @@ class yafIntegrator:
         yi.paramsClearAll()
 
         yi.paramsSetBool("bg_transp", scene.bg_transp)
+        transp_refract = False
         if scene.bg_transp:
-            yi.paramsSetBool("bg_transp_refract", scene.bg_transp_refract)
-        else:
-            yi.paramsSetBool("bg_transp_refract", False)
+            transp_refract = scene.bg_transp_refract
+        #
+        yi.paramsSetBool("bg_transp_refract", transp_refract)
 
         yi.paramsSetInt("raydepth", scene.gs_ray_depth)
         yi.paramsSetInt("shadowDepth", scene.gs_shadow_depth)
@@ -69,10 +71,6 @@ class yafIntegrator:
                 c = scene.intg_AO_color
                 yi.paramsSetColor("AO_color", c[0], c[1], c[2])
 
-            # SSS
-            if EXP_BRANCH =="merge_SSS":
-                yi.paramsSetBool("useSSS", scene.intg_useSSS)
-
         elif lightIntegrator == "photonmapping":
             yi.paramsSetInt("photons", scene.intg_photons)
             yi.paramsSetInt("cPhotons", scene.intg_cPhotons)
@@ -88,10 +86,6 @@ class yafIntegrator:
                 yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
                 yi.paramsSetBool("show_map", scene.intg_show_map)
 
-            # SSS
-            if EXP_BRANCH =="merge_SSS":
-                yi.paramsSetBool("useSSS", scene.intg_useSSS)
-
         elif lightIntegrator == "pathtracing":
             yi.paramsSetInt("path_samples", scene.intg_path_samples)
             yi.paramsSetInt("bounces", scene.intg_bounces)
@@ -105,10 +99,6 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
-            
-            # SSS
-            if EXP_BRANCH =="merge_SSS":
-                yi.paramsSetBool("useSSS", scene.intg_useSSS)
 
         #elif lightIntegrator == "bidirectional":
 
@@ -132,7 +122,10 @@ class yafIntegrator:
         #----------------------------------
         # Sub-Surface Scattering integrator
         #----------------------------------
-        if EXP_BRANCH == "merge_SSS" and scene.intg_useSSS:
+        for branch in EXP_BRANCH:
+            if branch == "merge_SSS" and lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+                yi.paramsSetBool("useSSS", scene.intg_useSSS)
+                if scene.intg_useSSS:
             yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
             yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
             yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
@@ -151,26 +144,26 @@ class yafIntegrator:
         if scn_world:
             # use bounty sub-class
             world = scene.world.bounty
-            volIntegratorType = world.v_int_type
-            yi.printInfo("Exporting Volume Integrator: {0}".format(volIntegratorType))
+            #volIntegratorType = world.v_int_type
+            yi.printInfo("Exporting Volume Integrator: {0}".format(world.v_int_type))
 
-            if volIntegratorType == 'Single Scatter':
-                yi.paramsSetString("type", "SingleScatterIntegrator")
+            if world.v_int_type == 'SingleScatterIntegrator':
+                # Single Scatter mode
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetBool("adaptive", world.v_int_adaptive)
                 yi.paramsSetBool("optimize", world.v_int_optimize)
 
-            elif volIntegratorType == 'Sky':
-                yi.paramsSetString("type", "SkyIntegrator")
+            elif world.v_int_type == 'SkyIntegrator':
+                #yi.paramsSetString("type", "SkyIntegrator")
                 yi.paramsSetFloat("turbidity", world.v_int_dsturbidity)
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetFloat("alpha", world.v_int_alpha)
                 yi.paramsSetFloat("sigma_t", world.v_int_scale)
 
+            #else:
+            yi.paramsSetString("type", world.v_int_type)
             else:
                 yi.paramsSetString("type", "none")
-        else:
-            yi.paramsSetString("type", "none")
 
         yi.createIntegrator("volintegr")
         return True

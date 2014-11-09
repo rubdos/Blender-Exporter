@@ -20,12 +20,15 @@
 
 import bpy
 from bpy.types import Panel
-from bl_ui.properties_render import RenderButtonsPanel
+#from bl_ui.properties_render import RenderButtonsPanel
+
+from . prop_render import RenderButtonsPanel
+from .. import EXP_BRANCH
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
-class YAF_PT_render(RenderButtonsPanel, Panel):
+class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
     bl_label = "Lighting Integrator Method"
 
     def draw(self, context):
@@ -62,7 +65,6 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             row.prop(scene, "intg_bounces", text="Photons bounces depth")
 
             row = layout.row()
-
             col = row.column(align=True)
             col.label(" Diffuse Photons:", icon='MOD_PHYSICS')
             col.prop(scene, "intg_photons")
@@ -125,20 +127,21 @@ class YAF_PT_render(RenderButtonsPanel, Panel):
             else:
                 col.prop(scene, "intg_accurate_radius")
         
-        #--------------------------------
+        #----------------------------
         # SubSurface integrator
-        #--------------------------------
-        if integrator in {'directlighting', 'photonmapping', 'pathtracing'}:
-            col = layout.column(align=True)
-            col.prop(scene, "intg_useSSS", toggle=True)
-            if scene.intg_useSSS:
-                col.prop(scene, "intg_sssPhotons")
-                col.prop(scene, "intg_sssDepth")
-                col.prop(scene, "intg_singleScatterSamples")
-                col.prop(scene, "intg_sssScale")
+        #----------------------------
+        for branch in EXP_BRANCH:
+            if branch == 'merge_SSS' and integrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+                col = layout.column(align=True)
+                col.prop(scene, "intg_useSSS", toggle=True)
+                if scene.intg_useSSS:
+                    col.prop(scene, "intg_sssPhotons")
+                    col.prop(scene, "intg_sssDepth")
+                    col.prop(scene, "intg_singleScatterSamples")
+                    col.prop(scene, "intg_sssScale")
 
 
 
 if __name__ == "__main__":  # only for live edit.
-    import bpy
+    #import bpy
     bpy.utils.register_module(__name__)

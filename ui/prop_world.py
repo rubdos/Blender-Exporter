@@ -19,9 +19,6 @@
 # <pep8 compliant>
 
 from bpy.types import Panel
-from bl_ui.properties_world import WorldButtonsPanel
-
-WorldButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 # Inherit World data block
 from bl_ui.properties_world import WORLD_PT_context_world
@@ -33,6 +30,16 @@ from bl_ui.properties_world import WORLD_PT_preview
 WORLD_PT_preview.COMPAT_ENGINES.add('THEBOUNTY')
 del WORLD_PT_preview
 
+class WorldButtonsPanel():
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "world"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.world and context.scene.render.engine in cls.COMPAT_ENGINES)
+    
    
 class TheBounty_PT_world(WorldButtonsPanel, Panel):
     bl_label = "Background Settings"
@@ -46,7 +53,6 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
 
     def draw(self, context):
         layout = self.layout
-        #blworld = context.world
         world = context.world.bounty
 
         split = layout.split()
@@ -83,17 +89,18 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
                 # it allows to change the used image
                 if  tex.yaf_tex_type == "IMAGE":
                     layout.template_image(tex, "image", tex.image_user, compact=True)
-                else:
-                    # TODO: create message about not allow texture type
-                    pass
+                #else:
+                #    # TODO: create message about not allow texture type
+                #    pass
             else:
                 layout.template_ID(context.world, "active_texture", new="texture.new")
             
-            layout.label(text="Background Texture controls")
+            layout.label(text="Background Texture options")
             row = layout.row()
             row.prop(world,"bg_rotation")
             row.prop(world,"bg_mapping_type", text="")
             layout.separator()
+            
         #------------------------------------------
         # SunSky models for background
         #------------------------------------------
@@ -133,14 +140,14 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             row.prop(world, "bg_light_samples")
             #
             if world.bg_type == "Sunsky2":
+                layout.prop(world, "bg_dsnight", toggle= True)
                 self.draw_influence(context)
                 
                 row = layout.row()
                 row.prop(world, "bg_exposure")
                 row.prop(world, "bg_dsbright")
             
-                row = layout.row()
-                row.prop(world, "bg_color_space")
+                layout.prop(world, "bg_color_space", text="")
         #---------------------------------------
         # Color background
         #---------------------------------------    
@@ -166,7 +173,11 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             col.prop(world, "bg_power", text="Power")
             if world.bg_type == "Texture":
                 self.draw_influence(context)
-                
+        #
+        if world.bg_type == 'Texture' and context.world.active_texture is not None:
+            if world.bg_use_ibl:
+                self.drawIBL(context)
+                    
     #------------------------------------------------
     # Update Sun Light position 'from' or 'to' scene 
     #------------------------------------------------        
@@ -195,37 +206,23 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
         row.enabled = world.bg_background_light or (world.bg_type == "Texture" and world.bg_use_ibl)
         row.prop(world, "bg_with_diffuse", toggle=True)
         row.prop(world, "bg_with_caustic", toggle=True)
-
-
-class WorldTexture(WorldButtonsPanel, Panel):
-    bl_label = "Image Based Lighting Options"
-    bl_context = "world"
-    COMPAT_ENGINES = {'THEBOUNTY'}
-    
-    @classmethod
-    def poll(cls, context):
-        world = context.world.bounty
         
-        engine = context.scene.render.engine
-        
-        return (world and 
-                (world.bg_type == 'Texture' and 
-                 world.bg_use_ibl and
-                 context.world.active_texture is not None)
-                ) and (engine in cls.COMPAT_ENGINES)
-    
-    def draw(self, context):
+    #---------------------------
+    # IBL definitions file (wip)
+    #---------------------------
+    def drawIBL(self, context):
         world = context.world.bounty
         layout = self.layout
         
         row = layout.row()
         row.prop(world,"ibl_file")
-        if not world.ibl_file =="":
+        if not world.ibl_file == "":
             # test
             layout.operator("world.parse_ibl")
-            # end
+
         
-from . import properties_yaf_volume_integrator
+from . import prop_volume_integrator as volum
+volum.TheBounty_PT_vol_integrator.draw
 
 
 if __name__ == "__main__":  # only for live edit.

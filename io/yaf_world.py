@@ -67,10 +67,8 @@ class yafWorld:
                     image_file = normpath(image_file)
                     yi.paramsSetString("filename", image_file)
                     
-                    interpolate = 'none'
-                    if worldTexture.use_interpolation:
-                        interpolate = 'bilinear'
-                    yi.paramsSetString("interpolate", interpolate)
+                    #interpolation
+                    yi.paramsSetString("interpolate", worldTexture.interpolation_type)
                     
                     yi.createTexture("world_texture")
 

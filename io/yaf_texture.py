@@ -52,6 +52,14 @@ switchExtension = {
         'CLIP_CUBE': 'clipcube',
         'CHECKER': 'checker',
 }
+lowerImageFileExtension = {
+        'PNG': 'png',
+        'TARGA': 'tga',
+        'TIFF': 'tif',
+        'JPEG': 'jpg',
+        'HDR': 'hdr',
+        'OPEN_EXR': 'exr',
+}
 
 def noise2string(ntype):
     a = {
@@ -284,17 +292,19 @@ class yafTexture:
                 save_dir = "//"
 
             filename = clean_name(filename)
-            fileformat = scene.render.image_settings.file_format.lower()
+            # 
+            fileformat = lowerImageFileExtension.get(scene.render.image_settings.file_format)
+            #fileformat = scene.render.image_settings.file_format.lower()
             extract_path = os.path.join(filename, "{:05d}".format(scene.frame_current))
 
             if tex.image.source == 'GENERATED':
-                image_tex = "yaf_baked_image_{0}.{1}".format(clean_name(tex.name), fileformat)
+                image_tex = "baked_image_{0}.{1}".format(clean_name(tex.name), fileformat)
                 image_tex = os.path.join(save_dir, extract_path, image_tex)
                 image_tex = abspath(image_tex)
                 tex.image.save_render(image_tex, scene)
             if tex.image.source == 'FILE':
                 if tex.image.packed_file:
-                    image_tex = "yaf_extracted_image_{0}.{1}".format(clean_name(tex.name), fileformat)
+                    image_tex = "extracted_image_{0}.{1}".format(clean_name(tex.name), fileformat)
                     image_tex = os.path.join(save_dir, extract_path, image_tex)
                     image_tex = abspath(image_tex)
                     tex.image.save_render(image_tex, scene)
@@ -345,6 +355,7 @@ class yafTexture:
             yi.paramsSetFloat("cropmax_y", tex.crop_max_y)
 
             yi.paramsSetBool("rot90", tex.use_flip_axis)
+            #yi.paramsSetString("interpolate", tex.interpolation_type)
             textureConfigured = True
 
         if textureConfigured:

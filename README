@@ -1,16 +1,15 @@
-TheBounty renderer for Blender 2.70a (forked from YafaRay Blender exporter)
+TheBounty renderer for Blender 2.72b (fork from YafaRay Blender exporter)
 
-Version 0.1.6 Transitional.
+Version 0.1.6 rc2.
 
-The exporter is in an experimental stage, so use it for testing purposes only.
+The exporter is in an experimental stage, by design for the new project, useful only for testing purposes.
 
-Download and extract the exporter files and folders to:
+Download and extract the files and folders to:
 
-'../2.70/scripts/addons/thebounty' directory.
+'../scripts/addons/thebounty' directory.
 
-We need to test it, please post bug reports and feature requests here:
+If you want tested it, please post bug reports and new feature requests here:
 
 https://github.com/TheBounty/Blender-Exporter/issues
-
 
 Thank you.

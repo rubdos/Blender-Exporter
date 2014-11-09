@@ -272,7 +272,7 @@ class TheBountyShinyDiffuseShaderNode(Node, NodeTree):
     def init(self, context):
         # slots shaders
         self.outputs.new('NodeSocketColor', "Shader")
-        self.inputs.new("MyCustomSocket","Shader")
+        #self.inputs.new("MyCustomSocket","Shader")
         
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
@@ -529,6 +529,10 @@ class TheBountyNodeCategory(NodeCategory):
 # all categories in a list
 TheBountyNodeCategories = [
     # identifier, label, items list
+    #TheBountyNodeCategory("TheBountyLight", "Light Output", items=[
+    #    # output node
+    #    NodeItem("LampOutputNode"),
+    #    ]),
     TheBountyNodeCategory("TheBountyMaterial", "Material Output", items=[
         # output node
         NodeItem("MaterialOutputNode"),

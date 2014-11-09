@@ -115,12 +115,12 @@ def sunPosAngle(mode="get", val="position"):
 def checkSSS():
     for mat in bpy.data.materials:
         if mat.bounty.mat_type == 'translucent':
-            return True
+            return True    
     return False
 
 def checkSceneLights():
     scene = bpy.context.scene
-    world = scene.world.bounty
+    world = bpy.context.scene.world.bounty
     
     # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
     haveLights = False
@@ -130,15 +130,15 @@ def checkSceneLights():
     # if above is true, this 'for' is not used
     for sceneObj in scene.objects:
         if not sceneObj.hide_render and sceneObj.is_visible(scene): # check lamp, meshlight or portal light object
-            if sceneObj.type == "LAMP" or sceneObj.ml_enable or sceneObj.bgp_enable:
+            if sceneObj.type == "LAMP" or sceneObj.bounty.geometry_type in {'mesh_light', 'portal_light'}:
                 haveLights = True
                 break
     #
     return haveLights
 
-class RENDER_OT_render_view(Operator):
-    bl_label = "YafaRay render view"
-    bl_idname = "render.render_view"
+class TheBounty_OT_render_view(Operator):
+    bl_label = "TheBounty render view"
+    bl_idname = "bounty.render_view"
     bl_description = "Renders using the view in the active 3d viewport"
 
     @classmethod
@@ -176,7 +176,7 @@ class RENDER_OT_render_view(Operator):
                 return {'CANCELLED'}        
         
         if scene.bounty.intg_useSSS:
-            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+            if scene.bounty.intg_light_method in {'directlighting','photonmapping','pathtracing'}:
                 if not checkSSS():
                     self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
                     return {'CANCELLED'}
@@ -186,9 +186,9 @@ class RENDER_OT_render_view(Operator):
         return {'FINISHED'}
 
 
-class RENDER_OT_render_animation(Operator):
+class TheBounty_OT_render_animation(Operator):
     bl_label = "TheBounty render animation"
-    bl_idname = "render.render_animation"
+    bl_idname = "bounty.render_animation"
     bl_description = "Render active scene"
 
     @classmethod
@@ -210,7 +210,7 @@ class RENDER_OT_render_animation(Operator):
         
         if scene.bounty.intg_useSSS:
             # check only for a valid integrator method
-            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+            if scene.bounty.intg_light_method in {'directlighting','photonmapping','pathtracing'}:
                 if not checkSSS():
                     self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
                     return {'CANCELLED'}
@@ -219,9 +219,9 @@ class RENDER_OT_render_animation(Operator):
         return {'FINISHED'}
 
 
-class RENDER_OT_render_still(Operator):
+class TheBounty_OT_render_still(Operator):
     bl_label = "TheBounty render still"
-    bl_idname = "render.render_still"
+    bl_idname = "bounty.render_still"
     bl_description = "Render active scene"
 
     @classmethod
@@ -242,7 +242,7 @@ class RENDER_OT_render_still(Operator):
                 return {'CANCELLED'}
         
         if scene.bounty.intg_useSSS:
-            if scene.bounty.intg_light_method in {'directlighting','phtonmapping','pathtracing'}:
+            if scene.bounty.intg_light_method in {'directlighting','photonmapping','pathtracing'}:
                 if not checkSSS():
                     self.report({'WARNING'}, ("You use SSS integrator and NOT have SSS materials in the scene!"))
                     return {'CANCELLED'}
@@ -251,7 +251,7 @@ class RENDER_OT_render_still(Operator):
         return {'FINISHED'}
 
 
-class TheBounty_presets_ior_list(Operator):
+class TheBounty_OT_presets_ior_list(Operator):
     bl_idname = "material.set_ior_preset"
     bl_label = "IOR presets"
     index = bpy.props.FloatProperty()
@@ -271,10 +271,9 @@ class TheBounty_presets_ior_list(Operator):
 #-------------------------------------------
 # Add support for use ibl files
 #-------------------------------------------
-import re
-import os
+import re, os
    
-class Thebounty_parseIBL(Operator):
+class ThebountyParseIBL(Operator):
     bl_idname = "world.parse_ibl"
     bl_label = "Parse IBL"
     iblValues = {}
@@ -362,20 +361,20 @@ def register():
     bpy.utils.register_class(OBJECT_OT_get_position)
     bpy.utils.register_class(OBJECT_OT_get_angle)
     bpy.utils.register_class(OBJECT_OT_update_sun)
-    bpy.utils.register_class(RENDER_OT_render_view)
-    bpy.utils.register_class(RENDER_OT_render_animation)
-    bpy.utils.register_class(RENDER_OT_render_still)
-    bpy.utils.register_class(YAF_OT_presets_ior_list)
-    bpy.utils.register_class(Thebounty_parseIBL)
+    bpy.utils.register_class(TheBounty_OT_render_view)
+    bpy.utils.register_class(TheBounty_OT_render_animation)
+    bpy.utils.register_class(TheBounty_OT_render_still)
+    bpy.utils.register_class(TheBounty_OT_presets_ior_list)
+    bpy.utils.register_class(ThebountyParseIBL)
     
 
 def unregister():
     bpy.utils.unregister_class(OBJECT_OT_get_position)
     bpy.utils.unregister_class(OBJECT_OT_get_angle)
     bpy.utils.unregister_class(OBJECT_OT_update_sun)
-    bpy.utils.unregister_class(RENDER_OT_render_view)
-    bpy.utils.unregister_class(RENDER_OT_render_animation)
-    bpy.utils.unregister_class(RENDER_OT_render_still)
-    bpy.utils.unregister_class(YAF_OT_presets_ior_list)
-    bpy.utils.unregister_class(Thebounty_parseIBL)
+    bpy.utils.unregister_class(TheBounty_OT_render_view)
+    bpy.utils.unregister_class(TheBounty_OT_render_animation)
+    bpy.utils.unregister_class(TheBounty_OT_render_still)
+    bpy.utils.unregister_class(TheBounty_OT_presets_ior_list)
+    bpy.utils.unregister_class(ThebountyParseIBL)
 

@@ -18,22 +18,23 @@
 
 # <pep8 compliant>
 
-from . import properties_yaf_render
-from . import properties_yaf_camera
-from . import properties_yaf_material
-from . import properties_yaf_texture
-from . import properties_yaf_world
-from . import properties_yaf_strand
-from . import properties_yaf_object
-from . import properties_yaf_light
+from . import prop_render
+from . import prop_camera
+from . import prop_material
+from . import prop_texture
+from . import prop_world
+from . import prop_strand
+from . import prop_object
+from . import prop_light
 
 from . import prop_scene
 from . import prop_render_layer
 
 # test for custom nodes..
 from .. import EXP_BRANCH
-if EXP_BRANCH=="custom_nodes":
-    from . import prop_custom_nodes
+for branch in EXP_BRANCH:
+    if branch =="custom_nodes":
+        from . import prop_custom_nodes
 
 from bl_ui import properties_object as properties_object
 for member in dir(properties_object):  # add all "object" panels from blender

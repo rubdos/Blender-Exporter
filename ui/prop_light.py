@@ -19,14 +19,24 @@
 # <pep8 compliant>
 
 from bpy.types import Panel
-from bl_ui.properties_data_lamp import DataButtonsPanel
+
+class DataButtonsPanel():
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "data"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+
+    @classmethod
+    def poll(cls, context):
+        engine = context.scene.render.engine
+        return context.lamp and (engine in cls.COMPAT_ENGINES)
 
 # Inherit Lamp data block
 from bl_ui.properties_data_lamp import DATA_PT_context_lamp
 DATA_PT_context_lamp.COMPAT_ENGINES.add('THEBOUNTY')
 del DATA_PT_context_lamp
 
-class YAF_PT_preview(Panel):
+class THEBOUNTY_PT_preview(Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "data"
@@ -42,10 +52,48 @@ class YAF_PT_preview(Panel):
         self.layout.template_preview(context.lamp)
 
 
-class YAF_PT_lamp(DataButtonsPanel, Panel):
+class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
     bl_label = "Lamp"
     COMPAT_ENGINES = {'THEBOUNTY'}
+    
+    def draw_spot_shape(self, context):
+        layout = self.layout
+        lamp = context.lamp.bounty
+        
+        layout.label("Spot shape settings:")
+        
+        row = layout.row()
+        row.prop(context.lamp, "spot_size", text="Size")
+        row.prop(context.lamp, "spot_blend", text="Blend", slider=True)
+        
+        split = layout.split()
+        col = split.column(align=True)
+        col.prop(lamp, "yaf_show_dist_clip", toggle=True)
+        if lamp.yaf_show_dist_clip:
+            col.prop(context.lamp, "distance")
+            col.prop(context.lamp, "shadow_buffer_clip_start", text="Clip Start")
+            col.prop(context.lamp, "shadow_buffer_clip_end", text=" Clip End")
 
+        col = split.column()
+        col.prop(context.lamp, "show_cone", toggle=True)
+    
+    def draw_area_shape(self, context):
+        layout = self.layout
+        lamp = context.lamp
+        
+        layout.label("Area shape settings:")
+        col = layout.column()
+        col.row().prop(lamp, "shape", expand=True)
+        sub = col.row(align=True)
+
+        if lamp.shape == 'SQUARE':
+            sub.prop(lamp, "size")
+        elif lamp.shape == 'RECTANGLE':
+            sub.prop(lamp, "size", text="Size X")
+            sub.prop(lamp, "size_y", text="Size Y")
+        col = layout.row()
+        col.prop(lamp, "distance")
+        
     def draw(self, context):
         layout = self.layout
         # use context.lamp for 'blender' Lamp properties
@@ -60,6 +108,8 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
         if lamp.lamp_type == "AREA":
             layout.prop(lamp, "yaf_samples")
             layout.prop(lamp, "create_geometry", toggle=True)
+            #
+            self.draw_area_shape(context)
 
         elif lamp.lamp_type == "SPOT":
             layout.prop(lamp, "photon_only", toggle=True)
@@ -68,13 +118,15 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
                 col.prop(lamp, "spot_soft_shadows", toggle=True)
                 if lamp.spot_soft_shadows:
                     col.prop(lamp, "yaf_samples")
-                    col.prop(lamp, "shadow_fuzzyness")            
+                    col.prop(lamp, "shadow_fuzzyness")
+            #
+            self.draw_spot_shape(context)            
 
         elif lamp.lamp_type == "SUN":
             layout.prop(lamp, "yaf_samples")
             layout.prop(lamp, "angle")
 
-        elif lamp.lamp_type == "directional":
+        elif lamp.lamp_type == "DIRECTIONAL":
             layout.prop(lamp, "infinite")
             if not lamp.infinite:
                 layout.prop(context.lamp, "shadow_soft_size", text="Radius of directional cone")
@@ -87,71 +139,12 @@ class YAF_PT_lamp(DataButtonsPanel, Panel):
                 col.prop(lamp, "yaf_samples")
                 col.prop(lamp, "create_geometry", toggle=True)
 
-        elif lamp.lamp_type == "ies":
+        elif lamp.lamp_type == "IES":
             layout.prop(lamp, "ies_file")
             col = layout.column(align=True)            
             col.prop(lamp, "ies_soft_shadows", toggle=True)
             if lamp.ies_soft_shadows:
                 col.prop(lamp, "yaf_samples")
-
-# povman test
-class YAF_PT_area(DataButtonsPanel, Panel):
-    bl_label = "Area Shape"
-    COMPAT_ENGINES = {'THEBOUNTY'}
-
-    @classmethod
-    def poll(cls, context):
-        lamp = context.lamp
-        engine = context.scene.render.engine
-        return (lamp and lamp.type == 'AREA') and (engine in cls.COMPAT_ENGINES)
-
-    def draw(self, context):
-        layout = self.layout
-        lamp = context.lamp
-
-        col = layout.column()
-        col.row().prop(lamp, "shape", expand=True)
-        sub = col.row(align=True)
-
-        if lamp.shape == 'SQUARE':
-            sub.prop(lamp, "size")
-        elif lamp.shape == 'RECTANGLE':
-            sub.prop(lamp, "size", text="Size X")
-            sub.prop(lamp, "size_y", text="Size Y")
-        col = layout.row()
-        col.prop(lamp, "distance")
-# end
-
-class YAF_PT_spot(DataButtonsPanel, Panel):
-    bl_label = "Spot Shape"
-    COMPAT_ENGINES = {'THEBOUNTY'}
-
-    @classmethod
-    def poll(cls, context):
-        lamp = context.lamp
-        engine = context.scene.render.engine
-        return (lamp and lamp.type == "SPOT") and (engine in cls.COMPAT_ENGINES)
-
-    def draw(self, context):
-        layout = self.layout
-        lamp = context.lamp.bounty
-
-        split = layout.split()
-
-        col = split.column()
-        col.prop(context.lamp, "spot_size", text="Size")
-        col.prop(lamp, "yaf_show_dist_clip")
-        if lamp.yaf_show_dist_clip:
-            col.prop(context.lamp, "distance")
-            col.prop(context.lamp, "shadow_buffer_clip_start", text="Clip Start")
-
-        col = split.column()
-
-        col.prop(context.lamp, "spot_blend", text="Blend", slider=True)
-        col.prop(context.lamp, "show_cone")
-        if lamp.yaf_show_dist_clip:
-            col.label(text="")
-            col.prop(context.lamp, "shadow_buffer_clip_end", text=" Clip End")
 
 
 if __name__ == "__main__":  # only for live edit.

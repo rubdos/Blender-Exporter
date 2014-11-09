@@ -20,12 +20,23 @@
 
 import bpy
 from bpy.types import Panel
-from bl_ui.properties_data_camera import CameraButtonsPanel
+#from bl_ui.properties_data_camera import CameraButtonsPanel
 
-CameraButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
+class CameraButtonsPanel():
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "data"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+
+    @classmethod
+    def poll(cls, context):
+        engine = context.scene.render.engine
+        return context.camera and (engine in cls.COMPAT_ENGINES)
+
+#CameraButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
-class YAF_PT_lens(CameraButtonsPanel, Panel):
+class THEBOUNTY_PT_lens(CameraButtonsPanel, Panel):
     bl_label = "Lens"
     #povman add
     bl_context = "data"
@@ -88,7 +99,7 @@ class YAF_PT_lens(CameraButtonsPanel, Panel):
         sub.prop(cam, "clip_end", text="End")
 
 
-class YAF_PT_camera(CameraButtonsPanel, Panel):
+class THEBOUNTY_PT_camera(CameraButtonsPanel, Panel):
     bl_label = "Camera"
     #povman add
     bl_context = "data"
@@ -124,7 +135,7 @@ class YAF_PT_camera(CameraButtonsPanel, Panel):
         col.prop(camera, "sensor_fit", text="")
 
 
-class YAF_PT_camera_display(CameraButtonsPanel, Panel):
+class THEBOUNTY_PT_camera_display(CameraButtonsPanel, Panel):
     bl_label = "Display"
     #povman add
     bl_context = "data"

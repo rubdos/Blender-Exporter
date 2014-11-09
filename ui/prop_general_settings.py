@@ -19,8 +19,8 @@
 # <pep8 compliant>
 
 import bpy
-from ..ot import yafaray_presets
-from bl_ui.properties_render import RenderButtonsPanel
+from ..ot import bounty_presets
+from . prop_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
@@ -34,7 +34,7 @@ class THEBOUNTY_MT_render_presets(Menu):
     draw = Menu.draw_preset
 
 # povman: test for next panel distribution
-class YAF_PT_pass_settings(RenderButtonsPanel, Panel):
+class THEBOUNTY_PT_pass_settings(RenderButtonsPanel, Panel):
     bl_label = "Render Passes"
 
     def draw(self, context):
@@ -55,7 +55,7 @@ class YAF_PT_pass_settings(RenderButtonsPanel, Panel):
         sub.enabled = scene.gs_clay_render
         sub.prop(scene, "gs_clay_col", text="")
 
-class YAF_PT_general_settings(RenderButtonsPanel, Panel):
+class THEBOUNTY_PT_general_settings(RenderButtonsPanel, Panel):
     bl_label = "General Settings"
 
     def draw(self, context):
@@ -82,13 +82,11 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         sub.enabled = scene.gs_transp_shad
         sub = col.column()
         #test..
-        threadMode ="Threads (0=Auto)" if scene.gs_threads == 0 else "Threads used"
+        threadMode ="Threads (Auto)" if scene.gs_threads == 0 else "Threads used"
         col.prop(scene, "gs_threads", text= threadMode)
         sub = col.column()
         sub.enabled = scene.gs_type_render == "into_blender"
         sub.prop(scene, "gs_tile_size")
-
-        #layout.separator()
 
         split = layout.split()
         col = split.column()
@@ -109,7 +107,7 @@ class YAF_PT_general_settings(RenderButtonsPanel, Panel):
         
         split = layout.split(percentage=0.58)
         col = layout.column()
-        col.prop(scene, "gs_draw_params", text="Draw params and custom string", expand=True)
+        col.prop(scene, "gs_draw_params", expand=True)
         
         col = layout.column()
         col.enabled = scene.gs_draw_params

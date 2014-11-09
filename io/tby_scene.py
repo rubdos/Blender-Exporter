@@ -43,11 +43,12 @@ def getRenderCoords(scene):
                 break
 
     # Shift only available if camera is selected
-    if not cam_data:
-        shiftX = 0
-        shiftY = 0
+    #if not cam_data:
+    shiftX = 0
+    shiftY = 0
 
-    else:
+    #else:
+    if cam_data:
         # Sanne: get lens shift
         #camera = self.scene.objects.camera.getData()
         maxsize = max(sizeX, sizeY)
@@ -95,7 +96,7 @@ def exportRenderSettings(yi, scene):
     
     # use exporter params from UI
     # gamma output
-    yi.paramsSetFloat("gamma", scene.view_settings.gamma) # = 1.8
+    yi.paramsSetFloat("gamma", scene.view_settings.gamma)
     #yi.paramsSetFloat("gamma", scene.gs_gamma)
     
     exportAA(yi, scene)
@@ -114,7 +115,7 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetBool("clamp_rgb", scene.bounty.gs_clamp_rgb)
     yi.paramsSetBool("show_sam_pix", scene.bounty.gs_show_sam_pix)
     # change to True for fix volume domain issue
-    yi.paramsSetBool("premult", False) # scene.bounty.gs_premult)# unused..?
+    yi.paramsSetBool("premult", scene.bounty.bg_transp) # scene.bounty.gs_premult)# unused..?
 
     yi.paramsSetInt("tile_size", scene.bounty.gs_tile_size)
     yi.paramsSetString("tiles_order", scene.bounty.gs_tile_order)
@@ -127,8 +128,7 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetBool("drawParams", scene.bounty.gs_draw_params)
     yi.paramsSetString("customString", scene.bounty.gs_custom_string)
 
-    # change to new mode without 'threads auto' option
-    # set to '-1' value for use 'auto'
+    # by default is -1, for use all allowed threads
     threads = -1
     if scene.bounty.gs_threads > 0:
         threads = scene.bounty.gs_threads

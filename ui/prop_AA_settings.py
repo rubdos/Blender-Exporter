@@ -19,13 +19,15 @@
 # <pep8 compliant>
 
 #import bpy
-from bl_ui.properties_render import RenderButtonsPanel
+#from bl_ui.properties_render import RenderButtonsPanel
+
+from . prop_render import RenderButtonsPanel
 from bpy.types import Panel
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 
-class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
+class TheBounty_PT_AA_settings(RenderButtonsPanel, Panel):
     bl_label = "Anti-Aliasing"
 
     def draw(self, context):
@@ -39,7 +41,7 @@ class YAF_PT_AA_settings(RenderButtonsPanel, Panel):
         col.prop(scene, "AA_filter_type", text="")
         col.prop(scene, "AA_min_samples")
         col.prop(scene, "AA_pixelwidth")
-        # fix suggest by 'samo' in http://www.yafaray.org/node/581
+        # 
         col = split.column()
         spp = col.column()
         sub = col.column()

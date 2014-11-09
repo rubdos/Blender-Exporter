@@ -24,14 +24,15 @@ import threading
 import time
 import yafrayinterface
 
-from thebounty import PLUGIN_PATH
+from .. import PLUGIN_PATH
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
 from .yaf_integrator import yafIntegrator
-from . import yaf_scene
+from . import tby_scene
 from .yaf_texture import yafTexture
 from .yaf_material import TheBountyMaterialWrite
+from bpy import context
 
 switchFileType = {
     'PNG': 'png',
@@ -54,11 +55,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     sceneMat = []
     
     # TODO: make more options from UI
-    def verbositylevel(self, level):
-        if level =='info':
+    def verbositylevel(self, info):
+        if info:
             self.yi.setVerbosityInfo()
         else:
-            self.yi.setVerbosityMute()   
+            self.yi.setVerbosityMute()    
     
     ##-----------------------------------------------------     
 
@@ -69,10 +70,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # setup specific values for render preview mode
         if self.is_preview:
             self.yi.setVerbosityMute()
-            self.scene.bounty.bg_transp = False         #to correct alpha problems in preview roughglass
-            self.scene.bounty.bg_transp_refract = False #to correct alpha problems in preview roughglass
+            #to correct alpha problems in preview roughglass
+            self.scene.bounty.bg_transp = False
+            self.scene.bounty.bg_transp_refract = False
         else:
-            self.verbositylevel('info')
+            self.verbositylevel(self.scene.bounty.gs_verbose)
         
         # export go.. load plugins
         self.yi.loadPlugins(PLUGIN_PATH)
@@ -87,7 +89,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_world = yafWorld(self.yi)
               
         # process lighting integrators..
-        self.yaf_integrator = yafIntegrator(self.yi)
+        self.yaf_integrator = yafIntegrator(self.yi, self.is_preview)
               
         # textures before materials
         self.yaf_texture = yafTexture(self.yi)
@@ -108,7 +110,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def exportTexture(self, obj):
         # First export the textures of the materials type 'blend'
-        for mat_slot in [m for m in obj.material_slots if m.material is not None]:#.bounty is not None]:
+        for mat_slot in [m for m in obj.material_slots if m.material is not None]:
             if mat_slot.material.bounty.mat_type == 'blend':
                 try:
                     mat1 = bpy.data.materials[mat_slot.material.bounty.blendmaterial1]
@@ -159,7 +161,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         self.yi.printInfo("Exporter: Processing Geometry...")
 
+        #-----------------------------
         # export only visible objects
+        #-----------------------------
         baseIds = {}
         dupBaseIds = {}
 
@@ -219,11 +223,13 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             mat1 = bpy.data.materials[mat.bounty.blendmaterial1]
             mat2 = bpy.data.materials[mat.bounty.blendmaterial2]
         except:
-            self.yi.printWarning("Exporter: Problem with blend material {0}. Could not find one of the two blended materials".format(mat.name))
+            self.yi.printWarning("Exporter: Problem with blend material {0}."
+                                 " Could not find one of the two blended materials".format(mat.name))
             return
             
         if mat1.name == mat2.name:
-            self.yi.printWarning("Exporter: Problem with blend material {0}. {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
+            self.yi.printWarning("Exporter: Problem with blend material {0}."
+                                 " {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
             return
         #----------------------------------------------------------------
         # This is not needed atm because 'blend' materials are excluded 
@@ -258,10 +264,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
         ymat = self.yi.createMaterial("defaultMat")
         self.materialMap["default"] = ymat
-        #--------------------------------------------------
+        #---------------------------------------------------
         # create a shinydiffuse material for "Clay Render"
         # exception: don't create for material preview mode
-        #--------------------------------------------------
+        #---------------------------------------------------
         if not self.is_preview:
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", "shinydiffusemat")
@@ -270,9 +276,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.printInfo("Exporter: Creating Material \"clayMat\"")
             cmat = self.yi.createMaterial("clayMat")
             self.materialMap["clay"] = cmat
-        #---------------------------------------------
+        #----------------------------------------------
         # override all materials in 'clay render' mode
-        #---------------------------------------------
+        #----------------------------------------------
         for obj in [o for o in self.scene.objects if not self.scene.bounty.gs_clay_render]:
             for mat_slot in obj.material_slots:
                 if mat_slot.material not in self.materials:
@@ -321,7 +327,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         filePath = os.path.realpath(filePath)
         filePath = os.path.normpath(filePath)
 
-        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = yaf_scene.getRenderCoords(scene)
+        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
 
         if render.use_border:
             self.resX = self.bsizeX
@@ -363,84 +369,19 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_integrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
-        yaf_scene.exportRenderSettings(self.yi, self.scene)
+        tby_scene.exportRenderSettings(self.yi, self.scene)
 
-    def render_preview(self, scene):
-        # callback to render scene
-        self.is_preview = True
-        #scene = scene.bounty
-        self.bl_use_postprocess = False
-        #
-        
-        def progressCallback(command, *args):
-            #
-            if not self.test_break():
-                if command == "tag":
-                    self.tag = args[0]
-                elif command == "progress":
-                    self.prog = args[0]
-                self.update_stats("TheBounty Render: ", "{0}".format(self.tag))
-                #
-                self.update_progress(self.prog)
-        
-        def drawAreaCallback(*args):
-            x, y, w, h, tile = args
-            res = self.begin_result(x, y, w, h)
-            try:
-                lay = res.layers[0]
-                lay.rect, lay.passes[0].rect = tile
-            except:
-                pass
-
-            self.end_result(res)
-
-        def flushCallback(*args):
-            w, h, tile = args
-            res = self.begin_result(0, 0, w, h)
-            try:
-                lay = res.layers[0]
-                lay.rect, lay.passes[0].rect = tile
-            except BaseException as e:
-                pass
-
-            self.end_result(res)
-                
-        # define thread
-        thread = threading.Thread(target = self.yi.render, 
-                                  args=(self.resX, self.resY, 
-                                        self.bStartX, self.bStartY, 
-                                        self.is_preview, drawAreaCallback, 
-                                        flushCallback, progressCallback))
-
-        # run..
-        thread.start()
-    
-        #while thread.isAlive() and not self.test_break():
-        while thread.is_alive() and not self.test_break():
-            time.sleep(0.5) #2)
-            
-        #if thread.isAlive():
-        if thread.is_alive():
-            self.update_stats("", "Aborting...")
-            self.yi.abort()
-            thread.join()
-    
-        self.yi.clearAll()
-        del self.yi
-        self.update_stats("", "Done!")
-        self.bl_use_postprocess = True
-    
-    def render_scene(self, scene):
-        # callback to render scene
-        self.is_preview = False
+    def render(self, scene):
+        # callback to render scene if not scene.name == 'preview':
+        if scene.name == 'preview':
+            self.is_preview = True
         scene = scene.bounty
         # test for keep postprocess state
         postprocess = self.bl_use_postprocess
         #
-        if self.bl_use_postprocess:
-            self.bl_use_postprocess = False        
+        self.bl_use_postprocess = False   
 
-        if scene.gs_type_render == "file":
+        if scene.gs_type_render == "file" and not self.is_preview:
             self.yi.printInfo("Exporter: Rendering to file {0}".format(self.outputFile))
             
             self.yi.render(self.co)
@@ -449,16 +390,20 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
             # exr format has z-buffer included, so no need to load '_zbuffer' - file
             if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':
-                lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
+                # TODO: need review that option for load both files when z-depth is rendered
+                # except when use exr format
+                lay.load_from_file("{0}.{1}".format(self.output, self.file_type))
+                #lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
+                
             else:
                 lay.load_from_file(self.outputFile)
             self.end_result(result)
 
-        elif scene.gs_type_render == "xml":
+        elif scene.gs_type_render == "xml" and not self.is_preview:
             self.yi.printInfo("Exporter: Writing XML to file {0}".format(self.outputFile))
             self.yi.render(self.co)
 
-        else:
+        else:# into blender
 
             def progressCallback(command, *args):
                 if not self.test_break():
@@ -515,11 +460,4 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.clearAll()
         del self.yi
         self.update_stats("", "Done!")
-        self.bl_use_postprocess = postprocess #True
-
-    def render(self, scene):
-        #
-        if not scene.name == 'preview':
-            self.render_scene(scene)
-        else:
-            self.render_preview(scene)
+        self.bl_use_postprocess = postprocess

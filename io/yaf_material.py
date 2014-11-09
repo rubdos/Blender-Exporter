@@ -82,10 +82,9 @@ class TheBountyMaterialWrite:
 
         return used_textures
 
-    def writeTexLayer(self, name, mapName, ulayer, mtex, chanflag, dcol, factor):
+    def writeTexLayer(self, name, mapName, ulayer, mtex, dcol, factor):
+        #
         if mtex.name not in self.textureMap:
-            return False
-        if not chanflag:
             return False
 
         yi = self.yi
@@ -231,7 +230,7 @@ class TheBountyMaterialWrite:
         for mtex in used_textures:
             used = False
             mappername = "map%x" % i
-
+            '''
             lname = "mircol_layer%x" % i
             if self.writeTexLayer(lname, mappername, mcolRoot, mtex, mtex.use_map_mirror, mir_col, mtex.mirror_factor):
                 used = True
@@ -240,6 +239,20 @@ class TheBountyMaterialWrite:
             if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.use_map_normal, [0], mtex.normal_factor):
                 used = True
                 bumpRoot = lname
+            '''
+            #
+            if mtex.use_map_mirror:
+                lname = "mircol_layer%x" % i
+                if self.writeTexLayer(lname, mappername, mcolRoot, mtex, mir_col, mtex.mirror_factor):
+                    used = True
+                    mcolRoot = lname
+            #
+            if mtex.use_map_normal:
+                lname = "bump_layer%x" % i
+                if self.writeTexLayer(lname, mappername, bumpRoot, mtex, [0], mtex.normal_factor):
+                    used = True
+                    bumpRoot = lname
+                
             if used:
                 self.writeMappingNode(mappername, mtex.texture.name, mtex)
                 i += 1
@@ -293,25 +306,30 @@ class TheBountyMaterialWrite:
             used = False
             mappername = "map%x" % i
 
-            lname = "diff_layer%x" % i
-            if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.use_map_color_diffuse, diffuse_color, mtex.diffuse_color_factor):
-                used = True
-                diffRoot = lname
+            if mtex.use_map_color_diffuse:
+                lname = "diff_layer%x" % i
+                if self.writeTexLayer(lname, mappername, diffRoot, mtex, diffuse_color, mtex.diffuse_color_factor):
+                    used = True
+                    diffRoot = lname
             #
-            lname = "gloss_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.use_map_color_spec, glossy_color, mtex.specular_color_factor):
-                used = True
-                glossRoot = lname
+            if mtex.use_map_color_spec:
+                lname = "gloss_layer%x" % i
+                if self.writeTexLayer(lname, mappername, glossRoot, mtex, glossy_color, mtex.specular_color_factor):
+                    used = True
+                    glossRoot = lname
             #
-            lname = "glossref_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.bounty.glossy_reflect], mtex.specular_factor):
-                used = True
-                glRefRoot = lname
+            if mtex.use_map_specular:
+                lname = "glossref_layer%x" % i
+                if self.writeTexLayer(lname, mappername, glRefRoot, mtex, [mat.bounty.glossy_reflect], mtex.specular_factor):
+                    used = True
+                    glRefRoot = lname
             #
-            lname = "bump_layer%x" % i
-            if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.use_map_normal, [0], mtex.normal_factor):
-                used = True
-                bumpRoot = lname
+            if mtex.use_map_normal:
+                lname = "bump_layer%x" % i
+                if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.use_map_normal, [0], mtex.normal_factor):
+                    used = True
+                    bumpRoot = lname
+            #
             if used:
                 self.writeMappingNode(mappername, mtex.texture.name, mtex)
             i += 1
@@ -356,6 +374,7 @@ class TheBountyMaterialWrite:
         yi.paramsSetFloat("glossy_reflect", mat.bounty.glossy_reflect)
         yi.paramsSetFloat("sss_transmit", mat.bounty.sss_transmit)
         yi.paramsSetFloat("exponent", mat.bounty.exponent)
+        yi.paramsSetFloat("g", mat.bounty.phaseFuction) # fix phase function, report by wizofboz
         
         # init shader values..
         diffRoot = glossRoot = glRefRoot = transpRoot = translRoot = bumpRoot = ''
@@ -366,31 +385,43 @@ class TheBountyMaterialWrite:
         for mtex in used_mtextures:
             used = False
             mappername = "map%x" %i
-            
-            lname = "diff_layer%x" % i
-            if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.use_map_color_diffuse, diffColor, mtex.diffuse_color_factor):
-                used = True
-                diffRoot = lname
-            lname = "gloss_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glossRoot, mtex, mtex.use_map_color_spec, glossyColor, mtex.specular_color_factor):
-                used = True
-                glossRoot = lname
-            lname = "glossref_layer%x" % i
-            if self.writeTexLayer(lname, mappername, glRefRoot, mtex, mtex.use_map_specular, [mat.bounty.glossy_reflect], mtex.specular_factor):
-                used = True
-                glRefRoot = lname
-            lname = "transp_layer%x" % i
-            if self.writeTexLayer(lname, mappername, transpRoot, mtex, mtex.use_map_alpha, sigmaA, mtex.alpha_factor):
-                used = True
-                transpRoot = lname
-            lname = "translu_layer%x" % i
-            if self.writeTexLayer(lname, mappername, translRoot, mtex, mtex.use_map_translucency, sigmaS, mtex.translucency_factor):
-                used = True
-                translRoot = lname
-            lname = "bump_layer%x" % i
-            if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.use_map_normal, [0], mtex.normal_factor):
-                used = True
-                bumpRoot = lname
+            #
+            if mtex.use_map_color_diffuse:
+                lname = "diff_layer%x" % i
+                if self.writeTexLayer(lname, mappername, diffRoot, mtex, diffColor, mtex.diffuse_color_factor):
+                    used = True
+                    diffRoot = lname
+            #        
+            if mtex.use_map_color_spec:
+                lname = "gloss_layer%x" % i
+                if self.writeTexLayer(lname, mappername, glossRoot, mtex, glossyColor, mtex.specular_color_factor):
+                    used = True
+                    glossRoot = lname
+            #        
+            if mtex.use_map_specular:
+                lname = "glossref_layer%x" % i
+                if self.writeTexLayer(lname, mappername, glRefRoot, mtex, [mat.bounty.glossy_reflect], mtex.specular_factor):
+                    used = True
+                    glRefRoot = lname
+            #        
+            if mtex.use_map_alpha:
+                lname = "transp_layer%x" % i
+                if self.writeTexLayer(lname, mappername, transpRoot, mtex, sigmaA, mtex.alpha_factor):
+                    used = True
+                    transpRoot = lname
+            #
+            if mtex.use_map_translucency:
+                lname = "translu_layer%x" % i
+                if self.writeTexLayer(lname, mappername, translRoot, mtex, sigmaS, mtex.translucency_factor):
+                    used = True
+                    translRoot = lname
+            #
+            if mtex.use_map_normal:
+                lname = "bump_layer%x" % i
+                if self.writeTexLayer(lname, mappername, bumpRoot, mtex, [0], mtex.normal_factor):
+                    used = True
+                    bumpRoot = lname
+            #
             if used:
                 self.writeMappingNode(mappername, mtex.texture.name, mtex)
             i +=1
@@ -441,36 +472,43 @@ class TheBountyMaterialWrite:
             used = False
             mappername = "map%x" % i
 
-            lname = "diff_layer%x" % i
-            if self.writeTexLayer(lname, mappername, diffRoot, mtex, mtex.use_map_color_diffuse, bCol, mtex.diffuse_color_factor):
-                used = True
-                diffRoot = lname
-
-            lname = "mircol_layer%x" % i
-            if self.writeTexLayer(lname, mappername, mcolRoot, mtex, mtex.use_map_mirror, mirCol, mtex.mirror_factor):
-                used = True
-                mcolRoot = lname
-
-            lname = "transp_layer%x" % i
-            if self.writeTexLayer(lname, mappername, transpRoot, mtex, mtex.use_map_alpha, [bTransp], mtex.alpha_factor):
-                used = True
-                transpRoot = lname
-
-            lname = "translu_layer%x" % i
-            if self.writeTexLayer(lname, mappername, translRoot, mtex, mtex.use_map_translucency, [bTransl], mtex.translucency_factor):
-                used = True
-                translRoot = lname
-
-            lname = "mirr_layer%x" % i
-            if self.writeTexLayer(lname, mappername, mirrorRoot, mtex, mtex.use_map_raymir, [bSpecr], mtex.raymir_factor):
-                used = True
-                mirrorRoot = lname
-
-            lname = "bump_layer%x" % i
-            if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.use_map_normal, [0], mtex.normal_factor):
-                used = True
-                bumpRoot = lname
-
+            #
+            if mtex.use_map_color_diffuse:
+                lname = "diff_layer%x" % i
+                if self.writeTexLayer(lname, mappername, diffRoot, mtex, bCol, mtex.diffuse_color_factor):
+                    used = True
+                    diffRoot = lname
+            #
+            if mtex.use_map_mirror:
+                lname = "mircol_layer%x" % i
+                if self.writeTexLayer(lname, mappername, mcolRoot, mtex, mirCol, mtex.mirror_factor):
+                    used = True
+                    mcolRoot = lname
+            #
+            if mtex.use_map_alpha:
+                lname = "transp_layer%x" % i
+                if self.writeTexLayer(lname, mappername, transpRoot, mtex, [bTransp], mtex.alpha_factor):
+                    used = True
+                    transpRoot = lname
+            #
+            if mtex.use_map_translucency:
+                lname = "translu_layer%x" % i
+                if self.writeTexLayer(lname, mappername, translRoot, mtex, [bTransl], mtex.translucency_factor):
+                    used = True
+                    translRoot = lname
+            #
+            if mtex.use_map_raymir:
+                lname = "mirr_layer%x" % i
+                if self.writeTexLayer(lname, mappername, mirrorRoot, mtex, [bSpecr], mtex.raymir_factor):
+                    used = True
+                    mirrorRoot = lname
+            #
+            if mtex.use_map_normal:
+                lname = "bump_layer%x" % i
+                if self.writeTexLayer(lname, mappername, bumpRoot, mtex, [0], mtex.normal_factor):
+                    used = True
+                    bumpRoot = lname
+            #
             if used:
                 self.writeMappingNode(mappername, mtex.texture.name, mtex)
             i += 1
@@ -528,10 +566,12 @@ class TheBountyMaterialWrite:
             used = False
             mappername = "map%x" % i
 
-            layername = "mask_layer%x" % i
-            if self.writeTexLayer(layername, mappername, maskRoot, mtex, mtex.use_map_diffuse, [0], mtex.diffuse_factor):
-                used = True
-                maskRoot = layername
+            if mtex.use_map_diffuse:
+                layername = "mask_layer%x" % i
+                if self.writeTexLayer(layername, mappername, maskRoot, mtex, [0], mtex.diffuse_factor):
+                    used = True
+                    maskRoot = layername
+            #
             if used:
                 self.writeMappingNode(mappername, mtex.texture.name, mtex)
             i += 1

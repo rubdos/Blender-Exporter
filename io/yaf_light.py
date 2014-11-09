@@ -113,15 +113,18 @@ class yafLight:
 
         if lampType == "POINT":
             yi.paramsSetString("type", "pointlight")
-            #povman test
             yi.paramsSetBool("useGeometry", lamp.create_geometry)
+            #
             if lamp.use_sphere:
-                if lamp.create_geometry:
-                    ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
-                    yi.paramsSetInt("object", ID)
                 yi.paramsSetString("type", "spherelight")
                 yi.paramsSetInt("samples", lamp.yaf_samples)
                 yi.paramsSetFloat("radius", lamp.yaf_sphere_radius)
+                # use sphere light attenuation  
+                power = 0.5 * power * power
+                #
+                if lamp.create_geometry:
+                    ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
+                    yi.paramsSetInt("object", ID)
 
         elif lampType == "SPOT":
             if self.preview and lamp_name == "Lamp.002":
@@ -132,7 +135,12 @@ class yafLight:
                 angle = degrees(lamp_data.spot_size) * 0.5
 
             yi.paramsSetString("type", "spotlight")
-
+            ''' 
+            fix issue when some spot_blend >= 0.70 with caustic photons
+            ERROR: Index out of bounds in pdf1D_t::Sample: index, u, ptr, cdf = -1, 0, 00000000082D7840, 00000000082D7840
+            '''
+            if lamp_data.spot_blend > 0.650:
+                lamp_data.spot_blend = 0.650
             yi.paramsSetFloat("cone_angle", angle)
             yi.paramsSetFloat("blend", lamp_data.spot_blend)
             yi.paramsSetPoint("to", to[0], to[1], to[2])
@@ -147,7 +155,7 @@ class yafLight:
             yi.paramsSetFloat("angle", lamp.angle)
             yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])
 
-        elif lampType == "directional":
+        elif lampType == "DIRECTIONAL":
             yi.paramsSetString("type", "directional")
             yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])
             yi.paramsSetBool("infinite", lamp.infinite)
@@ -155,7 +163,7 @@ class yafLight:
                 yi.paramsSetFloat("radius", lamp_data.shadow_soft_size)
                 yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
 
-        elif lampType == "ies":
+        elif lampType == "IES":
             yi.paramsSetString("type", "ieslight")
             yi.paramsSetPoint("to", to[0], to[1], to[2])
             ies_file = abspath(lamp.ies_file)
@@ -173,19 +181,18 @@ class yafLight:
                 sizeY = lamp_data.size_y
             matrix = lamp_object.matrix_world.copy()
 
-
-            # generate an untransformed rectangle in the XY plane with
-            # the light's position as the centerpoint and transform it
-            # using its transformation matrix
+            # generate an untransformed rectangle in the XY plane
+            # with the light's position as the centerpoint and
+            # transform it using its transformation matrix
             point = Vector((-sizeX / 2, -sizeY / 2, 0))
             corner1 = Vector((-sizeX / 2, sizeY / 2, 0))
             corner2 = Vector((sizeX / 2, sizeY / 2, 0))
             corner3 = Vector((sizeX / 2, -sizeY / 2, 0))
 
-            point = matrix * point  # use reverse vector multiply order, API changed with rev. 38674
-            corner1 = matrix * corner1  # use reverse vector multiply order, API changed with rev. 38674
-            corner2 = matrix * corner2  # use reverse vector multiply order, API changed with rev. 38674
-            corner3 = matrix * corner3  # use reverse vector multiply order, API changed with rev. 38674
+            point = matrix * point      # ----------------------------------
+            corner1 = matrix * corner1  # use reverse vector multiply order
+            corner2 = matrix * corner2  # API changed with rev. 38674
+            corner3 = matrix * corner3  # ----------------------------------
 
             yi.paramsClearAll()
             if lamp.create_geometry:
@@ -209,15 +216,11 @@ class yafLight:
             yi.paramsSetPoint("point1", corner1[0], corner1[1], corner1[2])
             yi.paramsSetPoint("point2", corner3[0], corner3[1], corner3[2])
 
-        if lampType not in {"SUN", "directional"}:
-            # "from" is not used for sunlight and infinite directional light
+        # sunlight and directional light don't use 'from' parameter
+        if lampType not in {"SUN", "DIRECTIONAL"}:
             yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
-        if lampType in {"POINT", "SPOT"}:
-            if getattr(lamp, "use_sphere", False) and lampType == "point":
-                power = power # 0.5 * power * power / (lamp.yaf_sphere_radius * lamp.yaf_sphere_radius)
-            else:
-                power = 0.5 * power * power
-
+        
+        #
         yi.paramsSetColor("color", color[0], color[1], color[2])
         yi.paramsSetFloat("power", power)
         yi.createLight(lamp_name)

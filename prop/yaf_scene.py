@@ -70,15 +70,15 @@ enum_debug_integrator_type =(
 )
 
 enum_filter_type =(
-    ('box', "AA Filter Box", "Anti-Aliasing filter type Box"),
+    ('box',      "AA Filter Box",      "Anti-Aliasing filter type Box"),
     ('mitchell', "AA Filter Mitchell", "Anti-Aliasing filter type Michel-Netravali"),
-    ('gauss', "AA Filter Gauss", "Anti-Aliasing filter type Gaussian"),
-    ('lanczos', "AA Filter Lanczos", "Anti-Aliasing filter type Lanczos"),
+    ('gauss',    "AA Filter Gauss",    "Anti-Aliasing filter type Gaussian"),
+    ('lanczos',  "AA Filter Lanczos",  "Anti-Aliasing filter type Lanczos"),
 )
 
 enum_tile_order = (
-    ('linear', "Linear Tiles", ""),
-    ('random', "Random Tiles", ""),
+    ('linear', "Linear Tiles", "Linear buckets ( by a set size) from to  top-left image to bottom-right"),
+    ('random', "Random Tiles", "Random buckets by arbitray order"),
 )
 
 # set fileformat for image saving on same format as in the exporter, both have default PNG
@@ -89,8 +89,8 @@ def call_update_fileformat(self, context):
     
     if scene.img_output is not render.image_settings.file_format:
         render.image_settings.file_format = scene.img_output
-        if render.image_settings.file_format == "OPEN_EXR" and scene.gs_z_channel:
-            render.image_settings.use_zbuffer = True
+        #if render.image_settings.file_format == "OPEN_EXR" and scene.gs_z_channel:
+        #    render.image_settings.use_zbuffer = True
 
 class TheBountySceneSettings(bpy.types.PropertyGroup):
     @classmethod
@@ -116,7 +116,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         )    
         cls.gs_threads = IntProperty(
             name="Threads",
-            description="Number of threads to use (0 = auto)",
+            description="Number of threads to use, try '0' for use all threads",
             min=0, default=0
         )        
         cls.gs_gamma = FloatProperty(
@@ -129,17 +129,17 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         cls.gs_gamma_input = FloatProperty(
             name="Gamma input",
             description="Gamma correction applied to input images",
-            min=0, max=5, default=2.2
+            min=0, max=5, default=2.2 # 1.0 for linear mode ??
         )
         cls.sc_apply_gammaInput = BoolProperty(
             name="Use Gamma",
-            description="Apply gamma correction to image",
+            description="Apply gamma correction to image input file",
             default=True
         )    
         cls.gs_tile_size = IntProperty(
             name="Tile size",
             description="Size of the render buckets (tiles)",
-            min=0, max=1024, default=32
+            min=4, max=1024, default=32
         )    
         cls.gs_tile_order = EnumProperty(
             name="Tile order",
@@ -171,7 +171,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         )    
         cls.gs_draw_params = BoolProperty(
             name="Draw parameters",
-            description="Write the render parameters below the image",
+            description="Draw params and custom string on image",
             default=False
         )    
         cls.bg_transp = BoolProperty(
@@ -307,7 +307,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
         cls.intg_cPhotons = IntProperty(
             name="Count",
             description="Number of caustic photons to be shot",
-            min=1, default=500000
+            min=2, default=500000
         )    
         cls.intg_search = IntProperty(
             name="Search count",

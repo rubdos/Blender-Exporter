@@ -26,6 +26,10 @@ from bl_ui.properties_material import (active_node_mat,
 
 from .. import EXP_BRANCH
 
+nodes = False
+for branch in EXP_BRANCH:
+    if branch == 'custom_nodes':
+        nodes = True
 #MaterialButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 class TheBountyMaterialButtonsPanel():
@@ -38,12 +42,14 @@ class TheBountyMaterialButtonsPanel():
     def poll(cls, context):
         return context.material and (context.scene.render.engine in cls.COMPAT_ENGINES)
 
+
 class TheBountyMaterialPresets(Menu):
     bl_label = "Material Presets"
     preset_subdir = "thebounty/material"
     preset_operator = "script.execute_preset"
     COMPAT_ENGINES = {'THEBOUNTY'}
     draw = Menu.draw_preset
+
 
 class TheBountyMaterialTypePanel(TheBountyMaterialButtonsPanel):
     COMPAT_ENGINES = {'THEBOUNTY'}
@@ -64,7 +70,8 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
     @classmethod
     def poll(cls, context):
         #
-        return (context.material or context.object) and (context.scene.render.engine in cls.COMPAT_ENGINES)
+        engine = context.scene.render.engine
+        return (context.material or context.object) and (engine in cls.COMPAT_ENGINES)
 
     def draw(self, context):
         layout = self.layout
@@ -103,7 +110,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #----------------
             # test for nodes
             #----------------
-            if EXP_BRANCH == "custom_nodes":
+            if nodes:
                 ymat = context.material
                 if ymat:
                     row.prop(ymat, "use_nodes", icon='NODETREE', text="")
@@ -118,7 +125,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             split.separator()
 
         if mat:
-            if EXP_BRANCH == "custom_nodes":
+            if nodes:
                 row = layout.row()
                 row.operator("bounty.add_nodetree", icon='NODETREE')
             #
@@ -132,14 +139,14 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #-------------------
             # test for nodes
             #-------------------
-            if EXP_BRANCH == "custom_nodes":
-                if mat.use_nodes:
-                    row = layout.row()
-                    row.label(text="", icon='NODETREE')
-                    if mat.active_node_material:
-                        row.prop(mat.active_node_material, "name", text="")
-                    else:
-                        row.label(text="No material node selected")
+            if nodes and mat.use_nodes:
+                #if mat.use_nodes:
+                row = layout.row()
+                row.label(text="", icon='NODETREE')
+                if mat.active_node_material:
+                    row.prop(mat.active_node_material, "name", text="")
+                else:
+                    row.label(text="No material node selected")
 
 class TheBountyMaterialPreview(TheBountyMaterialButtonsPanel, Panel):
     bl_label = "Preview" 
@@ -376,11 +383,10 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
     def draw(self, context):
         #
         layout = self.layout
-        if EXP_BRANCH == "merge_SSS":
-            self.bl_label="Translucent Scattering Material"
+        self.bl_label="Translucent Scattering Material"
             
-            self.drawTranslucent(context, layout)
-            self.drawScattering(context, layout)
+        self.drawTranslucent(context, layout)
+        self.drawScattering(context, layout)
 
     def drawTranslucent(self, context, layout):
         #layout = self.layout
@@ -405,10 +411,10 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         row = layout.row()
         row.label("SSS Presets")
         row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
-    
-        split = layout.split()
-        col = split.column()        
         
+        split = layout.split()
+        
+        col = split.column()        
         col.prop(mat.bounty, "sssSigmaS", text="Scattering (Sigma S)")
         col.prop(mat.bounty, "sssSigmaS_factor")
         col.prop(mat.bounty, "phaseFuction")

@@ -36,10 +36,10 @@ enum_world_types =(
 )
 
 enum_color_space=(
-    ('CIE (E)', "CIE (E)", "Select color space model"),
-    ('CIE (D50)', "CIE (D50)", "Select color space model"),
-    ('sRGB (D65)', "sRGB (D65)", "Select color space model"),
-    ('sRGB (D50)', "sRGB (D50)", "Select color space model"),
+    ('CIE (E)', "Color space CIE (E)", "Select color space model"),
+    ('CIE (D50)', "Color space CIE (D50)", "Select color space model"),
+    ('sRGB (D65)', "Color space sRGB (D65)", "Select color space model"),
+    ('sRGB (D50)', "Color space sRGB (D50)", "Select color space model"),
 )
 
 enum_mapping_type =(
@@ -48,9 +48,9 @@ enum_mapping_type =(
 )
 
 enum_volume_integrator_type =(
-    ('None', "None", ""),
-    ('Sky', "Sky", ""),
-    ('Single Scatter', "Single Scatter", ""),
+    ('none', "None", ""),
+    ('SkyIntegrator', "Sky", ""),
+    ('SingleScatterIntegrator', "Single Scatter", ""),
 )
 
 class TheBountyWorldSettings(bpy.types.PropertyGroup):
@@ -112,13 +112,13 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
             default=(0.7, 0.7, 0.7)
         )    
         cls.bg_use_ibl = BoolProperty(
-            name="Use IBL",
+            name="Use Background light info",
             description="Use the background as the light source for your image",
             default=False
         )
         cls.ibl_file = StringProperty(
-            name="IBL File",
-            description="File to be used as background image settings",
+            name="Smart IBL File",
+            description="Smart IBL file to be used as background image settings",
             subtype='FILE_PATH',
             default=""
         )        
@@ -258,10 +258,10 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
         )
         '''
         cls.v_int_type = EnumProperty(
-            name="Volume integrator",
+            name="Integrator type",
             description="Set the volume integrator",
             items=enum_volume_integrator_type,
-            default='None'
+            default='none'
         )    
         cls.v_int_step_size = FloatProperty(
             name="Step size",
