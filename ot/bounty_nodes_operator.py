@@ -32,70 +32,28 @@ TheBountyMaterialNodeTypes = {
     'blend':'BlendShaderNode',
     'translucent':'TranslucentScattering'
 }
-'''
-TheBountyLightNodeTypes = {
-    'POINT':'PointLightNode',
-    'SUN':'SunLightNode',
-    'SPOT':'SpotLightNode',
-    'IES':'IesLightNode',
-    'AREA':'AreaLightNode',
-    'DIRECTIONAL':'DirectionalLightNode'
-}
-'''
+
 # test for nodetree operator
 class TheBountyAddNodetree(bpy.types.Operator):
-    ''''''
+    #
     bl_idname = "bounty.add_nodetree"
     bl_label = "Add Nodetree"
     bl_description = "Add a node tree linked to this material"
 
     def execute(self, context):
-        idtype = 'material'
-        context_data = {'material':context.material,'lamp':context.lamp}
-        idblock = context_data[idtype]
-        # node_active = context.active_node
-        # node_selected = context.selected_nodes
-        
-        nt = bpy.data.node_groups.new(idblock.name, type='TheBountyShaderTree')
-        nt.use_fake_user = True
-        idblock.bounty.nodetree = nt.name
-        # test
+        # create node
+        material = context.object.active_material        
+        nodetree = bpy.data.node_groups.new( material.name, 'TheBountyShaderTree')
+        nodetree.use_fake_user = True
+        material.bounty.nodetree = nodetree.name
         mat = context.material.bounty
-        #light = context.lamp.bounty
-        #obj = bpy.context.active_object #.active
-        #bpy.context.object.active_material.name = "blend"
-        
-        #--------------------------------------
-        if idtype == 'material':
-            '''
-            if mat.mat_type =='blend':
-                y = 100
-                for mat_slot in obj.material_slots:
-                    out = nt.nodes.new('MaterialOutputNode')
-                    out.location = 200,y
-                    y +=100
-            else:
-            '''
-            out = nt.nodes.new('MaterialOutputNode')
-            out.location = 200,100
                 
-            shader =  nt.nodes.new(TheBountyMaterialNodeTypes[mat.mat_type])
-            shader.location = 10,250
+        shader =  nodetree.nodes.new(TheBountyMaterialNodeTypes[mat.mat_type])
+        shader.location = 10,250
             
-            nt.links.new(shader.outputs[0],out.inputs[0])
-        #--------------------------------------
-        '''
-        if idtype == 'lamp':
-            #
-            out = nt.nodes.new('LampOutputNode')
-            out.location = 200,100
-                
-            shader =  nt.nodes.new(TheBountyLightNodeTypes[light.lamp_type])
-            shader.location = 10,250
-            
-            nt.links.new(shader.outputs[0],out.inputs[0])
-        #--------------------------------------          
-        '''
+        #nodetree.links.new(shader.outputs[0], nodeout.inputs[0])
+        #--------------------------------------     
+       
         return {'FINISHED'}
 
 
