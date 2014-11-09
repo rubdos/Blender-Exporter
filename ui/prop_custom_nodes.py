@@ -529,10 +529,10 @@ class TheBountyNodeCategory(NodeCategory):
 # all categories in a list
 TheBountyNodeCategories = [
     # identifier, label, items list
-    TheBountyNodeCategory("TheBountyLight", "Light Output", items=[
-        # output node
-        NodeItem("LampOutputNode"),
-        ]),
+    #TheBountyNodeCategory("TheBountyLight", "Light Output", items=[
+    #    # output node
+    #    NodeItem("LampOutputNode"),
+    #    ]),
     TheBountyNodeCategory("TheBountyMaterial", "Material Output", items=[
         # output node
         NodeItem("MaterialOutputNode"),

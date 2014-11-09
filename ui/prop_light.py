@@ -19,7 +19,6 @@
 # <pep8 compliant>
 
 from bpy.types import Panel
-#from bl_ui.properties_data_lamp import DataButtonsPanel
 
 class DataButtonsPanel():
     bl_space_type = 'PROPERTIES'
