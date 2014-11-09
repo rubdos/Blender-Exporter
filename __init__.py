@@ -69,10 +69,11 @@ for dll in dllArray:
     except Exception as e:
         print("ERROR: Failed to load library {0}, {1}".format(dll, repr(e)))
 
-# test in all OS.. with gcc builds or msvc builds
+# test in all OS.. with gcc or msvc builds
 for file in os.listdir(PLUGIN_PATH):
     if file[:13]=='libGridVolume' or file[:10]=='GridVolume':
         EXP_BRANCH +=(("volumegrid"),)
+        
     if file[:14]=='libtranslucent' or file[:11]=='translucent':
         EXP_BRANCH +=(("merge_SSS"),)
 
@@ -91,7 +92,7 @@ else:
     from . import ot
 # for nodes
 import nodeitems_utils
-
+'''
 @persistent
 def load_handler(dummy):
     for tex in bpy.data.textures:
@@ -104,12 +105,12 @@ def load_handler(dummy):
     if bpy.context.scene.render.image_settings.file_format is not bpy.context.scene.bounty.img_output:
         bpy.context.scene.bounty.img_output = bpy.context.scene.render.image_settings.file_format
 
-
+'''
 def register():
     prop.register()
     bpy.utils.register_module(__name__)
     
-    bpy.app.handlers.load_post.append(load_handler)
+    #bpy.app.handlers.load_post.append(load_handler)
     # register keys for 'render 3d view', 'render still' and 'render animation'
     km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='Screen')
     kmi = km.keymap_items.new('bounty.render_view', 'F12', 'PRESS', False, False, False, True)
@@ -131,7 +132,7 @@ def unregister():
             kma.keymap_items.remove(kmi)
             
     bpy.utils.unregister_module(__name__)
-    bpy.app.handlers.load_post.remove(load_handler)
+    #bpy.app.handlers.load_post.remove(load_handler)
     
     for branch in EXP_BRANCH:
         if branch == "custom_nodes":
