@@ -126,10 +126,10 @@ class yafIntegrator:
             if branch == "merge_SSS" and lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
                 yi.paramsSetBool("useSSS", scene.intg_useSSS)
                 if scene.intg_useSSS:
-            yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
-            yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
-            yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
-            yi.paramsSetFloat("sssScale", scene.intg_sssScale)
+                    yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
+                    yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
+                    yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
+                    yi.paramsSetFloat("sssScale", scene.intg_sssScale)
         
         yi.paramsSetString("type", lightIntegrator)
         yi.createIntegrator("default")
@@ -162,8 +162,6 @@ class yafIntegrator:
 
             #else:
             yi.paramsSetString("type", world.v_int_type)
-            else:
-                yi.paramsSetString("type", "none")
 
         yi.createIntegrator("volintegr")
         return True
