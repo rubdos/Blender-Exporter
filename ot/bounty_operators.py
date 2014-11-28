@@ -143,8 +143,10 @@ class TheBounty_OT_render_view(Operator):
 
     @classmethod
     def poll(cls, context):
+        #
+        renderer = context.scene.render.engine
 
-        return context.scene.render.engine == 'THEBOUNTY'
+        return renderer == 'THEBOUNTY'
 
     def execute(self, context):
         view3d = context.region_data
@@ -273,7 +275,7 @@ class TheBounty_OT_presets_ior_list(Operator):
 #-------------------------------------------
 import re, os
    
-class ThebountyParseIBL(Operator):
+class Thebounty_OT_ParseIBL(Operator):
     bl_idname = "world.parse_ibl"
     bl_label = "Parse IBL"
     iblValues = {}
@@ -304,8 +306,8 @@ class ThebountyParseIBL(Operator):
     #---------------------
     # some parse helpers
     #---------------------
-    def parseValue(self, linea, valueType):
-        items = re.split(" ", linea)
+    def parseValue(self, line, valueType):
+        items = re.split(" ", line)
         item = items[2]  # items[1] is '='
         if valueType == 2:
             ext = (len(item) - 2)
@@ -320,38 +322,38 @@ class ThebountyParseIBL(Operator):
     #---------------------
     def parseIbl(self, filename):
         f = open(filename, 'r')
-        linea = f.readline()
-        while linea != "":
-            linea = f.readline()
-            if linea[:7] == 'ICOfile':
-                self.parseValue(linea, 2) # string
+        line = f.readline()
+        while line != "":
+            line = f.readline()
+            if line[:7] == 'ICOfile':
+                self.parseValue(line, 2) # string
             #
-            if linea[:11] == 'PREVIEWfile':
-                self.iblValues['PRE']= self.parseValue(linea, 2) #PREVIEWfile          
+            if line[:11] == 'PREVIEWfile':
+                self.iblValues['PRE']= self.parseValue(line, 2) #PREVIEWfile          
             #
-            if linea[:6] == 'BGfile':
-                self.iblValues['BG']= self.parseValue(linea, 2) #BGfile
+            if line[:6] == 'BGfile':
+                self.iblValues['BG']= self.parseValue(line, 2) #BGfile
             #
-            if linea[:8] == 'BGheight':
-                self.parseValue(linea, 1) # integer
+            if line[:8] == 'BGheight':
+                self.parseValue(line, 1) # integer
             #
-            if linea[:6] == 'EVfile':
-                self.iblValues['EV']= self.parseValue(linea, 2) #EVfile
+            if line[:6] == 'EVfile':
+                self.iblValues['EV']= self.parseValue(line, 2) #EVfile
             #
-            if linea[:8] == 'EVheight':
-                self.parseValue(linea, 1) # integer
+            if line[:8] == 'EVheight':
+                self.parseValue(line, 1) # integer
             #
-            if linea[:7] == 'EVgamma':
-                self.parseValue(linea, 0) # float
+            if line[:7] == 'EVgamma':
+                self.parseValue(line, 0) # float
                 
-            if linea[:7] == 'REFfile':
-                self.iblValues['REF']= self.parseValue(linea, 2) #REFfile
+            if line[:7] == 'REFfile':
+                self.iblValues['REF']= self.parseValue(line, 2) #REFfile
                 
-            if linea[:9] == 'REFheight':
-                self.parseValue(linea, 1) # integer
+            if line[:9] == 'REFheight':
+                self.parseValue(line, 1) # integer
                 
-            if linea[:8] == 'REFgamma':
-                self.parseValue(linea, 0) # float
+            if line[:8] == 'REFgamma':
+                self.parseValue(line, 0) # float
                      
         f.close()
         return self.iblValues
@@ -365,7 +367,7 @@ def register():
     bpy.utils.register_class(TheBounty_OT_render_animation)
     bpy.utils.register_class(TheBounty_OT_render_still)
     bpy.utils.register_class(TheBounty_OT_presets_ior_list)
-    bpy.utils.register_class(ThebountyParseIBL)
+    bpy.utils.register_class(Thebounty_OT_ParseIBL)
     
 
 def unregister():
@@ -376,5 +378,5 @@ def unregister():
     bpy.utils.unregister_class(TheBounty_OT_render_animation)
     bpy.utils.unregister_class(TheBounty_OT_render_still)
     bpy.utils.unregister_class(TheBounty_OT_presets_ior_list)
-    bpy.utils.unregister_class(ThebountyParseIBL)
+    bpy.utils.unregister_class(Thebounty_OT_ParseIBL)
 

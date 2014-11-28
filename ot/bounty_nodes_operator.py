@@ -23,6 +23,10 @@ Created on 13/05/2014
 '''
 import bpy
 
+#------------------------------------
+# the 'base' of material nodes.
+# other nodes can derived from theses.
+#------------------------------------
 TheBountyMaterialNodeTypes = {
     'shinydiffusemat':'ShinyDiffuseShaderNode',
     'glossy':'GlossyShaderNode',
@@ -37,21 +41,30 @@ TheBountyMaterialNodeTypes = {
 class TheBountyAddNodetree(bpy.types.Operator):
     #
     bl_idname = "bounty.add_nodetree"
-    bl_label = "Add Nodetree"
+    bl_label = "Add TheBounty Nodetree"
     bl_description = "Add a node tree linked to this material"
+    COMPAT_ENGINES = {'THEBOUNTY'}
+    
+    @classmethod
+    def poll(cls, context):
+        #
+        renderer = context.scene.render.engine
+        return (context.material and renderer in cls.COMPAT_ENGINES)
 
     def execute(self, context):
         # create node
-        material = context.object.active_material        
-        nodetree = bpy.data.node_groups.new( material.name, 'TheBountyShaderTree')
+        material = context.object.active_material
+        nodetree = bpy.data.node_groups.new( material.name, 'TheBountyNodeTree')
         nodetree.use_fake_user = True
         material.bounty.nodetree = nodetree.name
-        mat = context.material.bounty
+        
+        nodeout = nodetree.nodes.new("MaterialOutputNode")
+        nodeout.location= 180,120
                 
-        shader =  nodetree.nodes.new(TheBountyMaterialNodeTypes[mat.mat_type])
+        shader =  nodetree.nodes.new(TheBountyMaterialNodeTypes[material.bounty.mat_type])
         shader.location = 10,250
             
-        #nodetree.links.new(shader.outputs[0], nodeout.inputs[0])
+        nodetree.links.new(shader.outputs[0], nodeout.inputs[0])
         #--------------------------------------     
        
         return {'FINISHED'}
