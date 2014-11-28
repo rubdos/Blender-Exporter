@@ -42,8 +42,9 @@ def find_bounty_path():
     return BIN_PATH
 #
 BIN_PATH = find_bounty_path()
-# assume that bin path is valid..
-if BIN_PATH is not "none":
+# if bin path is valid..
+# you also can use if BIN_PATH is not "none":
+if os.path.exists(BIN_PATH):
     PLUGIN_PATH = BIN_PATH + "/plugins"
     sys.path.append(BIN_PATH)
 
@@ -87,9 +88,10 @@ for dll in dllArray:
     except Exception as e:
         print("ERROR: Failed to load library {0}, {1}".format(dll, repr(e)))
 
-#--------------------------------------------
+#---------------------------------------------
 # this code is only for development purposes
-#--------------------------------------------
+# a bit hardcoded design, but work in al OS
+#---------------------------------------------
 EXP_BRANCH = (("master"),("custom_nodes"),)
 
 for file in os.listdir(PLUGIN_PATH):
@@ -98,6 +100,9 @@ for file in os.listdir(PLUGIN_PATH):
         
     if file[:14]=='libtranslucent' or file[:11]=='translucent':
         EXP_BRANCH +=(("merge_SSS"),)
+        
+    if file[:8]=='photonic' or file[:8]=='directic':
+        EXP_BRANCH +=(("irrcache"),)
 
 if 'custom_nodes' in EXP_BRANCH:
     import nodeitems_utils
@@ -128,15 +133,13 @@ else:
         #--------------------------
         
         install_path = bpy.props.StringProperty(
-                name="TheBounty binaries path", description='Path to binaries install directory',
+                name="Path to TheBounty binaries", description="", 
                 subtype='DIR_PATH', default=find_bounty_path(),
         )
                 
         def draw(self, context):
             layout = self.layout
-            row = layout.row()
-            row.label(text="The path to TheBounty bin folder")
-            row.prop(self, "install_path", text="")
+            layout.prop(self, "install_path")
 
 '''
 @persistent
@@ -157,26 +160,28 @@ def register():
     prop.register()
     bpy.utils.register_module(__name__)
     if "custom_nodes" in EXP_BRANCH:
-        nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)
-    
+        nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)    
     
     #bpy.app.handlers.load_post.append(load_handler)
-    # register keys for 'render 3d view', 'render still' and 'render animation'
-    km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='Screen')
+    #------------------------------------
+    # register keys for own render modes
+    #------------------------------------
+    km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='TheBounty')
     kmi = km.keymap_items.new('bounty.render_view', 'F12', 'PRESS', False, False, False, True)
     kmi = km.keymap_items.new('bounty.render_animation', 'F12', 'PRESS', False, False, True, False)
-    kmi = km.keymap_items.new('bounty.render_still', 'F12', 'PRESS', False, False, False, False)
-    
-    
+    kmi = km.keymap_items.new('bounty.render_still', 'F12', 'PRESS', False, False, False, False)    
     
 
 def unregister():
-    #    
-    # unregister keys for 'render 3d view', 'render still' and 'render animation'
-    kma = bpy.context.window_manager.keyconfigs.addon.keymaps['Screen']
+    #--------------------------------------   
+    # unregister keys for own render modes
+    #--------------------------------------
+    kma = bpy.context.window_manager.keyconfigs.addon.keymaps['TheBounty']
+    print("#---- Unregister keymaps ----")
     for kmi in kma.keymap_items:
-        if kmi.idname in {'bounty.render_view','bounty.render_animation','bounty.render_still'}:
-            kma.keymap_items.remove(kmi)
+        print(kmi.idname)
+        kma.keymap_items.remove(kmi)
+    print("#----------------------------")
             
     #bpy.app.handlers.load_post.remove(load_handler)
     
