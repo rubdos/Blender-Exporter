@@ -230,16 +230,6 @@ class TheBountyMaterialWrite:
         for mtex in used_textures:
             used = False
             mappername = "map%x" % i
-            '''
-            lname = "mircol_layer%x" % i
-            if self.writeTexLayer(lname, mappername, mcolRoot, mtex, mtex.use_map_mirror, mir_col, mtex.mirror_factor):
-                used = True
-                mcolRoot = lname
-            lname = "bump_layer%x" % i
-            if self.writeTexLayer(lname, mappername, bumpRoot, mtex, mtex.use_map_normal, [0], mtex.normal_factor):
-                used = True
-                bumpRoot = lname
-            '''
             #
             if mtex.use_map_mirror:
                 lname = "mircol_layer%x" % i
