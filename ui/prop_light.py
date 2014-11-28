@@ -56,6 +56,11 @@ class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
     bl_label = "Lamp"
     COMPAT_ENGINES = {'THEBOUNTY'}
     
+    @classmethod
+    def poll(cls, context):
+        engine = context.scene.render.engine
+        return context.lamp and (engine in cls.COMPAT_ENGINES)
+    
     def draw_spot_shape(self, context):
         layout = self.layout
         lamp = context.lamp.bounty
@@ -76,10 +81,10 @@ class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
 
         col = split.column()
         col.prop(context.lamp, "show_cone", toggle=True)
-    
+
     def draw_area_shape(self, context):
         layout = self.layout
-        lamp = context.lamp
+        lamp = context.object.data #.lamp
         
         layout.label("Area shape settings:")
         col = layout.column()
@@ -96,8 +101,7 @@ class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
         
     def draw(self, context):
         layout = self.layout
-        # use context.lamp for 'blender' Lamp properties
-        # and context.lamp.bounty for a exporter Lamp properties
+        # exporter own Lamp properties
         lamp = context.lamp.bounty
         
         # commons values
@@ -145,6 +149,8 @@ class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
             col.prop(lamp, "ies_soft_shadows", toggle=True)
             if lamp.ies_soft_shadows:
                 col.prop(lamp, "yaf_samples")
+            #
+            self.draw_spot_shape(context)
 
 
 if __name__ == "__main__":  # only for live edit.
