@@ -563,11 +563,13 @@ class yafObject(object):
                         for step in range(0, steps):
                             co = pSys.co_hair(obj, pindex, step)
                             yi.addVertex(co[0], co[1], co[2])                            
-                            
-                        #if self.scene.bounty.gs_clay_render:
-                        #    hairMat = "clay"
-                        #                            
+                        #
                         yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
+                        # TODO: keep object smooth
+                        #yi.smoothMesh(CID, 60.0)
+                        yi.endGeometry()
+                    yi.printInfo("Exporter: Particle creation time: {0:.3f}".format(time.time() - tstart))
+                    
                     #---------------------------------------------------------------------------------------
                     '''
                     #
@@ -602,7 +604,7 @@ class yafObject(object):
                 else:
                     self.writeMesh(obj, matrix)
                           
-        print("total hairs: "+ str(totalNumberOfHairs))
+        yi.printInfo("Total hair processes: "+ str(totalNumberOfHairs))
         # We only need to render emitter object once
         if renderEmitter:
             self.writeMesh(obj, matrix)
