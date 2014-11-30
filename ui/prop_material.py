@@ -26,10 +26,9 @@ from bl_ui.properties_material import (active_node_mat,
 
 from .. import EXP_BRANCH
 
-nodes = False
-for branch in EXP_BRANCH:
-    if branch == 'custom_nodes':
-        nodes = True
+nodebranch = False
+if 'custom_nodes' in EXP_BRANCH:
+    nodebranch = True
 #MaterialButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
 
 class TheBountyMaterialButtonsPanel():
@@ -40,7 +39,8 @@ class TheBountyMaterialButtonsPanel():
     
     @classmethod
     def poll(cls, context):
-        return context.material and (context.scene.render.engine in cls.COMPAT_ENGINES)
+        mat = context.material.bounty
+        return mat and (context.scene.render.engine in cls.COMPAT_ENGINES)
 
 
 class TheBountyMaterialPresets(Menu):
@@ -61,6 +61,59 @@ class TheBountyMaterialTypePanel(TheBountyMaterialButtonsPanel):
         #
         return check_material(mat) and(mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
 
+   
+def node_tree_selector_draw(layout, mat, output_types):
+    try:
+        layout.prop_search( mat.bounty, "nodetree", bpy.data, "node_groups")
+    except:
+        return False
+    
+    node = find_node(mat, output_types)
+    if not node:
+        if mat.bounty.nodetree == '':
+            layout.operator('bounty.add_nodetree', icon='NODETREE')
+            return False
+    return True
+
+#-------------------------------------------------------------------------
+def find_node_input(node, name):
+    for input in node.inputs:
+        if input.name == name:
+            return input
+    
+    return None
+
+def panel_node_draw(layout, id_data, output_type, input_name):
+    node = find_node(id_data, output_type)
+    if not node:
+        return False
+    else:        
+        if id_data.bounty.nodetree != '':
+            ntree = bpy.data.node_groups[id_data.bounty.nodetree]
+            input = find_node_input(node, input_name)
+            layout.template_node_view(ntree, node, input)
+    
+    return True
+#------------------------------------------------------------------------------
+    
+def find_node(material, nodetypes):
+    if not (material and material.bounty and material.bounty.nodetree):
+        return None
+        
+    node_tree =  material.bounty.nodetree
+    
+    if node_tree == '':
+        return None
+    
+    ntree = bpy.data.node_groups[node_tree]
+    
+    for node in ntree.nodes:
+        nt = getattr(node, "bl_idname", None)
+        if nt == nodetypes: #in nodetypes:
+            return node
+    return None
+
+#-------------------------------------------------------------------------------
 
 class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
     bl_label = "Material"
@@ -90,10 +143,6 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             col.operator("object.material_slot_remove", icon='ZOOMOUT', text="")
 
             # TODO: code own operators to copy yaf material settings...
-            # povman add test..
-            #col.operator("object.material_slot_move", text="", icon='TRIA_UP').type = 'UP'
-            #col.operator("object.material_slot_move", text="", icon='TRIA_DOWN').type = 'DOWN'
-            # end test
             col.menu("MATERIAL_MT_specials", icon='DOWNARROW_HLT', text="")
 
             if ob.mode == 'EDIT':
@@ -107,14 +156,12 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
         if ob:
             split.template_ID(ob, "active_material", new="material.new")
             row = split.row()
-            #----------------
-            # test for nodes
-            #----------------
-            if nodes:
-                ymat = context.material
-                if ymat:
-                    row.prop(ymat, "use_nodes", icon='NODETREE', text="")
-                    #----------------
+            #---------------------------------------------------------
+            # for deactivate nodes are used from other render engines
+            #---------------------------------------------------------
+            if mat and mat.use_nodes: 
+                row.prop(mat, "use_nodes", icon='NODETREE', text="")
+            #
             if slot:
                 row.prop(slot, "link", text="")
             else:
@@ -122,16 +169,21 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
 
         elif mat:
             split.template_ID(space, "pin_id")
-            split.separator()
 
-        if mat:
-            if nodes:
-                row = layout.row()
-                row.operator("bounty.add_nodetree", icon='NODETREE')
-            #
+        if mat and nodebranch: # only if custom_nodes branch is in use
+            node_tree_selector_draw(layout, mat, 'MaterialOutputNode')
+            if not panel_node_draw(layout, mat, 'MaterialOutputNode', 'Shader'):
+                row = self.layout.row(align=True)
+                if slot:
+                    layout.prop(mat.bounty, "mat_type")
+                    #row.menu('MATERIAL_MT_luxrender_type', text=context.material.luxrender_material.type_label)
+                    #super().draw(context)
+            '''
             layout.separator()
-            layout.prop(mat.bounty, "mat_type") # expand true..
-            
+            if mat.bounty.nodetree !='':
+                node_tree = bpy.data.node_groups[ mat.bounty.nodetree]
+                layout.prop_search( mat.bounty, "node_output", node_tree, "nodes")
+            '''           
             row = layout.row(align=True)
             row.menu("TheBountyMaterialPresets", text=bpy.types.TheBountyMaterialPresets.bl_label)
             row.operator("bounty.material_preset_add", text="", icon='ZOOMIN')
@@ -139,14 +191,20 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             #-------------------
             # test for nodes
             #-------------------
-            if nodes and mat.use_nodes:
-                #if mat.use_nodes:
+            #bpy.data.node_groups["Material.007"].nodes["Image Texture Node"].influence = 0.5
+            #bpy.context.object.active_material.bounty.nodetree = "Material.007"
+
+            '''
+            if mat.use_nodes:
                 row = layout.row()
                 row.label(text="", icon='NODETREE')
                 if mat.active_node_material:
                     row.prop(mat.active_node_material, "name", text="")
                 else:
                     row.label(text="No material node selected")
+            '''
+            
+                    
 
 class TheBountyMaterialPreview(TheBountyMaterialButtonsPanel, Panel):
     bl_label = "Preview" 
@@ -241,7 +299,7 @@ class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
         col = split.column()
         col.prop(mat.bounty, "transparency", slider=True)
         col = split.column()
-        col.prop(mat, "translucency", slider=True)
+        col.prop(mat.bounty, "translucency", slider=True)
         box.row().prop(mat.bounty, "transmit_filter", slider=True)
 
 class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
