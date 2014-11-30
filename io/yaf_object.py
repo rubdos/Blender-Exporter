@@ -522,16 +522,13 @@ class yafObject(object):
                 if (pSys.settings.render_type == 'PATH') and mod.show_render and (pSys.name == mod.particle_system.name):
                     yi.printInfo("Exporter: Creating Hair Particle System {!r}".format(pSys.name))
                     tstart = time.time()
-                    #---------------------
-                    # set particle values
-                    #---------------------
-                    strandStart = 0.01
-                    strandEnd = 0.01
-                    strandShape = 0.0
                     #-----------------------------------------------
-                    # set particle material values. id don't have
+                    # set particle material values. if don't have
                     # material assigned in blender, use default one
                     #-----------------------------------------------
+                    strandStart = 0.01
+                    strandEnd = 0.01
+                    strandShape = 0.0                    
                     hairMat = "default"  
                                         
                     if obj.active_material is not None:
@@ -544,6 +541,7 @@ class yafObject(object):
                     pSys.set_resolution(self.scene, obj, 'RENDER')    
                     steps = pSys.settings.draw_step
                     steps = 3 ** steps # or (power of 2 rather than 3) + 1 # Formerly : len(particle.hair_keys)
+                    #print(steps)
                             
                     totalNumberOfHairs = ( len(pSys.particles) + len(pSys.child_particles) )
                     #
@@ -551,7 +549,7 @@ class yafObject(object):
                     #for particle in pSys.particles:
                     #    if particle.is_exist and particle.is_visible:
                     #        prtvis = True
-                    for pindex in range(0, totalNumberOfHairs):
+                    for particleindex in range(0, totalNumberOfHairs):
                         #
                         #initCo = obj.matrix_world.inverted()*(pSys.co_hair(obj, pindex, 0))
                         # move here
@@ -561,7 +559,7 @@ class yafObject(object):
                         yi.startCurveMesh(CID, prtvis)
                         #
                         for step in range(0, steps):
-                            co = pSys.co_hair(obj, pindex, step)
+                            co = pSys.co_hair(obj, particleindex, step)
                             yi.addVertex(co[0], co[1], co[2])                            
                         #
                         yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
@@ -604,7 +602,7 @@ class yafObject(object):
                 else:
                     self.writeMesh(obj, matrix)
                           
-        yi.printInfo("Total hair processes: "+ str(totalNumberOfHairs))
+        yi.printInfo("Exporter: Total hair processes: "+ str(totalNumberOfHairs))
         # We only need to render emitter object once
         if renderEmitter:
             self.writeMesh(obj, matrix)
