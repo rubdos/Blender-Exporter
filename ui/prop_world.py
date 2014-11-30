@@ -61,7 +61,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
         #------------------------------------------
         # Gradient colors background
         #------------------------------------------
-        if world.bg_type == "Gradient":
+        if world.bg_type == "gradientback":
 
             split = layout.split(percentage=0.40)
             col = split.column()
@@ -79,7 +79,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
         #------------------------------------------
         # Texture background
         #------------------------------------------
-        elif world.bg_type == "Texture":
+        elif world.bg_type == "textureback":
 
             tex = context.scene.world.active_texture
 
@@ -104,11 +104,11 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
         #------------------------------------------
         # SunSky models for background
         #------------------------------------------
-        elif world.bg_type in {"Sunsky1", "Sunsky2"}:
+        elif world.bg_type in {"sunsky", "darksky"}:
             self.ibl = False
             layout.separator()
             sub = layout.column(align=True)
-            if world.bg_type == "Sunsky1":
+            if world.bg_type == "sunsky":
                 sub.prop(world, "bg_turbidity")
             else:
                 sub.prop(world, "bg_ds_turbidity")
@@ -139,7 +139,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             row.enabled = (world.bg_add_sun or world.bg_background_light)
             row.prop(world, "bg_light_samples")
             #
-            if world.bg_type == "Sunsky2":
+            if world.bg_type == "darksky":
                 layout.prop(world, "bg_dsnight", toggle= True)
                 self.draw_influence(context)
                 
@@ -151,7 +151,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
         #---------------------------------------
         # Color background
         #---------------------------------------    
-        elif world.bg_type == "Single Color":
+        elif world.bg_type == "constant":
 
             split = layout.split(percentage=0.33)
 
@@ -163,7 +163,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
         #------------------------------------------
         # IBL option draw cases..
         #------------------------------------------
-        if world.bg_type in {"Single Color", "Gradient", "Texture"}:
+        if world.bg_type in {"constant", "gradientback", "textureback"}:
             row = layout.row()
             row.prop(world, "bg_use_ibl", toggle=True)
             
@@ -174,7 +174,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
             if world.bg_type == "Texture":
                 self.draw_influence(context)
         #
-        if world.bg_type == 'Texture' and context.world.active_texture is not None:
+        if world.bg_type == 'textureback' and context.world.active_texture is not None:
             if world.bg_use_ibl:
                 self.drawIBL(context)
                     
@@ -203,7 +203,7 @@ class TheBounty_PT_world(WorldButtonsPanel, Panel):
         layout = self.layout
         world = context.world.bounty
         row = layout.row()
-        row.enabled = world.bg_background_light or (world.bg_type == "Texture" and world.bg_use_ibl)
+        row.enabled = world.bg_background_light or (world.bg_type == "textureback" and world.bg_use_ibl)
         row.prop(world, "bg_with_diffuse", toggle=True)
         row.prop(world, "bg_with_caustic", toggle=True)
         

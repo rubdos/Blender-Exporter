@@ -35,16 +35,19 @@ enum_lamp_type = (
     ('AREA',  "Area",  "Directional area light source"),
     ('DIRECTIONAL', "Directional", "Directional Sun light"),
 )
+switchLampType = {
+    'IES': 'SPOT',
+    'DIRECTIONAL': 'SUN',
+    'POINT' : 'POINT',
+    'SUN':'SUN',
+    'AREA':'AREA',
+    'SPOT':'SPOT'
+}
 
-def call_lighttype_update(self, context):
+def sync_light_type(self, context):
     lamp = context.lamp
-    bounty = context.lamp.bounty
     if lamp is not None:
-        if bounty.lamp_type in {'IES','DIRECTIONAL'}:
-            switchLampType = {'IES': 'SPOT','DIRECTIONAL': 'SUN'}
-            lamp.type = switchLampType.get(bounty.lamp_type)
-        else:
-            lamp.type = bounty.lamp_type
+        lamp.type = switchLampType.get(context.lamp.bounty.lamp_type)
 
 def set_shadow_method(self, context):
     lamp = context.lamp
@@ -53,20 +56,22 @@ def set_shadow_method(self, context):
     else:
         lamp.shadow_method = 'RAY_SHADOW'
 
-def call_update_sphere(self, context):
+def sync_sphere_light(self, context):
     lamp = context.lamp
     if context.lamp.bounty.use_sphere:
         lamp.use_sphere = True
+        # reasonable default size
         lamp.distance = 1
     else:
         lamp.use_sphere = False
+        lamp.distance = 10
 
 def sync_with_distance(self, context):
     #lamp = context.lamp
-    if context.lamp.bounty.yaf_sphere_radius != context.lamp.distance:
-        context.lamp.distance = context.lamp.bounty.yaf_sphere_radius
+    #if context.lamp.bounty.yaf_sphere_radius != context.lamp.distance:
+    context.lamp.bounty.yaf_sphere_radius = context.lamp.distance
        
-class TheBountyLightSettings(bpy.types.PropertyGroup):
+class TheBountyLightProperties(bpy.types.PropertyGroup):
     #
     @classmethod
     def register(cls):
@@ -85,7 +90,7 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             description="Type of lamp",
             items=enum_lamp_type,
             default="POINT", 
-            update=call_lighttype_update
+            update=sync_light_type
         )    
         cls.yaf_energy = FloatProperty(
             name="Power",
@@ -97,7 +102,7 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             name="Use Sphere",
             description="Use sphere object for light",
             default=False,
-            update = call_update_sphere
+            update = sync_sphere_light # call_update_sphere
         )    
         cls.yaf_sphere_radius = FloatProperty(
             name="Radius",
@@ -106,11 +111,11 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
             soft_min=0.01, soft_max=100.0,
             default=1.0, update=sync_with_distance
         )    
-        cls.directional = BoolProperty(
-            name="Directional",
-            description="Directional sunlight type, like 'spot' (for concentrate photons at area)",
-            default=False
-        )
+        #cls.directional = BoolProperty(
+        #    name="Directional",
+        #    description="Directional sunlight type, like 'spot' (for concentrate photons at area)",
+        #    default=False
+        #)
         cls.create_geometry = BoolProperty(
             name="Create and show geometry",
             description="Creates a visible geometry in the dimensions of the light during the render",
@@ -172,7 +177,7 @@ class TheBountyLightSettings(bpy.types.PropertyGroup):
         del bpy.types.Lamp.bounty
         
 def register():
-    bpy.utils.register_class(TheBountyLightSettings)
+    bpy.utils.register_class(TheBountyLightProperties)
     
 def unregister():
-    bpy.utils.unregister_class(TheBountyLightSettings)
+    bpy.utils.unregister_class(TheBountyLightProperties)

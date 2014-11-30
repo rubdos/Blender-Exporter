@@ -18,12 +18,11 @@
 
 # <pep8 compliant>
 
-from . import yafaray_operators
-from . import yafaray_converter
+from . import bounty_operators
+#from . import yafaray_converter
 from . import bounty_presets
 #
 from .. import EXP_BRANCH
 
-for branch in EXP_BRANCH:
-    if branch == "custom_nodes":
-        from . import bounty_nodes_operator
+if "custom_nodes" in EXP_BRANCH:
+    from . import bounty_nodes_operator

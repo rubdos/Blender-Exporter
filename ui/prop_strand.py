@@ -21,8 +21,8 @@
 from bpy.types import Panel
 
 
-class YAF_PT_strand_settings(Panel):
-    bl_label = "Strand Settings"
+class TheBounty_PT_strand_settings(Panel):
+    bl_label = "TheBounty Strand Settings"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "particle"
@@ -38,9 +38,9 @@ class YAF_PT_strand_settings(Panel):
     def draw(self, context):
         layout = self.layout
 
-        yaf_mat = context.object.active_material
-        if yaf_mat:
-            tan = yaf_mat.strand
+        mat = context.object.active_material
+        if mat:
+            tan = mat.strand
 
             split = layout.split()
 

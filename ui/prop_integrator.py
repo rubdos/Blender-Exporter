@@ -20,7 +20,6 @@
 
 import bpy
 from bpy.types import Panel
-#from bl_ui.properties_render import RenderButtonsPanel
 
 from . prop_render import RenderButtonsPanel
 from .. import EXP_BRANCH
@@ -35,8 +34,10 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
         layout = self.layout
         scene = context.scene.bounty
 
-        # povman: sync integrator names by yafaray core 'registerFactory' values
+        #----------------------------------------------------------------------------------
+        # povman: sync integrator names in core 'registerFactory' functions
         # directlighting, photonmapping, pathtracing, DebugIntegrator, bidirectional, SPPM
+        #----------------------------------------------------------------------------------
         integrator = scene.intg_light_method
         layout.prop(scene, "intg_light_method", text="")
         # for recursive raytracing..
@@ -112,7 +113,7 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
             layout.row().prop(scene, "intg_show_perturbed_normals")
             
         elif integrator == "bidirectional":
-            layout.label("Use a high number of AA samples to reduce the noise")
+            layout.label("Use a high number of AA samples to reduce render noise")
 
         elif integrator == "SPPM":
             col = layout.column()
@@ -130,16 +131,14 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
         #----------------------------
         # SubSurface integrator
         #----------------------------
-        for branch in EXP_BRANCH:
-            if branch == 'merge_SSS' and integrator in {'directlighting', 'photonmapping', 'pathtracing'}:
-                col = layout.column(align=True)
-                col.prop(scene, "intg_useSSS", toggle=True)
-                if scene.intg_useSSS:
-                    col.prop(scene, "intg_sssPhotons")
-                    col.prop(scene, "intg_sssDepth")
-                    col.prop(scene, "intg_singleScatterSamples")
-                    col.prop(scene, "intg_sssScale")
-
+        if integrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+            col = layout.column(align=True)
+            col.prop(scene, "intg_useSSS", toggle=True)
+            if scene.intg_useSSS:
+                col.prop(scene, "intg_sssPhotons")
+                col.prop(scene, "intg_sssDepth")
+                col.prop(scene, "intg_singleScatterSamples")
+                col.prop(scene, "intg_sssScale")
 
 
 if __name__ == "__main__":  # only for live edit.

@@ -18,7 +18,7 @@
 
 # <pep8 compliant>
 
-import bpy
+import bpy, bl_ui
 from bpy.types import Panel
 
 class RenderButtonsPanel():
@@ -37,22 +37,28 @@ class TheBounty_PT_render(RenderButtonsPanel, Panel):
     bl_label = "Render"
 
     def draw(self, context):
-
         layout = self.layout
+
         rd = context.scene.render
 
-        row = layout.row()
-        row.operator("bounty.render_still", text="Image", icon='RENDER_STILL')
+        row = layout.row(align=True)
+        row.operator("bounty.render_still", text="Render", icon='RENDER_STILL')
         row.operator("bounty.render_animation", text="Animation", icon='RENDER_ANIMATION')
-        layout.row().operator("bounty.render_view", text="Render 3D View", icon='VIEW3D')
-        layout.prop(rd, "display_mode", text="Display")
+        #row.operator("sound.mixdown", text="Audio", icon='PLAY_AUDIO')
+        layout.operator("bounty.render_view", text="Render 3D View", icon='RENDER_STILL')
+
+        split = layout.split(percentage=0.33)
+
+        split.label(text="Display:")
+        row = split.row(align=True)
+        row.prop(rd, "display_mode", text="")
+        row.prop(rd, "use_lock_interface", icon_only=True)
 
 
-    
-class TheBounty_PT_dimensions(RenderButtonsPanel, Panel):
+class BOUNTY_PT_dimensions(RenderButtonsPanel, Panel):
     bl_label = "Dimensions"
     bl_options = {'DEFAULT_CLOSED'}
-
+    
     def draw(self, context):
         layout = self.layout
 
@@ -73,6 +79,10 @@ class TheBounty_PT_dimensions(RenderButtonsPanel, Panel):
         sub.prop(rd, "resolution_y", text="Y")
         sub.prop(rd, "resolution_percentage", text="")
 
+        sub.label(text="Aspect Ratio:")
+        sub.prop(rd, "pixel_aspect_x", text="X")
+        sub.prop(rd, "pixel_aspect_y", text="Y")
+
         row = col.row()
         row.prop(rd, "use_border", text="Border")
         sub = row.row()
@@ -82,10 +92,20 @@ class TheBounty_PT_dimensions(RenderButtonsPanel, Panel):
         col = split.column()
         sub = col.column(align=True)
         sub.label(text="Frame Range:")
-        sub.prop(scene, "frame_start", text="Start")
-        sub.prop(scene, "frame_end", text="End")
-        sub.prop(scene, "frame_step", text="Step")
+        sub.prop(scene, "frame_start")
+        sub.prop(scene, "frame_end")
+        sub.prop(scene, "frame_step")
 
+        #sub.label(text="Frame Rate:")
+        #self.draw_framerate(sub, rd)
+
+        subrow = sub.row(align=True)
+        subrow.label(text="Time Remapping:")
+        subrow = sub.row(align=True)
+        subrow.prop(rd, "frame_map_old", text="Old")
+        subrow.prop(rd, "frame_map_new", text="New")
+
+#
 from . import prop_general_settings
 from . import prop_integrator
 from . import prop_AA_settings

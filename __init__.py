@@ -22,17 +22,35 @@ import sys
 import os
 import ctypes
 
-PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
-BIN_PATH = os.path.join(__path__[0], 'bin')
-# allowed branchs..
-#branchs=('master','volumegrid','merge_SSS')
-EXP_BRANCH = (("master"),("custom_nodes"),)
+#------------------------------------
+# find environment for install path
+#------------------------------------
+def find_bounty_path():
+    from os import getenv
+    #
+    BIN_PATH = "none"
+    HOME = getenv('BOUNTY_ROOT','none' )
 
-sys.path.append(BIN_PATH)
+    if HOME != 'none' and os.path.exists(HOME):
+        # c:\TheBounty.. or /home/user/app/TheBounty in unix 
+        BIN_PATH = os.path.join(HOME)
+    else:
+        # keep the old way: the binaries inside the scripts/addons/folder
+        PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
+        BIN_PATH = os.path.join(__path__[0], 'bin')
+        
+    return BIN_PATH
+#
+BIN_PATH = find_bounty_path()
+# if bin path is valid..
+# you also can use if BIN_PATH is not "none":
+if os.path.exists(BIN_PATH):
+    PLUGIN_PATH = BIN_PATH + "/plugins"
+    sys.path.append(BIN_PATH)
 
 bl_info = {
-    "name": "TheBounty",
-    "description": "TheBounty Renderer for Blender",
+    "name": "TheBounty Render Engine",
+    "description": "TheBounty Renderer integration for Blender",
     "author": "Pedro Alcaide (povmaniaco), rubdos, TynkaTopi, paultron",
     "version": (0, 1, 6, 0),
     "blender": (2, 7, 2),
@@ -40,17 +58,18 @@ bl_info = {
     "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
     "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
     "category": "Render"
-    }
-
-# Loading order of the dlls is sensible, please do not alter it.
+}
+#---------------------------------------------------------------        
+# The order of libs is very importante. Please do not alter it.
+#---------------------------------------------------------------
 if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1','libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
-                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1','yafaraycore', 'yafarayplugin']
+            dllArray = ['zlib1', 'libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
+                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1', 'yafaraycore', 'yafarayplugin']
             break
-        # load dll's from a MinGW build's
+        # load dll's from a GCC build's
         else:
             dllArray = ['zlib', 'libxml2-2', 'libgcc_s_sjlj-1', 'Half', 'Iex', 'Imath', \
                         'IlmThread', 'IlmImf', 'libjpeg-8', 'libpng14', 'libtiff-3', \
@@ -62,22 +81,36 @@ elif sys.platform == 'darwin':
 else: # linux
     dllArray = ['libyafaraycore.so', 'libyafarayplugin.so']
 
-# lad libraries
+# load libraries
 for dll in dllArray:
     try:
         ctypes.cdll.LoadLibrary(os.path.join(BIN_PATH, dll))
     except Exception as e:
         print("ERROR: Failed to load library {0}, {1}".format(dll, repr(e)))
 
-# test in all OS.. with gcc or msvc builds
+#---------------------------------------------
+# this code is only for development purposes
+# a bit hardcoded design, but work in al OS
+#---------------------------------------------
+EXP_BRANCH = (("master"),("custom_nodes"),)
+
 for file in os.listdir(PLUGIN_PATH):
     if file[:13]=='libGridVolume' or file[:10]=='GridVolume':
         EXP_BRANCH +=(("volumegrid"),)
         
     if file[:14]=='libtranslucent' or file[:11]=='translucent':
         EXP_BRANCH +=(("merge_SSS"),)
+        
+    if file[:8]=='photonic' or file[:8]=='directic':
+        EXP_BRANCH +=(("irrcache"),)
 
-if "bpy" in locals():
+if 'custom_nodes' in EXP_BRANCH:
+    import nodeitems_utils
+
+#--------------------------
+# import exporter modules
+#--------------------------
+if "prop" in locals():
     import imp
     imp.reload(prop)
     imp.reload(io)
@@ -90,8 +123,24 @@ else:
     from . import io
     from . import ui
     from . import ot
-# for nodes
-import nodeitems_utils
+
+    #-------------------------------------------------------------------------------------
+    # add path option on 'User Preferences', inspired on Corona Exporter and LuxBlend
+    #-------------------------------------------------------------------------------------
+    class TheBountyAddonPreferences(bpy.types.AddonPreferences):
+        # don't remove!! ----------
+        bl_idname = __name__
+        #--------------------------
+        
+        install_path = bpy.props.StringProperty(
+                name="Path to TheBounty binaries", description="", 
+                subtype='DIR_PATH', default=find_bounty_path(),
+        )
+                
+        def draw(self, context):
+            layout = self.layout
+            layout.prop(self, "install_path")
+
 '''
 @persistent
 def load_handler(dummy):
@@ -107,36 +156,40 @@ def load_handler(dummy):
 
 '''
 def register():
+    #
     prop.register()
     bpy.utils.register_module(__name__)
+    if "custom_nodes" in EXP_BRANCH:
+        nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)    
     
     #bpy.app.handlers.load_post.append(load_handler)
-    # register keys for 'render 3d view', 'render still' and 'render animation'
-    km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='Screen')
+    #------------------------------------
+    # register keys for own render modes
+    #------------------------------------
+    km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='TheBounty')
     kmi = km.keymap_items.new('bounty.render_view', 'F12', 'PRESS', False, False, False, True)
     kmi = km.keymap_items.new('bounty.render_animation', 'F12', 'PRESS', False, False, True, False)
-    kmi = km.keymap_items.new('bounty.render_still', 'F12', 'PRESS', False, False, False, False)
-    
-    for branch in EXP_BRANCH:
-        if branch == "custom_nodes":
-            nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)
+    kmi = km.keymap_items.new('bounty.render_still', 'F12', 'PRESS', False, False, False, False)    
     
 
 def unregister():
-    prop.unregister()
-    
-    # unregister keys for 'render 3d view', 'render still' and 'render animation'
-    kma = bpy.context.window_manager.keyconfigs.addon.keymaps['Screen']
+    #--------------------------------------   
+    # unregister keys for own render modes
+    #--------------------------------------
+    kma = bpy.context.window_manager.keyconfigs.addon.keymaps['TheBounty']
+    print("#---- Unregister keymaps ----")
     for kmi in kma.keymap_items:
-        if kmi.idname in {'bounty.render_view','bounty.render_animation','bounty.render_still'}:
-            kma.keymap_items.remove(kmi)
+        print(kmi.idname)
+        kma.keymap_items.remove(kmi)
+    print("#----------------------------")
             
-    bpy.utils.unregister_module(__name__)
     #bpy.app.handlers.load_post.remove(load_handler)
     
-    for branch in EXP_BRANCH:
-        if branch == "custom_nodes":
-            nodeitems_utils.unregister_node_categories("TheBountyMaterial")
+    if "custom_nodes" in EXP_BRANCH:
+        nodeitems_utils.unregister_node_categories("TheBountyMaterial")
+    
+    prop.unregister()  
+    bpy.utils.unregister_module(__name__)
 
 
 if __name__ == '__main__':

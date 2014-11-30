@@ -499,7 +499,7 @@ class yafObject(object):
         return ymaterial
     
     def defineStrandValues(self, material):
-        # test
+        #
         if material.strand.use_blender_units:
             strandStart = material.strand.root_size
             strandEnd = material.strand.tip_size
@@ -522,14 +522,56 @@ class yafObject(object):
                 if (pSys.settings.render_type == 'PATH') and mod.show_render and (pSys.name == mod.particle_system.name):
                     yi.printInfo("Exporter: Creating Hair Particle System {!r}".format(pSys.name))
                     tstart = time.time()
-                    # TODO: clay particles uses at least materials thikness?
-                    hairMat = "default"  # No material assigned in blender, use default one
+                    #---------------------
+                    # set particle values
+                    #---------------------
                     strandStart = 0.01
                     strandEnd = 0.01
                     strandShape = 0.0
+                    #-----------------------------------------------
+                    # set particle material values. id don't have
+                    # material assigned in blender, use default one
+                    #-----------------------------------------------
+                    hairMat = "default"  
+                                        
                     if obj.active_material is not None:
                         hairMat = obj.active_material
                         strandStart, strandEnd, strandShape = self.defineStrandValues(hairMat)
+                    # exception: if clay render is activated
+                    if self.scene.bounty.gs_clay_render:
+                        hairMat = "clay"
+                    #
+                    pSys.set_resolution(self.scene, obj, 'RENDER')    
+                    steps = pSys.settings.draw_step
+                    steps = 3 ** steps # or (power of 2 rather than 3) + 1 # Formerly : len(particle.hair_keys)
+                            
+                    totalNumberOfHairs = ( len(pSys.particles) + len(pSys.child_particles) )
+                    #
+                    prtvis = True # False
+                    #for particle in pSys.particles:
+                    #    if particle.is_exist and particle.is_visible:
+                    #        prtvis = True
+                    for pindex in range(0, totalNumberOfHairs):
+                        #
+                        #initCo = obj.matrix_world.inverted()*(pSys.co_hair(obj, pindex, 0))
+                        # move here
+                        CID = yi.getNextFreeID()
+                        yi.paramsClearAll()
+                        yi.startGeometry()
+                        yi.startCurveMesh(CID, prtvis)
+                        #
+                        for step in range(0, steps):
+                            co = pSys.co_hair(obj, pindex, step)
+                            yi.addVertex(co[0], co[1], co[2])                            
+                        #
+                        yi.endCurveMesh(self.materialMap[hairMat], strandStart, strandEnd, strandShape)
+                        # TODO: keep object smooth
+                        #yi.smoothMesh(CID, 60.0)
+                        yi.endGeometry()
+                    yi.printInfo("Exporter: Particle creation time: {0:.3f}".format(time.time() - tstart))
+                    
+                    #---------------------------------------------------------------------------------------
+                    '''
                     #
                     for particle in pSys.particles:
                         prtvis = False
@@ -543,7 +585,7 @@ class yafObject(object):
                         #
                         for location in particle.hair_keys:
                             # use reverse vector multiply order, API changed with rev. 38674
-                            vertex = matrix * location.co
+                            vertex = location.co #matrix * location.co
                             yi.addVertex(vertex[0], vertex[1], vertex[2])
                             
                         #this section will be changed after the material settings been exported
@@ -556,12 +598,13 @@ class yafObject(object):
                         #yi.smoothMesh(CID, 60.0)
                         yi.endGeometry()
                     yi.printInfo("Exporter: Particle creation time: {0:.3f}".format(time.time() - tstart))
-
+                    '''
                     if pSys.settings.use_render_emitter:
                         renderEmitter = True
                 else:
                     self.writeMesh(obj, matrix)
-
+                          
+        yi.printInfo("Total hair processes: "+ str(totalNumberOfHairs))
         # We only need to render emitter object once
         if renderEmitter:
             self.writeMesh(obj, matrix)

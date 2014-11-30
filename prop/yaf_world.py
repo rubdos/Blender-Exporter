@@ -28,11 +28,11 @@ from bpy.props import (EnumProperty,
                        PointerProperty)
 #
 enum_world_types =(
-    ('Gradient', "Gradient", "Gradient background"),
-    ('Texture', "Texture", "Textured background"),
-    ('Sunsky1', "Sunsky1", "Sunsky background"),
-    ('Sunsky2', "Sunsky2", "New model of Sunsky background"),
-    ('Single Color', "Single Color", "Single color background"),
+    ('gradientback', "Gradient", "Gradient background"),
+    ('textureback', "Texture", "Textured HDRI based background"),
+    ('sunsky', "Sunsky1", "Sunsky background"),
+    ('darksky', "Sunsky2", "New model of Sunsky background"),
+    ('constant', "Single Color", "Single constant color background"),
 )
 
 enum_color_space=(
@@ -64,7 +64,7 @@ class TheBountyWorldSettings(bpy.types.PropertyGroup):
         cls.bg_type = EnumProperty(
             name="Background",
             items=enum_world_types,
-            default="Single Color",
+            default="constant",
         )    
         cls.bg_color_space = EnumProperty(
             name="Color space",

@@ -231,20 +231,20 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.printWarning("Exporter: Problem with blend material {0}."
                                  " {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
             return
-        #----------------------------------------------------------------
-        # This is not needed atm because 'blend' materials are excluded 
-        # themselves from list. Recursive blend materials aren't allowed. 
-        # Now Property sync method is excluded
-        #----------------------------------------------------------------
+        #---------------------------------------------------------
+        # Recursive blend materials allowed (atm, only two levels)
+        # TODO: review some random crashes when use 'blend' slider
+        # maybe related with the material 'preview' update 
+        #---------------------------------------------------------
         
-        #if mat1.bounty.mat_type == 'blend':
-        #    self.handleBlendMat(mat1)        
+        if mat1.bounty.mat_type == 'blend':
+            self.handleBlendMat(mat1)        
         if mat1 not in self.materials:
             self.materials.add(mat1)
             self.yaf_material.writeMaterial(mat1)
 
-        #if mat2.bounty.mat_type == 'blend':
-        #    self.handleBlendMat(mat2)
+        if mat2.bounty.mat_type == 'blend':
+            self.handleBlendMat(mat2)
         if mat2 not in self.materials:
             self.materials.add(mat2)
             self.yaf_material.writeMaterial(mat2)
@@ -372,6 +372,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         tby_scene.exportRenderSettings(self.yi, self.scene)
 
     def render(self, scene):
+        #--------------------------------------------
+        # povman: fix issue when freestyle is active
+        # result: doble render pass and black screen
+        #-------------------------------------------
+        bpy.context.scene.render.use_freestyle = False
+        
         # callback to render scene if not scene.name == 'preview':
         if scene.name == 'preview':
             self.is_preview = True

@@ -118,18 +118,17 @@ class yafIntegrator:
             yi.paramsSetInt("passNums", scene.intg_pass_num)
             yi.paramsSetBool("pmIRE", scene.intg_pm_ire)
             yi.paramsSetFloat("times", scene.intg_times)             
-
+        
         #----------------------------------
         # Sub-Surface Scattering integrator
         #----------------------------------
-        for branch in EXP_BRANCH:
-            if branch == "merge_SSS" and lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
-                yi.paramsSetBool("useSSS", scene.intg_useSSS)
-                if scene.intg_useSSS:
-                    yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
-                    yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
-                    yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
-                    yi.paramsSetFloat("sssScale", scene.intg_sssScale)
+        if "merge_SSS" in EXP_BRANCH and lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+            yi.paramsSetBool("useSSS", scene.intg_useSSS)
+            if scene.intg_useSSS:
+                yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
+                yi.paramsSetInt("sssDepth", scene.intg_sssDepth)
+                yi.paramsSetInt("singleScatterSamples", scene.intg_singleScatterSamples)
+                yi.paramsSetFloat("sssScale", scene.intg_sssScale)
         
         yi.paramsSetString("type", lightIntegrator)
         yi.createIntegrator("default")
