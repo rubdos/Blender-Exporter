@@ -67,7 +67,7 @@ if sys.platform == 'win32':
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
             dllArray = ['zlib1', 'libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
-                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1', 'yafaraycore', 'yafarayplugin']
+                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1', 'yafaraycore', 'yafarayplugin','opencl_wrapper']
             break
         # load dll's from a GCC build's
         else:
@@ -92,7 +92,7 @@ for dll in dllArray:
 # this code is only for development purposes
 # a bit hardcoded design, but work in al OS
 #---------------------------------------------
-EXP_BRANCH = (("master"),("custom_nodes"),)
+EXP_BRANCH = (("master"),("custom_nodes"),('opencl'),)
 
 for file in os.listdir(PLUGIN_PATH):
     if file[:13]=='libGridVolume' or file[:10]=='GridVolume':
