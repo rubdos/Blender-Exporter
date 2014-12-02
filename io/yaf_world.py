@@ -109,7 +109,6 @@ class yafWorld:
             yi.paramsSetFloat("power", world.bg_power)
             yi.paramsSetBool("ibl", world.bg_use_ibl)
             yi.paramsSetInt("ibl_samples", world.bg_ibl_samples)
-            #yi.paramsSetString("type", "gradientback")
 
         elif bg_type in {'sunsky', "darksky"}:
             #
@@ -151,7 +150,7 @@ class yafWorld:
             yi.paramsSetInt("ibl_samples", iblSamples)
             yi.paramsSetFloat("power", bgPower)
         #
-        yi.paramsSetString("type", world.bg_type)
+        yi.paramsSetString("type", bg_type)
         yi.createBackground("world_background")
         self.yi.printInfo("Exporting World, type: {0}".format(bg_type))
 

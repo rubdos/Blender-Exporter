@@ -28,6 +28,8 @@ from bpy.props import (IntProperty,
                        PointerProperty,
                        StringProperty)
 #
+from .. import EXP_BRANCH
+#
 enum_render_output_mode =(
     ('file', "Render to Image file", "Render the Scene and write it to an Image File when finished"),
     ('into_blender', "Render Into Blender", "Render the Scene into Blender Renderbuffer"),
@@ -51,6 +53,10 @@ enum_lighting_integrator_method =(
     ('bidirectional', "Bidirectional PathTracing(WIP)", ""),
     ('SPPM', "Stochastic Progressive Photon Mapping", ""),
 )
+if 'opencl' in EXP_BRANCH:
+    enum_lighting_integrator_method +=(
+        ('photonmappingGPU', "Photon Mapping GPU", ""),
+    )
 
 enum_caustic_method =(
     ('none', "None", ""),
@@ -79,6 +85,14 @@ enum_filter_type =(
 enum_tile_order = (
     ('linear', "Linear Tiles", "Linear buckets ( by a set size) from to  top-left image to bottom-right"),
     ('random', "Random Tiles", "Random buckets by arbitray order"),
+)
+
+enum_gpu_intersection =(
+    ('Triangle', "Triangle", ""),
+    ('Sphere Hierarchy', "Sphere Hierarchy", ""),
+    ('Disk culled', "Disk culled", ""),
+    ('Sphere Hierarchy VEC', "Sphere Hierarchy VEC", ""),
+    ('Triangle VEC', "Triangle VEC", "")
 )
 
 # set fileformat for image saving on same format as in the exporter, both have default PNG
@@ -426,6 +440,65 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
             description="Accurate radius for search caustic photons",
             min=0.0,
             default=1.0
+        )
+        #------------------------------
+        # PhotonMap GPU properties..
+        #------------------------------
+        cls.intg_ph_leaf_radius = FloatProperty(
+            name="Disk Radius",
+            description="The radius of the disks generated on the triangles in the scene",
+            min=0.0001, max=1000.0,
+            default=0.3
+        )
+        cls.intg_ph_candidate_multi = IntProperty(
+            name="Point Candidantes",
+            description="Number of candidates for each point sample in best candidate sampling",
+            min=10, max=100,
+            default=50
+        )
+        cls.intg_ph_area_multiplier = FloatProperty(
+            name="Area Multiplier",
+            description="Number of disks to generate per unit area",
+            min=0.1, max=50.0,
+            default=6.0
+        )
+        cls.intg_ph_show_cover = BoolProperty(
+            name="Show Cover",
+            description="Preview the scene color coded by intersection errors (gray - good, green - background, red - wrong triangle or point, blue - didn't hit but should, pink - hit but shouldn't have)",
+            default=False
+        )
+        cls.intg_ph_test_rays = BoolProperty(
+            name="Test Intersections",
+            description="Compare the intersections computed in OpenCL with a reference",
+            default=False
+        )
+        cls.intg_ph_benchmark_ray_count = BoolProperty(
+            name="Benchmark",
+            description="Run benchmarking tests",
+            default=False
+        )        
+        cls.intg_ph_benchmark_min_tile_size = IntProperty(
+            name="Min Tile Size",
+            description="Minimal tile size for benchmarking",
+            min=1, max=10000,
+            default=4
+        )
+        cls.intg_ph_work_group_size = IntProperty(
+            name="Work Unit Number",
+            description="Depends on GPU working units available",
+            min=1, max=2048,
+            default=32
+        )        
+        cls.intg_fg_OCL = BoolProperty(
+            name="OpenCL Final Gather",
+            description="Use OpenCL for Final Gather",
+            default=False
+        )
+        cls.intg_ph_method = EnumProperty(
+            name="Intersection method",
+            description="Choose GPU intersection method",
+            items=enum_gpu_intersection,
+            default='Disk culled'
         )
         #--------------------------
         # Anti-aliasing properties
