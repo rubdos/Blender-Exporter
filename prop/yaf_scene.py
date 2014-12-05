@@ -95,6 +95,13 @@ enum_gpu_intersection =(
     ('Triangle VEC', "Triangle VEC", "")
 )
 
+enum_verbosity_level = (
+    ('info', "Console Info", "Show all general info messages on console"),
+    ('warning', "Console Warning", "Show only warning messages on console"),
+    ('error', "Console Error", "Show only error messages on console"),
+    ('mute', "Console Mute", "Mute all messages on console"),
+)
+
 # set fileformat for image saving on same format as in the exporter, both have default PNG
 # TODO: need review
 def call_update_fileformat(self, context):
@@ -224,7 +231,7 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
             default=True
         )    
         cls.gs_z_channel = BoolProperty(
-            name="Render depth map",
+            name="Render Z-depth map",
             description="Render depth map (Z-Buffer)",
             default=False
         )    
@@ -232,6 +239,12 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
             name="Log info to console",
             description="Print engine log messages in console window",
             default=True
+        )
+        cls.gs_verbosity_level = EnumProperty(
+            name="Verbosity level",
+            description="Choose log messages level in console",
+            items=enum_verbosity_level,
+            default='info'
         )    
         cls.gs_type_render = EnumProperty(
             name="Render",

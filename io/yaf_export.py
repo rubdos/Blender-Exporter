@@ -55,11 +55,15 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     sceneMat = []
     
     # TODO: make more options from UI
-    def verbositylevel(self, info):
-        if info:
+    def verbositylevel(self, level):
+        if level == 'info':
             self.yi.setVerbosityInfo()
+        elif level == 'error':
+            self.yi.setVerbosityError()
+        elif level == 'warning':
+            self.yi.setVerbosityWarning()
         else:
-            self.yi.setVerbosityMute()    
+            self.yi.setVerbosityMute()
     
     ##-----------------------------------------------------     
 
@@ -74,7 +78,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.scene.bounty.bg_transp = False
             self.scene.bounty.bg_transp_refract = False
         else:
-            self.verbositylevel(self.scene.bounty.gs_verbose)
+            #
+            self.verbositylevel(self.scene.bounty.gs_verbosity_level)
         
         # export go.. load plugins
         self.yi.loadPlugins(PLUGIN_PATH)
@@ -417,7 +422,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                         self.tag = args[0]
                     elif command == "progress":
                         self.prog = args[0]
-                    self.update_stats("TheBounty Render: ", "{0}".format(self.tag))
+                    # test for add more into to 'tag'
+                    integrator = bpy.context.scene.bounty.intg_light_method
+                    self.update_stats("TheBounty Render: ", "{0}: {1}".format(integrator, self.tag))
                     #
                     self.update_progress(self.prog)
 
