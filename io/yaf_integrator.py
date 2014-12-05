@@ -181,7 +181,6 @@ class yafIntegrator:
         if scn_world:
             # use bounty sub-class
             world = scene.world.bounty
-            #volIntegratorType = world.v_int_type
             yi.printInfo("Exporting Volume Integrator: {0}".format(world.v_int_type))
 
             if world.v_int_type == 'SingleScatterIntegrator':
@@ -191,14 +190,14 @@ class yafIntegrator:
                 yi.paramsSetBool("optimize", world.v_int_optimize)
 
             elif world.v_int_type == 'SkyIntegrator':
-                #yi.paramsSetString("type", "SkyIntegrator")
                 yi.paramsSetFloat("turbidity", world.v_int_dsturbidity)
                 yi.paramsSetFloat("stepSize", world.v_int_step_size)
                 yi.paramsSetFloat("alpha", world.v_int_alpha)
                 yi.paramsSetFloat("sigma_t", world.v_int_scale)
 
-            #else:
+            #
             yi.paramsSetString("type", world.v_int_type)
+        #
         else:
             yi.paramsSetString("type", "none")
 
