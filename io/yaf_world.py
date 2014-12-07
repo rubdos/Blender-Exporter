@@ -18,6 +18,7 @@
 
 # <pep8 compliant>
 
+import bpy
 from bpy.path import abspath
 from os.path import realpath, normpath
 
@@ -27,59 +28,59 @@ class yafWorld:
         self.yi = interface
 
     def exportWorld(self, scene):
-        yi = self.yi  
+        yi = self.yi
+        
+        # init..
+        world = bpy.context.scene.world
+        bg_type = "constant"
+        bgColor = (0.0, 0.0, 0.0)
+        useIBL = False
+        iblSamples = 16
+        bgPower = 1 
         
         if scene.world:
             # exporter properties
             world = scene.world.bounty
             bg_type = world.bg_type
-            c = world.bg_single_color
+            bgColor = world.bg_single_color
             useIBL = world.bg_use_ibl
             iblSamples = world.bg_ibl_samples
             bgPower = world.bg_power
-        else:
-            world = scene.world
-            bg_type = "Single Color"
-            c = (0.0, 0.0, 0.0)
-            useIBL = False
-            iblSamples = 16
-            bgPower = 1
-        
-        self.yi.printInfo("Exporting World, type: {0}".format(bg_type))
-    
+            
         yi.paramsClearAll()
 
-        if bg_type == 'Texture':
+        if bg_type == 'textureback':
+            #
+            worldTexture = None
             if scene.world.active_texture is not None:
                 worldTexture = scene.world.active_texture
+                
                 self.yi.printInfo("World Texture, name: {0}".format(worldTexture.name))
-            else:
-                worldTexture = None
-
-            if worldTexture is not None:
 
                 if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
-
-                    yi.paramsSetString("type", "image")
-                    
+                    #-----------------------------------
+                    # create a texture
+                    # check for a right image format ??
+                    #-----------------------------------                
                     image_file = abspath(worldTexture.image.filepath)
                     image_file = realpath(image_file)
                     image_file = normpath(image_file)
+                    
                     yi.paramsSetString("filename", image_file)
                     
-                    #interpolation
+                    # image interpolate
                     yi.paramsSetString("interpolate", worldTexture.interpolation_type)
-                    
+                    yi.paramsSetString("type", "image")
                     yi.createTexture("world_texture")
 
-                    # Export background
-                    #texco = world.texture_slots[world.active_texture_index].texture_coords
+                    # Background settings..
                     yi.paramsClearAll()
                     #
-                    worldMapCoord = "angular"
+                    worldMappingCoord = "angular"
                     if world.bg_mapping_type == "SPHERE":
-                        worldMapCoord = "spherical"
-                    yi.paramsSetString("mapping", worldMapCoord)                    
+                        worldMappingCoord = "spherical"
+                        
+                    yi.paramsSetString("mapping", worldMappingCoord)                    
                         
                     yi.paramsSetString("type", "textureback")
                     yi.paramsSetString("texture", "world_texture")
@@ -92,7 +93,7 @@ class yafWorld:
                 else:
                     self.yi.printInfo("World Texture, name: {0} is not valid format".format(worldTexture.name))
 
-        elif bg_type == 'Gradient':
+        elif bg_type == 'gradientback':
             c = world.bg_horizon_color
             yi.paramsSetColor("horizon_color", c[0], c[1], c[2])
 
@@ -108,18 +109,16 @@ class yafWorld:
             yi.paramsSetFloat("power", world.bg_power)
             yi.paramsSetBool("ibl", world.bg_use_ibl)
             yi.paramsSetInt("ibl_samples", world.bg_ibl_samples)
-            yi.paramsSetString("type", "gradientback")
 
-        elif bg_type in {'Sunsky1', "Sunsky2"}:
-            #            
-            if bg_type == 'Sunsky1':
-                yi.paramsSetString("type", "sunsky")
+        elif bg_type in {'sunsky', "darksky"}:
+            #
+            if bg_type == 'sunksky':
                 yi.paramsSetFloat("turbidity", world.bg_turbidity)
-            else:
-                #-------------------------
-                # specific sunsky2 values
-                #-------------------------
-                yi.paramsSetString("type", "darksky")
+            
+            #-------------------------
+            # specific sunsky2 values
+            #-------------------------            
+            if bg_type == 'darksky':
                 yi.paramsSetFloat("turbidity", world.bg_ds_turbidity)
                 yi.paramsSetFloat("altitude", world.bg_dsaltitude)
                 yi.paramsSetFloat("bright", world.bg_dsbright)
@@ -146,12 +145,13 @@ class yafWorld:
             yi.paramsSetInt("light_samples", world.bg_light_samples)           
 
         else:
-            yi.paramsSetColor("color", c[0], c[1], c[2])
+            yi.paramsSetColor("color", bgColor[0], bgColor[1], bgColor[2])
             yi.paramsSetBool("ibl", useIBL)
             yi.paramsSetInt("ibl_samples", iblSamples)
             yi.paramsSetFloat("power", bgPower)
-            yi.paramsSetString("type", "constant")
-
+        #
+        yi.paramsSetString("type", bg_type)
         yi.createBackground("world_background")
+        self.yi.printInfo("Exporting World, type: {0}".format(bg_type))
 
         return True

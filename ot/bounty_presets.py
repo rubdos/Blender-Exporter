@@ -108,7 +108,7 @@ class TheBountyMaterialPresets(AddPresetBase, Operator):
     ]    
     preset_values = [    
         "mat.absorption",
-        "material.diffuse_color",
+        "mat.diff_color",
         "mat.absorption_dist",
         "mat.anisotropic",
         "mat.as_diffuse",

@@ -53,6 +53,10 @@ class TheBounty_PT_AA_settings(RenderButtonsPanel, Panel):
         spp.prop(scene, "AA_passes")
         sub.prop(scene, "AA_inc_samples")
         sub.prop(scene, "AA_threshold")
+        #
+        sub=layout.row()
+        sub.enabled = scene.AA_passes > 1
+        sub.prop(scene, "gs_show_sam_pix", toggle=True)
         
         
 if __name__ == "__main__":  # only for live edit.

@@ -36,10 +36,11 @@ color_socket = (0.9, 0.9, 0.0, 1.0)
 float_socket = (0.63, 0.63, 0.63, 1.0)
 enum_sockect = (0.0, 0.0, 1.0, 1.0)
 
-
+bounty_node_class=[]
 # Derived from the NodeTree base type, similar to Menu, Operator, Panel, etc.
 class TheBountyNodeTree(bpy.types.NodeTree):
     #
+    
     bl_idname = 'TheBountyNodeTree'
     bl_label = 'TheBounty Node Tree'
     bl_icon = 'MATERIAL'
@@ -78,7 +79,9 @@ class TheBountyNodeTree(bpy.types.NodeTree):
                 name='Links Changed', 
                 default=False, 
                 update=acknowledge_connection)
-    
+#    
+bounty_node_class.append(TheBountyNodeTree)
+  
 class TheBountyNode:
     @classmethod
     def poll( cls, context):
@@ -100,6 +103,8 @@ class TheBountyNode:
     def draw_label( self):
         return self.bl_label
 #
+bounty_node_class.append(TheBountyNode)
+
 #
 #
 class diffuse_color_socket(NodeSocket):
@@ -130,6 +135,9 @@ class diffuse_color_socket(NodeSocket):
     def draw_color(self, context, node):
         return (color_socket)
 
+#
+bounty_node_class.append(diffuse_color_socket)
+
 class diffuse_reflect_socket(NodeSocket):
     bl_idname = 'diffuse_reflection'
     bl_label = 'Reflection Socket'  
@@ -153,6 +161,8 @@ class diffuse_reflect_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
+#
+bounty_node_class.append(diffuse_reflect_socket)
 
 #-----------------------
 # Emission socket 
@@ -180,7 +190,8 @@ class emitt_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
-
+#
+bounty_node_class.append(emitt_socket)
 #-----------------------
 # BRDF socket
 #-----------------------
@@ -222,6 +233,8 @@ class brdf_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
+#
+bounty_node_class.append(brdf_socket)
 
 class TheBountyBrdfNode(Node, TheBountyNode):
     #    
@@ -238,8 +251,9 @@ class TheBountyBrdfNode(Node, TheBountyNode):
         
     def draw_buttons(self, context, layout):
         layout.prop(self, 'brdf_type', text='')
-        layout.prop(self,'sigma', text='', slider=True)   
-     
+        layout.prop(self,'sigma', text='', slider=True)       
+#
+bounty_node_class.append(TheBountyBrdfNode)
 
 class sigma_socket(NodeSocket):
     bl_idname = 'sigma'
@@ -265,6 +279,8 @@ class sigma_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
+#
+bounty_node_class.append(sigma_socket)
 
 #----------------
 # trans. sockec
@@ -292,6 +308,8 @@ class translucency_socket(NodeSocket):
     # 
     def draw_color(self, context, node):
         return (float_socket)
+#
+bounty_node_class.append(translucency_socket)
     
 class transparency_socket(NodeSocket):
     bl_idname = 'transparency'
@@ -317,6 +335,8 @@ class transparency_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
+#
+bounty_node_class.append(transparency_socket)
 
 class transmit_socket(NodeSocket):
     bl_idname = 'transmit'
@@ -341,7 +361,8 @@ class transmit_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
-
+#
+bounty_node_class.append(transmit_socket)
 #--------------------
 # specular sockects
 #--------------------
@@ -371,6 +392,8 @@ class mirror_color_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (color_socket)
+#
+bounty_node_class.append(mirror_color_socket)
 
 class mirror_reflect_socket(NodeSocket):
     bl_idname = 'specular'
@@ -395,6 +418,8 @@ class mirror_reflect_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
+#
+bounty_node_class.append(mirror_reflect_socket)
 
 class fresnel_socket(NodeSocket):
     bl_idname = "fresnel"
@@ -420,7 +445,8 @@ class fresnel_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
-    
+#
+bounty_node_class.append(fresnel_socket)    
 
 class ior_socket(NodeSocket):
     bl_idname = "IOR"
@@ -445,7 +471,8 @@ class ior_socket(NodeSocket):
     #
     def draw_color(self, context, node):
         return (float_socket)
-    
+#
+bounty_node_class.append(ior_socket)    
        
 #------------------------
 # Imagemap node
@@ -484,7 +511,8 @@ class TheBountyImageMapNode(Node, TheBountyNode):
         layout.prop(self, 'diff_color', text='Color')
         layout.prop(self,'diff_reflect', text='Influence', slider=True)
         layout.prop(self, "image_map")        
-        
+#
+bounty_node_class.append(TheBountyImageMapNode)        
         
 class TheBountyMirrorNode(Node, TheBountyNode):
     bl_idname = 'TheBountyMirrorNode'
@@ -500,7 +528,8 @@ class TheBountyMirrorNode(Node, TheBountyNode):
         col = layout.column()
         col.prop(self, 'mirror_color')
         col.prop(self, 'specular_reflect', slider=True)
-    
+#
+bounty_node_class.append(TheBountyMirrorNode)    
 
 class TheBountyMaterialOutputNode(Node, TheBountyNode):
     bl_idname = 'MaterialOutputNode'
@@ -516,7 +545,8 @@ class TheBountyMaterialOutputNode(Node, TheBountyNode):
             layout.label(context.active_object.active_material.name)
         except:
             layout.label(context.material.name)
-
+#
+bounty_node_class.append(TheBountyMaterialOutputNode)
         
 #---------------------------
 # Shiny Diffuse shader node
@@ -584,7 +614,8 @@ class TheBountyShinyDiffuseShaderNode(Node, TheBountyNode):
         # Detail buttons in the sidebar.
         # If this function is not defined, the draw_buttons function is used instead
         pass
-
+#
+bounty_node_class.append(TheBountyShinyDiffuseShaderNode)
 
 class TheBountyTranslucenShaderNode(Node, TheBountyNode):
     # Shiny Diffuse node
@@ -623,6 +654,8 @@ class TheBountyTranslucenShaderNode(Node, TheBountyNode):
         col.prop(mat.bounty, "sssSigmaA", text="Absorption color")
         col.prop(mat.bounty, "sss_transmit", text="Transmit")
         col.prop(mat.bounty, "sssIOR")
+#
+bounty_node_class.append(TheBountyTranslucenShaderNode)
 
 class TheBountyGlossyShaderNode(Node, TheBountyNode):
     # Glossy shader node
@@ -683,6 +716,8 @@ class TheBountyGlossyShaderNode(Node, TheBountyNode):
 
     def free(self):
         print("Removing node ", self, ", Goodbye!")
+#
+bounty_node_class.append(TheBountyGlossyShaderNode)
                        
 class TheBountyGlassShaderNode(Node, TheBountyNode):
     # Glass shader node
@@ -729,6 +764,8 @@ class TheBountyGlassShaderNode(Node, TheBountyNode):
         
     def free(self):
         print("Removing node ", self, ", Goodbye!")
+#
+bounty_node_class.append(TheBountyGlassShaderNode)
 
 class TheBountyBlendShaderNode(Node, TheBountyNode):
     # Glossy custom node
@@ -755,6 +792,8 @@ class TheBountyBlendShaderNode(Node, TheBountyNode):
             layout.prop(self, "blend_amount", text="")
         except:
             print("Nonetype node")
+#
+bounty_node_class.append(TheBountyBlendShaderNode)
 
 class TheBountyTextureShaderNode(Node, TheBountyNode):
     # Texture shader node
@@ -779,6 +818,8 @@ class TheBountyTextureShaderNode(Node, TheBountyNode):
         
     def free(self):
         print("Removing node ", self, ", Goodbye!")
+#
+bounty_node_class.append(TheBountyTextureShaderNode)
 
 # our own base class with an appropriate poll function,
 # so the categories only show up in our own tree type
@@ -814,27 +855,17 @@ TheBountyNodeCategories = [
         #NodeItem(TheBountyBrdfNode.bl_idname)
         ]),
     ]
+#
+bounty_node_class.append(TheBountyNodeCategory)
+
 
 def register():
-    bpy.utils.register_class(TheBountyNodeTree)
-    #bpy.utils.register_class(TheBountyTextureSlotNode)
-    bpy.utils.register_class(TheBountyMaterialOutputNode)
-    bpy.utils.register_class(TheBountyShinyDiffuseShaderNode)
-    bpy.utils.register_class(TheBountyGlossyShaderNode)
-    bpy.utils.register_class(TheBountyBlendShaderNode)
-    bpy.utils.register_class(TheBountyGlassShaderNode)
+    for bclass in bounty_node_class:
+        bpy.utils.register_class(bclass)
     
 def unregister():
-    bpy.utils.unregister_class(TheBountyNodeTree)
-    #bpy.utils.unregister_class(TheBountyTextureSlotNode)
-    bpy.utils.unregister_class(TheBountyMaterialOutputNode)
-    bpy.utils.unregister_class(TheBountyShinyDiffuseShaderNode)
-    bpy.utils.unregister_class(TheBountyGlossyShaderNode)
-    bpy.utils.unregister_class(TheBountyBlendShaderNode)
-    bpy.utils.unregister_class(TheBountyGlassShaderNode)
-    
-    
-
+    for bclass in bounty_node_class:
+        bpy.utils.unregister_class(bclass)
 
 
 if __name__ == "__main__":
