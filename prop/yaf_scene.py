@@ -427,6 +427,11 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
             min=0.0,
             default=1.0
         )
+        cls.intg_do_lightImage = BoolProperty(
+            name="Do light image",
+            description="Enable do light image for bidir",
+            default=False
+        ) 
         #--------------------------
         # Anti-aliasing properties
         #--------------------------
