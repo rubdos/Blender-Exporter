@@ -67,9 +67,10 @@ def sync_sphere_light(self, context):
         lamp.distance = 10
 
 def sync_with_distance(self, context):
-    #lamp = context.lamp
-    #if context.lamp.bounty.yaf_sphere_radius != context.lamp.distance:
-    context.lamp.bounty.yaf_sphere_radius = context.lamp.distance
+    lamp = context.lamp
+    radius = context.lamp.bounty.yaf_sphere_radius
+    if radius != context.lamp.distance:
+        context.lamp.distance = context.lamp.bounty.yaf_sphere_radius 
        
 class TheBountyLightProperties(bpy.types.PropertyGroup):
     #
