@@ -26,19 +26,15 @@ from bpy.props import (FloatVectorProperty,
                        EnumProperty,
                        StringProperty,
                        PointerProperty)
-#
-from .. import EXP_BRANCH
+
 #
 enum_volume_types=(
     ('ExpDensity Volume', "ExpDensity Volume", ""),
     ('Noise Volume', "Noise Volume", ""),
     ('Uniform Volume', "Uniform Volume", ""),
+    ('Grid Volume', "Grid Volume", ""),
 )
-for branch in EXP_BRANCH:
-    if branch == 'volumegrid':
-        enum_volume_types +=(
-            ('Grid Volume', "Grid Volume", ""),
-        )
+
 enum_geometry_types=(
     ('geometry', "Mesh Object", ""),
     ('mesh_light', "Mesh Light Object", ""),

@@ -28,8 +28,6 @@ from bpy.props import (IntProperty,
                        PointerProperty,
                        StringProperty)
 #
-from .. import EXP_BRANCH
-#
 enum_render_output_mode =(
     ('file', "Render to Image file", "Render the Scene and write it to an Image File when finished"),
     ('into_blender', "Render Into Blender", "Render the Scene into Blender Renderbuffer"),
@@ -53,10 +51,6 @@ enum_lighting_integrator_method =(
     ('bidirectional', "Bidirectional PathTracing(WIP)", ""),
     ('SPPM', "Stochastic Progressive Photon Mapping", ""),
 )
-if 'opencl' in EXP_BRANCH:
-    enum_lighting_integrator_method +=(
-        ('photonmappingGPU', "Photon Mapping GPU", ""),
-    )
 
 enum_caustic_method =(
     ('none', "None", ""),

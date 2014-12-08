@@ -33,8 +33,6 @@ class CameraButtonsPanel():
         engine = context.scene.render.engine
         return context.camera and (engine in cls.COMPAT_ENGINES)
 
-#CameraButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
-
 
 class THEBOUNTY_PT_lens(CameraButtonsPanel, Panel):
     bl_label = "Lens"

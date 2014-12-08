@@ -18,8 +18,6 @@
 
 # <pep8 compliant>
 
-from .. import EXP_BRANCH
-
 switchDebugType = {
     'N': 1,
     'dPdU': 2,
@@ -117,50 +115,12 @@ class yafIntegrator:
             yi.paramsSetInt("bounces", scene.intg_bounces)
             yi.paramsSetInt("passNums", scene.intg_pass_num)
             yi.paramsSetBool("pmIRE", scene.intg_pm_ire)
-            yi.paramsSetFloat("times", scene.intg_times)
-        #--------------------------------
-        # test for OpenCL from GSOC 2010
-        #--------------------------------
-        if 'opencl' in EXP_BRANCH and lightIntegrator == "photonmappingGPU":
-            yi.paramsSetInt("bounces", scene.intg_bounces)
-            yi.paramsSetInt("photons", scene.intg_photons)
-            yi.paramsSetInt("cPhotons", scene.intg_cPhotons)
-            yi.paramsSetFloat("diffuseRadius", scene.intg_diffuse_radius)
-            yi.paramsSetFloat("causticRadius", scene.intg_caustic_radius)
-            yi.paramsSetInt("search", scene.intg_search)
-            yi.paramsSetInt("caustic_mix", scene.intg_caustic_mix)
-            yi.paramsSetBool("finalGather", True)
-            yi.paramsSetBool("show_map", scene.intg_show_map)
-            yi.paramsSetInt("fg_samples", scene.intg_fg_samples)
-            yi.paramsSetInt("fg_bounces", scene.intg_fg_bounces)
-                
-            yi.paramsSetFloat("ph_leaf_radius", scene.intg_ph_leaf_radius)
-            yi.paramsSetInt("ph_candidate_multi", scene.intg_ph_candidate_multi)
-            yi.paramsSetFloat("ph_area_multiplier", scene.intg_ph_area_multiplier)
-            yi.paramsSetBool("ph_show_cover", scene.intg_ph_show_cover)
-            yi.paramsSetBool("ph_test_rays", scene.intg_ph_test_rays)
-            yi.paramsSetBool("ph_benchmark_ray_count", scene.intg_ph_benchmark_ray_count)
-            yi.paramsSetInt("ph_benchmark_min_tile_size", scene.intg_ph_benchmark_min_tile_size)
-            yi.paramsSetInt("ph_work_group_size", scene.intg_ph_work_group_size)
-            yi.paramsSetBool("fg_OCL", scene.intg_fg_OCL)
-                
-            if scene.intg_ph_method == "Triangle":
-                yi.paramsSetInt("ph_method", 2)
-            elif scene.intg_ph_method == "Sphere Hierarchy":
-                yi.paramsSetInt("ph_method", 0)
-            elif scene.intg_ph_method == "Disk culled":
-                yi.paramsSetInt("ph_method", 1)
-            elif scene.intg_ph_method == "Sphere Hierarchy VEC":
-                yi.paramsSetInt("ph_method", 3)
-            elif scene.intg_ph_method == "Triangle VEC":
-                yi.paramsSetInt("ph_method", 4)            
-                
-            yi.paramsSetString("type", "photonmappingGPU")             
+            yi.paramsSetFloat("times", scene.intg_times)             
         
         #----------------------------------
         # Sub-Surface Scattering integrator
         #----------------------------------
-        if "merge_SSS" in EXP_BRANCH and lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+        if lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
             yi.paramsSetBool("useSSS", scene.intg_useSSS)
             if scene.intg_useSSS:
                 yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)

@@ -130,8 +130,10 @@ class yafLight:
             if self.preview and lamp_name == "Lamp.002":
                 angle = 50
             else:
+                #-------------------------------------------------------
                 # Blender reports the angle of the full cone in radians
                 # and we need half of the apperture angle in degrees
+                #-------------------------------------------------------
                 angle = degrees(lamp_data.spot_size) * 0.5
 
             yi.paramsSetString("type", "spotlight")

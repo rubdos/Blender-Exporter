@@ -54,7 +54,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     viewMatrix = None
     sceneMat = []
     
-    # TODO: make more options from UI
+    #--------------------------------
+    # set console  verbosity levels
+    #--------------------------------
     def verbositylevel(self, level):
         if level == 'info':
             self.yi.setVerbosityInfo()
@@ -261,8 +263,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     def exportMaterials(self):
         self.yi.printInfo("Exporter: Processing Materials...")
         self.materials = set()
-
-        # create a default shiny diffuse material -> it will be assigned, if object has no material(s)
+        
+        #---------------------------------------------------
+        # create shiny diffuse material for use by default
+        # it will be assigned, if object has no material(s)
+        #---------------------------------------------------
         self.yi.paramsClearAll()
         self.yi.paramsSetString("type", "shinydiffusemat")
         self.yi.paramsSetColor("color", 0.8, 0.8, 0.8)

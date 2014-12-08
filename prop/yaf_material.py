@@ -27,7 +27,6 @@ from bpy.props import (FloatProperty,
                        PointerProperty,
                        StringProperty)
 
-from .. import EXP_BRANCH
 
 enum_material_types = (
     ('shinydiffusemat', "Shiny Diffuse",    ""),
@@ -36,10 +35,8 @@ enum_material_types = (
     ('glass',           "Glass",            ""),
     ('rough_glass',     "Rough Glass",      ""),
     ('blend',           "Blend",            ""),
+    ('translucent',     "Translucent(SSS)", ""),
 )
-#
-if "merge_SSS" in EXP_BRANCH:
-    enum_material_types += (('translucent', "Translucent(SSS)", ""), )
 
 enum_reflectance_mode = (
     ('oren-nayar', "Oren-Nayar", "Reflectance Model"),
@@ -336,7 +333,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     sssSigmaS = FloatVectorProperty(
             name="Scatter color",
             description="Scatter color",
-            subtype='COLOR',
+            subtype='COLOR', precision=4,
             min=0.0, max=1.0,
             default=(0.7, 0.7, 0.7)
     )        

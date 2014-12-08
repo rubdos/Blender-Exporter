@@ -67,7 +67,7 @@ if sys.platform == 'win32':
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
             dllArray = ['zlib1', 'libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
-                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1', 'yafaraycore', 'yafarayplugin','opencl_wrapper']
+                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1', 'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a GCC build's
         else:
@@ -88,25 +88,6 @@ for dll in dllArray:
     except Exception as e:
         print("ERROR: Failed to load library {0}, {1}".format(dll, repr(e)))
 
-#---------------------------------------------
-# this code is only for development purposes
-# a bit hardcoded design, but work in al OS
-#---------------------------------------------
-EXP_BRANCH = (("master"),("custom_nodes"),('opencl'),)
-
-for file in os.listdir(PLUGIN_PATH):
-    if file[:13]=='libGridVolume' or file[:10]=='GridVolume':
-        EXP_BRANCH +=(("volumegrid"),)
-        
-    if file[:14]=='libtranslucent' or file[:11]=='translucent':
-        EXP_BRANCH +=(("merge_SSS"),)
-        
-    if file[:8]=='photonic' or file[:8]=='directic':
-        EXP_BRANCH +=(("irrcache"),)
-
-if 'custom_nodes' in EXP_BRANCH:
-    import nodeitems_utils
-
 #--------------------------
 # import exporter modules
 #--------------------------
@@ -125,7 +106,7 @@ else:
     from . import ot
 
     #-------------------------------------------------------------------------------------
-    # add path option on 'User Preferences', inspired on Corona Exporter and LuxBlend
+    # add path option on 'User Preferences', based on Corona Exporter and LuxBlend
     #-------------------------------------------------------------------------------------
     class TheBountyAddonPreferences(bpy.types.AddonPreferences):
         # don't remove!! ----------
@@ -159,8 +140,6 @@ def register():
     #
     prop.register()
     bpy.utils.register_module(__name__)
-    if "custom_nodes" in EXP_BRANCH:
-        nodeitems_utils.register_node_categories("TheBountyMaterial", ui.prop_custom_nodes.TheBountyNodeCategories)    
     
     #bpy.app.handlers.load_post.append(load_handler)
     #------------------------------------
@@ -182,11 +161,6 @@ def unregister():
         print(kmi.idname)
         kma.keymap_items.remove(kmi)
     print("#----------------------------")
-            
-    #bpy.app.handlers.load_post.remove(load_handler)
-    
-    if "custom_nodes" in EXP_BRANCH:
-        nodeitems_utils.unregister_node_categories("TheBountyMaterial")
     
     prop.unregister()  
     bpy.utils.unregister_module(__name__)
