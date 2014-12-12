@@ -80,7 +80,7 @@ class TheBountyGeometryTypes(Panel):
             #
             if ob.vol_region == "Grid Volume":
                 col = layout.column(align=True)
-                col.prop(ob, "volDensityFile",text="Density file")
+                col.prop(ob, "volDensityFile", text="Density file")
 
 
 if __name__ == "__main__":  # only for live edit.

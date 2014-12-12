@@ -52,9 +52,7 @@ class TheBountyMaterialTypePanel(TheBountyMaterialButtonsPanel):
         mat = context.material
         engine = context.scene.render.engine
         #
-        return check_material(mat) and(mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
-
-
+        return check_material(mat) and (mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
 
 
 class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
@@ -119,7 +117,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
         if mat:
             #
             layout.prop(mat.bounty, "mat_type")
-            #               
+                      
 
 class TheBountyMaterialPreview(TheBountyMaterialButtonsPanel, Panel):
     bl_label = "Preview" 

@@ -32,9 +32,9 @@ class DataButtonsPanel():
         return context.lamp and (engine in cls.COMPAT_ENGINES)
 
 # Inherit Lamp data block
-from bl_ui.properties_data_lamp import DATA_PT_context_lamp
-DATA_PT_context_lamp.COMPAT_ENGINES.add('THEBOUNTY')
-del DATA_PT_context_lamp
+from bl_ui import properties_data_lamp
+properties_data_lamp.DATA_PT_context_lamp.COMPAT_ENGINES.add('THEBOUNTY')
+del properties_data_lamp
 
 class THEBOUNTY_PT_preview(Panel):
     bl_space_type = 'PROPERTIES'
