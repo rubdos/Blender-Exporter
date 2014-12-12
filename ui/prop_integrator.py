@@ -18,13 +18,20 @@
 
 # <pep8 compliant>
 
+
 import bpy
 from bpy.types import Panel
 
+# sss mat check
+def haveSSS():
+    for mat in bpy.data.materials:
+        if mat.bounty.mat_type == "translucent":
+            return True
+    return False
+
+
 from . prop_render import RenderButtonsPanel
-
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
-
 
 class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
     bl_label = "Lighting Integrator Method"
@@ -130,7 +137,7 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
         #----------------------------
         # SubSurface integrator
         #----------------------------
-        if integrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+        if integrator in {'directlighting', 'photonmapping', 'pathtracing'} and haveSSS():
             col = layout.column(align=True)
             col.prop(scene, "intg_useSSS", toggle=True)
             if scene.intg_useSSS:

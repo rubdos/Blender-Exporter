@@ -18,6 +18,8 @@
 
 # <pep8 compliant>
 
+import bpy
+
 switchDebugType = {
     'N': 1,
     'dPdU': 2,
@@ -27,6 +29,31 @@ switchDebugType = {
     'dSdU': 6,
     'dSdV': 7,
 }
+def haveLights():
+    scene = bpy.context.scene
+    world = bpy.context.scene.world.bounty
+    
+    # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
+    haveLights = False
+    # use light create with sunsky, sunsky2 or with use ibl ON
+    if world.bg_add_sun or world.bg_background_light or world.bg_use_ibl:
+        return True
+    # if above is true, this 'for' is not used
+    for sceneObj in scene.objects:
+        if not sceneObj.hide_render and sceneObj.is_visible(scene): # check lamp, meshlight or portal light object
+            if sceneObj.type == "LAMP" or sceneObj.bounty.geometry_type in {'mesh_light', 'portal_light'}:
+                haveLights = True
+                break
+    #
+    return haveLights
+
+# sss material check
+def haveSSS():
+    #
+    for mat in bpy.data.materials:
+        if mat.bounty.mat_type == "translucent":
+            return True
+    return False
 
 class yafIntegrator:
     def __init__(self, interface, preview):
@@ -98,7 +125,10 @@ class yafIntegrator:
                 yi.paramsSetInt("caustic_depth", scene.intg_caustic_depth)
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
 
-        #elif lightIntegrator == "bidirectional":
+        elif lightIntegrator == "bidirectional":
+            if not haveLights():
+                yi.printWarning('Bidirectional Integrator need a lights on scene for work')
+                return False
 
         elif lightIntegrator == "DebugIntegrator":
             #
@@ -120,7 +150,7 @@ class yafIntegrator:
         #----------------------------------
         # Sub-Surface Scattering integrator
         #----------------------------------
-        if lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'}:
+        if lightIntegrator in {'directlighting', 'photonmapping', 'pathtracing'} and haveSSS():
             yi.paramsSetBool("useSSS", scene.intg_useSSS)
             if scene.intg_useSSS:
                 yi.paramsSetInt("sssPhotons", scene.intg_sssPhotons)
