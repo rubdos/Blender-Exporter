@@ -18,6 +18,18 @@
 
 # <pep8 compliant>
 
+bl_info = {
+    "name": "TheBounty Render Engine",
+    "description": "TheBounty Renderer integration for Blender",
+    "author": "Pedro Alcaide (povmaniaco), rubdos, TynkaTopi, paultron",
+    "version": (0, 1, 6, 0),
+    "blender": (2, 7, 2),
+    "location": "Info Header > Engine dropdown menu",
+    "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
+    "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
+    "category": "Render"
+}
+
 import sys
 import os
 import ctypes
@@ -48,17 +60,7 @@ if os.path.exists(BIN_PATH):
     PLUGIN_PATH = BIN_PATH + "/plugins"
     sys.path.append(BIN_PATH)
 
-bl_info = {
-    "name": "TheBounty Render Engine",
-    "description": "TheBounty Renderer integration for Blender",
-    "author": "Pedro Alcaide (povmaniaco), rubdos, TynkaTopi, paultron",
-    "version": (0, 1, 6, 0),
-    "blender": (2, 7, 2),
-    "location": "Info Header > Engine dropdown menu",
-    "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
-    "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
-    "category": "Render"
-}
+
 #---------------------------------------------------------------        
 # The order of libs is very importante. Please do not alter it.
 #---------------------------------------------------------------
@@ -91,7 +93,7 @@ for dll in dllArray:
 #--------------------------
 # import exporter modules
 #--------------------------
-if "prop" in locals():
+if "bpy" in locals():
     import imp
     imp.reload(prop)
     imp.reload(io)
@@ -99,7 +101,7 @@ if "prop" in locals():
     imp.reload(ot)
 else:
     import bpy
-    from bpy.app.handlers import persistent
+    #from bpy.app.handlers import persistent
     from . import prop
     from . import io
     from . import ui
@@ -122,45 +124,14 @@ else:
             layout = self.layout
             layout.prop(self, "install_path")
 
-'''
-@persistent
-def load_handler(dummy):
-    for tex in bpy.data.textures:
-        if tex is not None:
-            # set the correct texture type on file load....
-            # converts old files, where propertie yaf_tex_type wasn't defined
-            print("Load Handler: Convert old texture \"{0}\" with texture type: \"{1}\" to \"{2}\"".format(tex.name, tex.yaf_tex_type, tex.type))
-            tex.yaf_tex_type = tex.type
-    # convert image output file type setting from blender to yafaray's file type setting on file load, so that both are the same...
-    if bpy.context.scene.render.image_settings.file_format is not bpy.context.scene.bounty.img_output:
-        bpy.context.scene.bounty.img_output = bpy.context.scene.render.image_settings.file_format
 
-'''
 def register():
     #
     prop.register()
     bpy.utils.register_module(__name__)
     
-    #bpy.app.handlers.load_post.append(load_handler)
-    #------------------------------------
-    # register keys for own render modes
-    #------------------------------------
-    km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name='TheBounty')
-    kmi = km.keymap_items.new('bounty.render_view', 'F12', 'PRESS', False, False, False, True)
-    kmi = km.keymap_items.new('bounty.render_animation', 'F12', 'PRESS', False, False, True, False)
-    kmi = km.keymap_items.new('bounty.render_still', 'F12', 'PRESS', False, False, False, False)    
     
-
-def unregister():
-    #--------------------------------------   
-    # unregister keys for own render modes
-    #--------------------------------------
-    kma = bpy.context.window_manager.keyconfigs.addon.keymaps['TheBounty']
-    print("#---- Unregister keymaps ----")
-    for kmi in kma.keymap_items:
-        print(kmi.idname)
-        kma.keymap_items.remove(kmi)
-    print("#----------------------------")
+def unregister():   
     
     prop.unregister()  
     bpy.utils.unregister_module(__name__)

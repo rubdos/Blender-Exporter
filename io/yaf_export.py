@@ -29,7 +29,7 @@ from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
 from .yaf_integrator import yafIntegrator
-from . import tby_scene
+from . import bounty_scene
 from .yaf_texture import yafTexture
 from .yaf_material import TheBountyMaterialWrite
 from bpy import context
@@ -337,7 +337,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         filePath = os.path.realpath(filePath)
         filePath = os.path.normpath(filePath)
 
-        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
+        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = bounty_scene.getRenderCoords(scene)
 
         if render.use_border:
             self.resX = self.bsizeX
@@ -379,7 +379,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_integrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
-        tby_scene.exportRenderSettings(self.yi, self.scene)
+        bounty_scene.exportRenderSettings(self.yi, self.scene)
 
     def render(self, scene):
         #--------------------------------------------
