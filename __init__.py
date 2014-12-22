@@ -62,14 +62,14 @@ if os.path.exists(BIN_PATH):
 
 
 #---------------------------------------------------------------        
-# The order of libs is very importante. Please do not alter it.
+# The order of libs is very important. Please do not alter it.
 #---------------------------------------------------------------
 if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1', 'libiconv-2', 'zlib', 'libpng16', 'libxml2', 'Half', 'Iex-2_1', \
-                        'Imath-2_1', 'IlmThread-2_1', 'IlmImf-2_1', 'yafaraycore', 'yafarayplugin']
+            dllArray = ['zlib1', 'libiconv', 'libpng16', 'libxml2', 'Half', 'Iex', \
+                        'Imath', 'IlmThread', 'IlmImf', 'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a GCC build's
         else:
