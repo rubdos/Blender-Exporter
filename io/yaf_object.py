@@ -29,16 +29,18 @@ import yafrayinterface
 def multiplyMatrix4x4Vector4(matrix, vector):
     result = mathutils.Vector((0.0, 0.0, 0.0, 0.0))
     for i in range(4):
-        result[i] = vector * matrix[i]  # use reverse vector multiply order, API changed with rev. 38674
+        # use reverse vector multiply order, API changed with rev. 38674
+        result[i] = vector * matrix[i]
         
     return result
 
-
 class yafObject(object):
+    #
     def __init__(self, yi, mMap, preview):
         self.yi = yi
         self.materialMap = mMap
         self.is_preview = preview
+    
 
     def setScene(self, scene):
 
@@ -53,14 +55,14 @@ class yafObject(object):
         render = self.scene.render
 
         if bpy.types.THEBOUNTY.useViewToRender and bpy.types.THEBOUNTY.viewMatrix:
-            # use the view matrix to calculate the inverted transformed
-            # points cam pos (0,0,0), front (0,0,1) and up (0,1,0)
-            # view matrix works like the opengl view part of the
-            # projection matrix, i.e. transforms everything so camera is
-            # at 0,0,0 looking towards 0,0,1 (y axis being up)
+            #-----------------------------------------------------------------------
+            # use the view matrix to calculate the inverted transformed points cam 
+            # pos (0,0,0), front (0,0,1) and up (0,1,0) view matrix works like the 
+            # opengl view part of the projection matrix, i.e. transforms everything 
+            # so camera is at 0,0,0 looking towards 0,0,1 (y axis being up)
+            #------------------------------------------------------------------------
 
             m = bpy.types.THEBOUNTY.viewMatrix
-            # m.transpose() --> not needed anymore: matrix indexing changed with Blender rev.42816
             inv = m.inverted()
 
             pos = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 0, 0, 1)))
@@ -110,7 +112,7 @@ class yafObject(object):
 
             elif camType in {"perspective", "architect"}:
                 # Blenders GSOC 2011 project "tomato branch" merged into trunk.
-                # Check for sensor settings and use them in yafaray exporter also.
+                # Check for sensor settings and use them in exporter also.
                 if cam.sensor_fit == 'AUTO':
                     horizontal_fit = (x > y)
                     sensor_size = cam.sensor_width
@@ -298,26 +300,24 @@ class yafObject(object):
         self.writeGeometry(ID, object, matrix, 0, ml_mat)  # obType in 0, default, the object is rendered
 
     def writeVolumeObject(self, object, matrix):
-        # use object subclass properties
-        obj = object.bounty
+        # parameter properties
+        objParams = object.bounty
 
         self.yi.printInfo("Exporting Volume Region: {0}".format(object.name))
 
         yi = self.yi
-        # me = obj.data  /* UNUSED */
-        # me_materials = me.materials  /* UNUSED */
 
         yi.paramsClearAll()
 
-        if obj.vol_region == 'ExpDensity Volume':
+        if objParams.vol_region == 'ExpDensity Volume':
             yi.paramsSetString("type", "ExpDensityVolume")
-            yi.paramsSetFloat("a", obj.vol_height)
-            yi.paramsSetFloat("b", obj.vol_steepness)
+            yi.paramsSetFloat("a", objParams.vol_height)
+            yi.paramsSetFloat("b", objParams.vol_steepness)
 
-        elif obj.vol_region == 'Uniform Volume':
+        elif objParams.vol_region == 'Uniform Volume':
             yi.paramsSetString("type", "UniformVolume")
 
-        elif obj.vol_region == 'Noise Volume':
+        elif objParams.vol_region == 'Noise Volume':
             if not object.active_material:
                 yi.printError("Volume object ({0}) is missing the materials".format(object.name))
             elif not object.active_material.active_texture:
@@ -326,29 +326,32 @@ class yafObject(object):
                 texture = object.active_material.active_texture
 
                 yi.paramsSetString("type", "NoiseVolume")
-                yi.paramsSetFloat("sharpness", obj.vol_sharpness)
-                yi.paramsSetFloat("cover", obj.vol_cover)
-                yi.paramsSetFloat("density", obj.vol_density)
+                yi.paramsSetFloat("sharpness", objParams.vol_sharpness)
+                yi.paramsSetFloat("cover", objParams.vol_cover)
+                yi.paramsSetFloat("density", objParams.vol_density)
                 yi.paramsSetString("texture", texture.name)
 
-        elif obj.vol_region == 'Grid Volume' and obj.volDensityFile is not "":
-            # allow relative path's
-            volfilePath = bpy.path.abspath(obj.volDensityFile)
-            realfilePath = os.path.realpath(volfilePath)
-            fileDensityPath = os.path.normpath(realfilePath)
-            #
-            yi.paramsSetString("density_file", fileDensityPath)
-            yi.paramsSetString("type", "GridVolume")
+        elif objParams.vol_region == 'Grid Volume':
+            if objParams.volDensityFile != "":
+                # allow relative path's
+                volfilePath = bpy.path.abspath(objParams.volDensityFile)
+                realfilePath = os.path.realpath(volfilePath)
+                fileDensityPath = os.path.normpath(realfilePath)
+                yi.paramsSetString("density_file", fileDensityPath)
+                yi.paramsSetString("type", "GridVolume")
+            else:
+                self.yi.printInfo("Don't valid density file selected. Using UniformVolume..")
+                yi.paramsSetString("type", "UniformVolume")
             
         # common parameters
-        yi.paramsSetFloat("sigma_a", obj.vol_absorp)
-        yi.paramsSetFloat("sigma_s", obj.vol_scatter)
+        yi.paramsSetFloat("sigma_a", objParams.vol_absorp)
+        yi.paramsSetFloat("sigma_s", objParams.vol_scatter)
         yi.paramsSetInt("attgridScale", self.scene.world.bounty.v_int_attgridres)
 
         # Calculate BoundingBox: get the low corner (minx, miny, minz)
         # and the up corner (maxx, maxy, maxz) then apply object scale,
         # also clamp the values to min: -1e10 and max: 1e10
-
+        
         mesh = object.to_mesh(self.scene, True, 'RENDER')
         mesh.transform(matrix)
 
@@ -361,7 +364,7 @@ class yafObject(object):
         yi.paramsSetFloat("maxY", min(max(vec[1::3]), 1e10))
         yi.paramsSetFloat("maxZ", min(max(vec[2::3]), 1e10))
 
-        yi.createVolumeRegion("VR.{0}-{1}".format(obj.name, str(obj.__hash__())))
+        yi.createVolumeRegion("VR.{0}-{1}".format(object.name, str(object.__hash__())))
         bpy.data.meshes.remove(mesh)
 
     def writeGeometry(self, ID, obj, matrix, obType=0, oMat=None):
@@ -405,7 +408,12 @@ class yafObject(object):
         if hasOrco:
             # Keep a copy of the untransformed vertex and bring them
             # into a (-1 -1 -1) (1 1 1) bounding box
-            bbMin, bbMax = self.getBBCorners(obj)
+            # bbMin, bbMax = self.getBBCorners(obj)
+            # box test, remove if detect any anomalie --------      
+            BBox = obj.bound_box
+            bbMin = [BBox[0][0], BBox[0][1], BBox[0][2]]
+            bbMax = [BBox[6][0], BBox[6][1], BBox[6][2]]
+            #-------------------------------------------------
 
             delta = []
 
@@ -513,7 +521,7 @@ class yafObject(object):
     def writeParticleStrands(self, obj, matrix):
 
         yi = self.yi
-        totalNumberOfHairs = 0
+        totalExportedHairs = 0
         
         renderEmitter = False
         if hasattr(obj, 'particle_systems') == False:
@@ -541,20 +549,19 @@ class yafObject(object):
                         hairMat = "clay"
                     #
                     pSys.set_resolution(self.scene, obj, 'RENDER')    
-                    steps = pSys.settings.draw_step
-                    steps = 3 ** steps # or (power of 2 rather than 3) + 1 # Formerly : len(particle.hair_keys)
-                    #print(steps)
+                    # use most precise math formule for steps
+                    # org: steps = pSys.settings.draw_step
+                    # org: steps = 3 ** steps
+                    steps = 2**pSys.settings.render_step
                             
-                    totalNumberOfHairs = ( len(pSys.particles) + len(pSys.child_particles) )
+                    totalExportedHairs = ( len(pSys.particles) + len(pSys.child_particles) )
                     #
                     prtvis = True # False
                     #for particle in pSys.particles:
                     #    if particle.is_exist and particle.is_visible:
                     #        prtvis = True
-                    for particleIdx in range(0, totalNumberOfHairs):
+                    for particleIdx in range(0, totalExportedHairs):
                         #
-                        #initCo = obj.matrix_world.inverted()*(pSys.co_hair(obj, pindex, 0))
-                        # move here
                         CID = yi.getNextFreeID()
                         yi.paramsClearAll()
                         yi.startGeometry()
@@ -578,7 +585,7 @@ class yafObject(object):
                     self.writeMesh(obj, matrix)
             
             # total hair's for each particle system              
-            yi.printInfo("Exporter: Total hair's created: {0} ".format(totalNumberOfHairs))
+            yi.printInfo("Exporter: Total hair's created: {0} ".format(totalExportedHairs))
             
         # We only need to render emitter object once
         if renderEmitter:
