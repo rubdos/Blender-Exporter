@@ -330,15 +330,6 @@ class yafObject(object):
                 yi.paramsSetFloat("cover", obj.vol_cover)
                 yi.paramsSetFloat("density", obj.vol_density)
                 yi.paramsSetString("texture", texture.name)
-
-        elif obj.vol_region == 'Grid Volume' and obj.volDensityFile is not "":
-            # allow relative path's
-            volfilePath = bpy.path.abspath(obj.volDensityFile)
-            realfilePath = os.path.realpath(volfilePath)
-            fileDensityPath = os.path.normpath(realfilePath)
-            #
-            yi.paramsSetString("density_file", fileDensityPath)
-            yi.paramsSetString("type", "GridVolume")
             
         # common parameters
         yi.paramsSetFloat("sigma_a", obj.vol_absorp)
