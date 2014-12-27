@@ -51,7 +51,7 @@ class yafObject(object):
 
         camera = self.scene.camera
         render = self.scene.render
-
+        '''
         if bpy.types.THEBOUNTY.useViewToRender and bpy.types.THEBOUNTY.viewMatrix:
             # use the view matrix to calculate the inverted transformed
             # points cam pos (0,0,0), front (0,0,1) and up (0,1,0)
@@ -60,7 +60,6 @@ class yafObject(object):
             # at 0,0,0 looking towards 0,0,1 (y axis being up)
 
             m = bpy.types.THEBOUNTY.viewMatrix
-            # m.transpose() --> not needed anymore: matrix indexing changed with Blender rev.42816
             inv = m.inverted()
 
             pos = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 0, 0, 1)))
@@ -71,13 +70,14 @@ class yafObject(object):
             up = aboveCam
 
         else:
-            # get cam worldspace transformation matrix, e.g. if cam is parented matrix_local does not work
-            matrix = camera.matrix_world.copy()
-            # matrix indexing (row, colums) changed in Blender rev.42816, for explanation see also:
-            # http://wiki.blender.org/index.php/User:TrumanBlending/Matrix_Indexing
-            pos = matrix.col[3]
-            direction = matrix.col[2]
-            up = pos + matrix.col[1]
+        '''
+        # get cam worldspace transformation matrix, e.g. if cam is parented matrix_local does not work
+        matrix = camera.matrix_world.copy()
+        # matrix indexing (row, colums) changed in Blender rev.42816, for explanation see also:
+        # http://wiki.blender.org/index.php/User:TrumanBlending/Matrix_Indexing
+        pos = matrix.col[3]
+        direction = matrix.col[2]
+        up = pos + matrix.col[1]
 
         to = pos - direction
 
@@ -86,70 +86,70 @@ class yafObject(object):
 
         yi.paramsClearAll()
 
-        if bpy.types.THEBOUNTY.useViewToRender:
-            yi.paramsSetString("type", "perspective")
-            yi.paramsSetFloat("focal", 0.7)
-            bpy.types.THEBOUNTY.useViewToRender = False
+        #if bpy.types.THEBOUNTY.useViewToRender:
+        #    yi.paramsSetString("type", "perspective")
+        #    yi.paramsSetFloat("focal", 0.7)
+        #    bpy.types.THEBOUNTY.useViewToRender = False
 
-        else:
-            # use Blender camera properties
-            cam = camera.data 
-            # thebounty camera subclass properties
-            camera = camera.data.bounty
+        #else:
+        # use Blender camera properties
+        cam = camera.data 
+        # thebounty camera subclass properties
+        camera = camera.data.bounty
             
-            camType = camera.camera_type
+        camType = camera.camera_type
 
-            yi.paramsSetString("type", camType)
+        yi.paramsSetString("type", camType)
 
-            if camera.use_clipping:
-                yi.paramsSetFloat("nearClip", cam.clip_start)
-                yi.paramsSetFloat("farClip", cam.clip_end)
+        if camera.use_clipping:
+            yi.paramsSetFloat("nearClip", cam.clip_start)
+            yi.paramsSetFloat("farClip", cam.clip_end)
 
-            if camType == "orthographic":
-                yi.paramsSetFloat("scale", cam.ortho_scale)
+        if camType == "orthographic":
+            yi.paramsSetFloat("scale", cam.ortho_scale)
 
-            elif camType in {"perspective", "architect"}:
-                # Blenders GSOC 2011 project "tomato branch" merged into trunk.
-                # Check for sensor settings and use them in yafaray exporter also.
-                if cam.sensor_fit == 'AUTO':
-                    horizontal_fit = (x > y)
-                    sensor_size = cam.sensor_width
-                elif cam.sensor_fit == 'HORIZONTAL':
-                    horizontal_fit = True
-                    sensor_size = cam.sensor_width
-                else:
-                    horizontal_fit = False
-                    sensor_size = cam.sensor_height
+        elif camType in {"perspective", "architect"}:
+            # Blenders GSOC 2011 project "tomato branch" merged into trunk.
+            # Check for sensor settings and use them in yafaray exporter also.
+            if cam.sensor_fit == 'AUTO':
+                horizontal_fit = (x > y)
+                sensor_size = cam.sensor_width
+            elif cam.sensor_fit == 'HORIZONTAL':
+                horizontal_fit = True
+                sensor_size = cam.sensor_width
+            else:
+                horizontal_fit = False
+                sensor_size = cam.sensor_height
 
-                if horizontal_fit:
-                    f_aspect = 1.0
-                else:
-                    f_aspect = x / y
+            if horizontal_fit:
+                f_aspect = 1.0
+            else:
+                f_aspect = x / y
 
-                yi.paramsSetFloat("focal", cam.lens / (f_aspect * sensor_size))
+            yi.paramsSetFloat("focal", cam.lens / (f_aspect * sensor_size))
 
-                # DOF params, only valid for real camera
-                # use DOF object distance if present or fixed DOF
-                if cam.dof_object is not None:
-                    # use DOF object distance
-                    #dist = (pos.xyz - cam.dof_object.location.xyz).length
-                    dof_distance = (pos.xyz - cam.dof_object.location.xyz).length #dist
-                else:
-                    # use fixed DOF distance
-                    dof_distance = cam.dof_distance
+            # DOF params, only valid for real camera
+            # use DOF object distance if present or fixed DOF
+            if cam.dof_object is not None:
+                # use DOF object distance
+                #dist = (pos.xyz - cam.dof_object.location.xyz).length
+                dof_distance = (pos.xyz - cam.dof_object.location.xyz).length #dist
+            else:
+                # use fixed DOF distance
+                dof_distance = cam.dof_distance
 
-                yi.paramsSetFloat("dof_distance", dof_distance)
-                yi.paramsSetFloat("aperture", camera.aperture)
-                # bokeh params
-                yi.paramsSetString("bokeh_type", camera.bokeh_type)
-                yi.paramsSetString("bokeh_bias", camera.bokeh_bias)
-                yi.paramsSetFloat("bokeh_rotation", camera.bokeh_rotation)
+            yi.paramsSetFloat("dof_distance", dof_distance)
+            yi.paramsSetFloat("aperture", camera.aperture)
+            # bokeh params
+            yi.paramsSetString("bokeh_type", camera.bokeh_type)
+            yi.paramsSetString("bokeh_bias", camera.bokeh_bias)
+            yi.paramsSetFloat("bokeh_rotation", camera.bokeh_rotation)
 
-            elif camType == "angular":
-                yi.paramsSetBool("circular", camera.circular)
-                yi.paramsSetBool("mirrored", camera.mirrored)
-                yi.paramsSetFloat("max_angle", camera.max_angle)
-                yi.paramsSetFloat("angle", camera.angular_angle)
+        elif camType == "angular":
+            yi.paramsSetBool("circular", camera.circular)
+            yi.paramsSetBool("mirrored", camera.mirrored)
+            yi.paramsSetFloat("max_angle", camera.max_angle)
+            yi.paramsSetFloat("angle", camera.angular_angle)
 
         yi.paramsSetInt("resx", x)
         yi.paramsSetInt("resy", y)
