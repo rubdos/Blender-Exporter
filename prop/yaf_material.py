@@ -239,14 +239,14 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             soft_min=1.0, soft_max=30.0, default=1.800
     )    
     absorption = FloatVectorProperty(
-            name="Color and absorption",
+            name="Absorption Color",
             description="Glass volumetric absorption color. White disables absorption",
             subtype='COLOR',
             min=0.0, max=1.0, step=1, precision=3,
             default=(1.0, 1.0, 1.0)
     )    
     absorption_dist = FloatProperty(
-            name="Abs. distance",
+            name="Distance of Absorption",
             description="Absorption distance scale",
             min=0.0, max=100.0,
             step=1, precision=4,
@@ -269,7 +269,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             default=(1.0, 1.0, 1.0)
     )    
     dispersion_power = FloatProperty(
-            name="Disp. power",
+            name="Power",
             description="Strength of dispersion effect, disabled when 0",
             min=0.0, max=5.0,
             step=1, precision=4,
