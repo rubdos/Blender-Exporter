@@ -44,7 +44,7 @@ def find_bounty_path():
     HOME = getenv('BOUNTY_ROOT','none' )
 
     if HOME != 'none' and os.path.exists(HOME):
-        # c:\TheBounty.. or /home/user/app/TheBounty in unix 
+        # c:\TheBounty.. or /home/user/app/TheBounty in Unix 
         BIN_PATH = os.path.join(HOME)
     else:
         # keep the old way: the binaries inside the scripts/addons/folder
@@ -54,8 +54,9 @@ def find_bounty_path():
     return BIN_PATH
 #
 BIN_PATH = find_bounty_path()
+
 # if bin path is valid..
-# you also can use if BIN_PATH is not "none":
+# you also can use 'if BIN_PATH is not "none"' way
 if os.path.exists(BIN_PATH):
     PLUGIN_PATH = BIN_PATH + "/plugins"
     sys.path.append(BIN_PATH)
@@ -73,9 +74,9 @@ if sys.platform == 'win32':
             break
         # load dll's from a GCC build's
         else:
-            dllArray = ['zlib', 'libxml2-2', 'libgcc_s_sjlj-1', 'Half', 'Iex', 'Imath', \
-                        'IlmThread', 'IlmImf', 'libjpeg-8', 'libpng14', 'libtiff-3', \
-                        'libfreetype-6', 'libstdc++-6', 'libyafaraycore', 'libyafarayplugin']
+            dllArray = ['libzlib', 'libiconv-2', 'libxml2', 'libjpeg-8', 'libpng16', 'libtiff-5', \
+                        'libfreetype', 'libHalf', 'libIex', 'libIlmThread', 'libImath', \
+                        'libIlmImf', 'libyafaraycore', 'libyafarayplugin']                        
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
@@ -101,7 +102,6 @@ if "bpy" in locals():
     imp.reload(ot)
 else:
     import bpy
-    #from bpy.app.handlers import persistent
     from . import prop
     from . import io
     from . import ui
