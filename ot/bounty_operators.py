@@ -112,6 +112,7 @@ def sunPosAngle(mode="get", val="position"):
     else:
         return "No selected LAMP object in the scene!"
 
+'''
 def checkSSS():
     for mat in bpy.data.materials:
         if mat.bounty.mat_type == 'translucent':
@@ -251,7 +252,7 @@ class TheBounty_OT_render_still(Operator):
 
         bpy.ops.render.render('INVOKE_DEFAULT')
         return {'FINISHED'}
-
+'''
 
 class TheBounty_OT_presets_ior_list(Operator):
     bl_idname = "material.set_ior_preset"
