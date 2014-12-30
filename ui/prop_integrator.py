@@ -47,7 +47,8 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
         integrator = scene.intg_light_method
         layout.prop(scene, "intg_light_method", text="")
         # for recursive raytracing..
-        layout.prop(scene, "gs_ray_depth")
+        if integrator not in {"bidirectional","SPPM"}:
+            layout.prop(scene, "gs_ray_depth")
         #
         if integrator == "directlighting":
             row = layout.row()
@@ -122,12 +123,12 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
             layout.label("Use a high number of AA samples to reduce render noise")
 
         elif integrator == "SPPM":
-            col = layout.column()
+            col = layout.column(align=True)
             col.prop(scene, "intg_photons", text="Photons per pass")
             col.prop(scene, "intg_pass_num")
-            col.prop(scene, "intg_bounces", text="Bounces")
-            col = layout.column()
+            col.prop(scene, "intg_bounces", text="Photon bounces depth")
             col.prop(scene, "intg_search")
+            col = layout.column(align=True)
             col.prop(scene, "intg_pm_ire", toggle=True)
             if not scene.intg_pm_ire:
                 col.prop(scene, "intg_times")
