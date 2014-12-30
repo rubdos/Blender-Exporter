@@ -47,8 +47,9 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
         integrator = scene.intg_light_method
         layout.prop(scene, "intg_light_method", text="")
         # for recursive raytracing..
-        if integrator not in {"bidirectional","SPPM"}:
-            layout.prop(scene, "gs_ray_depth")
+        row = layout.row()
+        row.enabled = integrator not in {"bidirectional","SPPM"}
+        row.prop(scene, "gs_ray_depth")
         #
         if integrator == "directlighting":
             row = layout.row()
@@ -100,16 +101,17 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
             col = layout.row()
             col.prop(scene, "intg_caustic_method")
 
-            col = layout.row()
+            #col = layout.row()
 
             if scene.intg_caustic_method in {"both", "photon"}:
+                col = layout.row(align=True)
                 col.prop(scene, "intg_photons", text="Photons")
                 col.prop(scene, "intg_caustic_mix", text="Caus. Mix")
-                col = layout.row()
+                col = layout.row(align=True)
                 col.prop(scene, "intg_caustic_depth", text="Caus. Depth")
                 col.prop(scene, "intg_caustic_radius", text="Caus. Radius")
             #
-            col = layout.row()
+            col = layout.row(align=True)
             col.prop(scene, "intg_path_samples")
             col.prop(scene, "intg_bounces")
             col = layout.row()

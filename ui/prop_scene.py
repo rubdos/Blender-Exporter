@@ -16,11 +16,8 @@
 #  or visit https://www.fsf.org for more info.
 #
 # -------------------------------------------------------------------------#
-'''
-Created on 30/04/2014
 
-@author: Pedro
-'''
+
 import bpy
 from bpy.types import Panel, Menu
 #from bl_ui.properties_scene import SceneButtonsPanel
@@ -51,7 +48,7 @@ class TheBounty_PT_project(TheBountySceneButtonsPanel, Panel):
         row.prop(bounty, "gs_gamma_input")
         sub = layout.row()
         sub.enabled = bounty.gs_gamma_input > 1.0
-        sub.prop(bounty, "sc_apply_gammaInput",text="Apply Gamma correction", toggle=True)
+        sub.prop(bounty, "sc_apply_gammaInput", text="Apply Gamma correction", toggle=True)
 
 class TheBounty_PT_scene(TheBountySceneButtonsPanel, Panel):
     bl_label = "Scene"
