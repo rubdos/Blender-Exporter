@@ -48,14 +48,14 @@ enum_lighting_integrator_method =(
     ('photonmapping', "Photon Mapping", ""),
     ('pathtracing', "Pathtracing", ""),
     ('DebugIntegrator', "Debug Integrator", ""),
-    ('bidirectional', "Bidirectional PathTracing(WIP)", ""),
+    ('bidirectional', "Bidirectional PathTracing (WIP)", ""),
     ('SPPM', "Stochastic Progressive Photon Mapping", ""),
 )
 
 enum_caustic_method =(
     ('none', "None", ""),
     ('path', "Path", ""),
-    ('both', "Path+Photon", ""),
+    ('both', "Path + Photon", ""),
     ('photon', "Photon", ""),
 )
 
@@ -81,21 +81,13 @@ enum_tile_order = (
     ('random', "Random Tiles", "Random buckets by arbitray order"),
 )
 
-enum_gpu_intersection =(
-    ('Triangle', "Triangle", ""),
-    ('Sphere Hierarchy', "Sphere Hierarchy", ""),
-    ('Disk culled', "Disk culled", ""),
-    ('Sphere Hierarchy VEC', "Sphere Hierarchy VEC", ""),
-    ('Triangle VEC', "Triangle VEC", "")
-)
-# set fileformat for image saving on same format as in the exporter, both have default PNG
 enum_verbosity_level = (
     ('info', "Console Info", "Show all general info messages on console"),
     ('warning', "Console Warning", "Show only warning messages on console"),
     ('error', "Console Error", "Show only error messages on console"),
     ('mute', "Console Mute", "Mute all messages on console"),
 )
-# TODO: need review
+
 # set fileformat for image saving on same format as in the exporter, both have default PNG
 # TODO: need review
 def call_update_fileformat(self, context):
@@ -104,8 +96,6 @@ def call_update_fileformat(self, context):
     
     if scene.img_output is not render.image_settings.file_format:
         render.image_settings.file_format = scene.img_output
-        #if render.image_settings.file_format == "OPEN_EXR" and scene.gs_z_channel:
-        #    render.image_settings.use_zbuffer = True
 
 class TheBountySceneSettings(bpy.types.PropertyGroup):
     @classmethod
