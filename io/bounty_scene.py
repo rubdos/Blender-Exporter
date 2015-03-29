@@ -94,10 +94,8 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetString("integrator_name", "default")
     yi.paramsSetString("volintegrator_name", "volintegr")
     
-    # use exporter params from UI
     # gamma output
-    yi.paramsSetFloat("gamma", scene.view_settings.gamma)
-    #yi.paramsSetFloat("gamma", scene.gs_gamma)
+    yi.paramsSetFloat("gamma", scene.bounty.gs_gamma)
     
     exportAA(yi, scene)
 
