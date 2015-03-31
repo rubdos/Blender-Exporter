@@ -23,7 +23,7 @@ bl_info = {
     "description": "TheBounty Renderer integration for Blender",
     "author": "Pedro Alcaide (povmaniaco), rubdos, TynkaTopi, paultron",
     "version": (0, 1, 6, 0),
-    "blender": (2, 7, 2),
+    "blender": (2, 72, 4),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
     "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
@@ -68,14 +68,15 @@ if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1', 'libiconv', 'libpng16', 'libxml2', 'Half', 'Iex', \
-                        'Imath', 'IlmThread', 'IlmImf', 'yafaraycore', 'yafarayplugin']
+            dllArray = ['zlib1', 'libiconv', 'libpng16', 'libxml2', \
+                        'Half', 'Iex', 'Imath', 'IlmThread', 'IlmImf', \
+                        'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a GCC build's
         else:
-            dllArray = ['zlib', 'libxml2-2', 'libgcc_s_sjlj-1', 'Half', 'Iex', 'Imath', \
-                        'IlmThread', 'IlmImf', 'libjpeg-8', 'libpng14', 'libtiff-3', \
-                        'libfreetype-6', 'libstdc++-6', 'libyafaraycore', 'libyafarayplugin']
+            dllArray = ['libzlib', 'libxml2', 'libjpeg-8', 'libpng16', 'libtiff-5', 'libfreetype', \
+                        'libHalf', 'libIex', 'libImath', 'libIlmThread', 'libIlmImf', \
+                        'libyafaraycore', 'libyafarayplugin']
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
