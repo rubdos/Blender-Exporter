@@ -196,7 +196,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             name="Reflection strength",
             description="Amount of glossy reflection",
             min=0.0, max=1.0, step=1, precision=3,
-            soft_min=0.0, soft_max=1.0, default=0.000
+            soft_min=0.0, soft_max=1.0, default=0.0001
     )    
     exp_u = FloatProperty(
             name="Exponent U",
