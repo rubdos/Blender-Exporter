@@ -23,7 +23,7 @@ bl_info = {
     "description": "TheBounty Renderer integration for Blender",
     "author": "Pedro Alcaide (povmaniaco), rubdos, TynkaTopi, paultron",
     "version": (0, 1, 6, 0),
-    "blender": (2, 7, 2),
+    "blender": (2, 74, 0),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
     "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
