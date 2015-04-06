@@ -20,7 +20,7 @@
 
 import bpy
 from bpy.types import Panel
-#from bl_ui.properties_data_camera import CameraButtonsPanel
+from bl_ui import properties_data_camera
 
 class CameraButtonsPanel():
     bl_space_type = 'PROPERTIES'
@@ -36,13 +36,12 @@ class CameraButtonsPanel():
 
 class THEBOUNTY_PT_lens(CameraButtonsPanel, Panel):
     bl_label = "Lens"
-    #povman add
     bl_context = "data"
     
     @classmethod
     def poll(cls, context):
         return context.camera and CameraButtonsPanel.poll(context)
-    #end
+    
     
     def draw(self, context):
         layout = self.layout
@@ -56,10 +55,12 @@ class THEBOUNTY_PT_lens(CameraButtonsPanel, Panel):
         layout.separator()
 
         if camera.camera_type == 'angular':
-            layout.prop(camera, "angular_angle")
-            layout.prop(camera, "max_angle")
-            layout.prop(camera, "mirrored")
-            layout.prop(camera, "circular")
+            row = layout.row()
+            row.prop(camera, "angular_angle")
+            row.prop(camera, "max_angle")
+            row = layout.row()
+            row.prop(camera, "mirrored")
+            row.prop(camera, "circular")
 
         elif camera.camera_type == 'orthographic':
             layout.prop(cam, "ortho_scale")
@@ -135,34 +136,14 @@ class THEBOUNTY_PT_camera(CameraButtonsPanel, Panel):
 
 class THEBOUNTY_PT_camera_display(CameraButtonsPanel, Panel):
     bl_label = "Display"
-    #povman add
     bl_context = "data"
     
     @classmethod
     def poll(cls, context):
         return context.camera and CameraButtonsPanel.poll(context)
-    #end
     
     def draw(self, context):
-        layout = self.layout
-
-        camera = context.camera
-
-        split = layout.split()
-
-        col = split.column()
-        col.prop(camera, "show_limits", text="Limits")
-        col.prop(camera, "show_title_safe", text="Title Safe")
-        col.prop(camera, "show_sensor", text="Sensor")
-        col.prop(camera, "show_name", text="Name")
-
-        col = split.column()
-        col.prop_menu_enum(camera, "show_guide")
-        col.prop(camera, "draw_size", text="Size")
-        col.prop(camera, "show_passepartout", text="Passepartout")
-        sub = col.column()
-        sub.active = camera.show_passepartout
-        sub.prop(camera, "passepartout_alpha", text="Alpha", slider=True)
+        properties_data_camera.DATA_PT_camera_display.draw(self, context)
 
 
 if __name__ == "__main__":  # only for live edit.
