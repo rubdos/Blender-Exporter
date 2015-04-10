@@ -437,7 +437,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 x, y, w, h, tile = args
                 res = self.begin_result(x, y, w, h)
                 try:
-                    lay = res.layers[0]
+                    lay = res.layers[0] if bpy.app.version < (2, 74, 4 ) else res.layers[0].passes[0]
+                    #lay = res.layers[0]
                     lay.rect, lay.passes[0].rect = tile
                 except:
                     pass
@@ -448,7 +449,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 w, h, tile = args
                 res = self.begin_result(0, 0, w, h)
                 try:
-                    lay = res.layers[0]
+                    lay = res.layers[0] if bpy.app.version < (2, 74, 4 ) else res.layers[0].passes[0]
+                    #lay = res.layers[0]
                     lay.rect, lay.passes[0].rect = tile
                 except BaseException as e:
                     pass
