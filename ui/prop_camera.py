@@ -20,7 +20,7 @@
 
 import bpy
 from bpy.types import Panel
-#from bl_ui.properties_data_camera import CameraButtonsPanel
+from bl_ui import properties_data_camera
 
 class CameraButtonsPanel():
     bl_space_type = 'PROPERTIES'
