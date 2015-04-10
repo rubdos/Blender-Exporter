@@ -68,7 +68,7 @@ if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1', 'libiconv', 'libpng16', 'libxml2', \
+            dllArray = ['zlib', 'libiconv', 'libpng16', 'jpeg8','libxml2', \
                         'Half', 'Iex', 'Imath', 'IlmThread', 'IlmImf', \
                         'yafaraycore', 'yafarayplugin']
             break
