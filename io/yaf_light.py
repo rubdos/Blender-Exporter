@@ -114,13 +114,14 @@ class yafLight:
         if lampType == "POINT":
             yi.paramsSetString("type", "pointlight")
             yi.paramsSetBool("useGeometry", lamp.create_geometry)
+            power = 0.5 * power * power
             #
             if lamp.use_sphere:
                 yi.paramsSetString("type", "spherelight")
                 yi.paramsSetInt("samples", lamp.yaf_samples)
                 yi.paramsSetFloat("radius", lamp.yaf_sphere_radius)
                 # use sphere light attenuation  
-                power = 0.5 * power * power
+                power /= lamp.yaf_sphere_radius * lamp.yaf_sphere_radius
                 #
                 if lamp.create_geometry:
                     ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
@@ -138,8 +139,11 @@ class yafLight:
 
             yi.paramsSetString("type", "spotlight")
             ''' 
-            fix issue when some spot_blend >= 0.70 with caustic photons
-            ERROR: Index out of bounds in pdf1D_t::Sample: index, u, ptr, cdf = -1, 0, 00000000082D7840, 00000000082D7840
+            fix issue when some spot_blend >= 0.70 with caustic map
+			Issue checked with 'white dots fix' patch code in sample_utils.h lines 114 and 139.
+			Possible solution: limited spot blend max value to 0.65
+			Message error:
+            #ERROR: Index out of bounds in pdf1D_t::Sample: index, u, ptr, cdf = -1, 0, 00000000082D7840, 00000000082D7840
             '''
             if lamp_data.spot_blend > 0.650:
                 lamp_data.spot_blend = 0.650
