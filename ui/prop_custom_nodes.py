@@ -25,6 +25,7 @@ from bpy.props import (FloatProperty, FloatVectorProperty, StringProperty, BoolP
 
 from . import prop_node_sockets
 # test move here
+#import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem, NodeItemCustom
 
 from ..prop.yaf_material import TheBountyMaterialProperties as MatProperty
@@ -80,7 +81,7 @@ class TheBountyNode:
     @classmethod
     def poll( cls, context):
         engine = context.scene.render.engine 
-        return context.bl_idname == "TheBountyNodeTree" and engine == 'THEBOUNTY'
+        return (context.bl_idname == "TheBountyNodeTree" and context.scene.render.engine == 'THEBOUNTY')
 
     def draw_buttons( self, context, layout):
         pass

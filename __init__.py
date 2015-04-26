@@ -94,6 +94,8 @@ for dll in dllArray:
 #--------------------------
 # import exporter modules
 #--------------------------
+import nodeitems_utils
+
 if "bpy" in locals():
     import imp
     imp.reload(prop)
@@ -127,13 +129,13 @@ else:
 
 def register():
     #
+    nodeitems_utils.register_node_categories("BOUNTY_NODES", ui.prop_custom_nodes.TheBountyNodeCategories)
     prop.register()
     bpy.utils.register_module(__name__)
     
     
-def unregister():   
-    
-    prop.unregister()  
+def unregister():
+    nodeitems_utils.unregister_node_categories("BOUNTY_NODES")
     bpy.utils.unregister_module(__name__)
 
 
