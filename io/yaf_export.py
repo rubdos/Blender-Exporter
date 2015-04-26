@@ -402,7 +402,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             
             self.yi.render(self.co)
             result = self.begin_result(0, 0, self.resX, self.resY)
-            lay = result.layers[0]
+            lay = result.layers[0] if bpy.app.version < (2, 74, 4 ) else result.layers[0].passes[0]
+            #lay = result.layers[0]
 
             # exr format has z-buffer included, so no need to load '_zbuffer' - file
             if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':
@@ -435,25 +436,25 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
             def drawAreaCallback(*args):
                 x, y, w, h, tile = args
-                res = self.begin_result(x, y, w, h)
+                result = self.begin_result(x, y, w, h)
                 try:
-                    lay = res.layers[0]
+                    lay = result.layers[0] if bpy.app.version < (2, 74, 4 ) else result.layers[0].passes[0]
                     lay.rect, lay.passes[0].rect = tile
                 except:
                     pass
 
-                self.end_result(res)
+                self.end_result(result)
 
             def flushCallback(*args):
                 w, h, tile = args
-                res = self.begin_result(0, 0, w, h)
+                result = self.begin_result(0, 0, w, h)
                 try:
-                    lay = res.layers[0]
+                    lay = result.layers[0] if bpy.app.version < (2, 74, 4 ) else result.layers[0].passes[0]
                     lay.rect, lay.passes[0].rect = tile
                 except BaseException as e:
                     pass
 
-                self.end_result(res)
+                self.end_result(result)
                 
             # define thread
             thread = threading.Thread(target=self.yi.render,
