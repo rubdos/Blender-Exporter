@@ -23,6 +23,52 @@ from ..ui.ior_values import ior_list
 from bpy.types import Panel, Menu
 from bl_ui.properties_material import (active_node_mat, check_material)
 
+#
+def panel_node_draw(layout, id_data, output_type): #, input_name):
+    node = find_node(id_data, output_type)
+    if not node:
+        return False
+    else:
+        if id_data.bounty.nodetree:
+            ntree = bpy.data.node_groups[id_data.bounty.nodetree]
+            #input = find_node_input(node, input_name)
+            #layout.template_node_view(ntree, node, input)
+
+    return True
+
+def find_node(material, nodetypes):
+    if not (material and material.bounty and material.bounty.nodetree):
+        return None
+        
+    node_tree =  material.bounty.nodetree
+    
+    if node_tree == '':
+        return None
+    
+    ntree = bpy.data.node_groups[node_tree]
+    
+    for node in ntree.nodes:
+        nt = getattr(node, "bl_idname", None)
+        if nt in nodetypes:
+            return node
+    return None
+
+def node_tree_selector_draw(layout, mat, output_type):
+    # 
+    try:
+        layout.prop_search(mat.bounty, "nodetree", bpy.data, "node_groups")
+    except:
+        return False
+
+    node = find_node(mat, output_type)
+    if not node:
+        if not mat.bounty.nodetree:
+            layout.operator('bounty.add_nodetree', icon='NODETREE')
+            return False
+    return True
+
+#------------------------------------------------
+
 class TheBountyMaterialButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -116,7 +162,16 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             row.operator("bounty.material_preset_add", text="", icon='ZOOMIN')
             row.operator("bounty.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
             #
-            layout.prop(mat.bounty, "mat_type")
+            #layout.prop(mat.bounty, "mat_type")
+        #----------------------------------------------------
+        node_tree_selector_draw(layout, mat, 'MaterialOutputNode')
+        if not panel_node_draw(layout, mat, 'MaterialOutputNode'): #, 'Surface'):
+            row = self.layout.row(align=True)
+            if slot is not None and slot.name:
+                layout.prop(mat.bounty, "mat_type")
+                #row.label("Material type")
+                #row.menu('MATERIAL_MT_luxrender_type', text=context.material.luxrender_material.type_label)
+                #super().draw(context)
                       
 
 class TheBountyMaterialPreview(TheBountyMaterialButtonsPanel, Panel):
