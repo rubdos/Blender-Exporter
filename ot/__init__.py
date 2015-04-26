@@ -21,3 +21,4 @@
 from . import bounty_operators
 #from . import yafaray_converter
 from . import bounty_presets
+from . import bounty_nodes_operator
