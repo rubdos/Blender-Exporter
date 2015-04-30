@@ -225,7 +225,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 self.yaf_object.writeObject(obj)
 
     def handleBlendMat(self, mat):
-        #
+        # improve blend material
+        # step one: reduce risk of blender crash's
+        #    - don't allow recursive blend materials
         try:
             mat1 = bpy.data.materials[mat.bounty.blendmaterial1]
             mat2 = bpy.data.materials[mat.bounty.blendmaterial2]
@@ -238,20 +240,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.printWarning("Exporter: Problem with blend material {0}."
                                  " {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
             return
-        #---------------------------------------------------------
-        # Recursive blend materials allowed (atm, only two levels)
-        # TODO: review some random crashes when use 'blend' slider
-        # maybe related with the material 'preview' update 
-        #---------------------------------------------------------
-        
-        if mat1.bounty.mat_type == 'blend':
-            self.handleBlendMat(mat1)        
         if mat1 not in self.materials:
             self.materials.add(mat1)
             self.yaf_material.writeMaterial(mat1)
 
-        if mat2.bounty.mat_type == 'blend':
-            self.handleBlendMat(mat2)
         if mat2 not in self.materials:
             self.materials.add(mat2)
             self.yaf_material.writeMaterial(mat2)
@@ -438,8 +430,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 x, y, w, h, tile = args
                 result = self.begin_result(x, y, w, h)
                 try:
-                    lay = result.layers[0] if bpy.app.version < (2, 74, 4 ) else result.layers[0].passes[0]
-                    lay.rect, lay.passes[0].rect = tile
+                    if bpy.app.version < (2, 74, 4 ):
+                        lay = result.layers[0]
+                        lay.rect, lay.passes[0].rect = tile 
+                    else:
+                        result.layers[0].passes[0]
+                        lay.passes[0].rect, lay.passes[1].rect = tile
                 except:
                     pass
 
@@ -449,8 +445,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 w, h, tile = args
                 result = self.begin_result(0, 0, w, h)
                 try:
-                    lay = result.layers[0] if bpy.app.version < (2, 74, 4 ) else result.layers[0].passes[0]
-                    lay.rect, lay.passes[0].rect = tile
+                    if bpy.app.version < (2, 74, 4 ):
+                        lay = result.layers[0]
+                        lay.rect, lay.passes[0].rect = tile 
+                    else:
+                        result.layers[0].passes[0]
+                        lay.passes[0].rect, lay.passes[1].rect = tile
                 except BaseException as e:
                     pass
 
