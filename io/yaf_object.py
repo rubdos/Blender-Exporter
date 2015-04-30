@@ -51,26 +51,7 @@ class yafObject(object):
 
         camera = self.scene.camera
         render = self.scene.render
-        '''
-        if bpy.types.THEBOUNTY.useViewToRender and bpy.types.THEBOUNTY.viewMatrix:
-            # use the view matrix to calculate the inverted transformed
-            # points cam pos (0,0,0), front (0,0,1) and up (0,1,0)
-            # view matrix works like the opengl view part of the
-            # projection matrix, i.e. transforms everything so camera is
-            # at 0,0,0 looking towards 0,0,1 (y axis being up)
-
-            m = bpy.types.THEBOUNTY.viewMatrix
-            inv = m.inverted()
-
-            pos = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 0, 0, 1)))
-            aboveCam = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 1, 0, 1)))
-            frontCam = multiplyMatrix4x4Vector4(inv, mathutils.Vector((0, 0, 1, 1)))
-
-            direction = frontCam - pos
-            up = aboveCam
-
-        else:
-        '''
+        
         # get cam worldspace transformation matrix, e.g. if cam is parented matrix_local does not work
         matrix = camera.matrix_world.copy()
         # matrix indexing (row, colums) changed in Blender rev.42816, for explanation see also:
@@ -86,12 +67,6 @@ class yafObject(object):
 
         yi.paramsClearAll()
 
-        #if bpy.types.THEBOUNTY.useViewToRender:
-        #    yi.paramsSetString("type", "perspective")
-        #    yi.paramsSetFloat("focal", 0.7)
-        #    bpy.types.THEBOUNTY.useViewToRender = False
-
-        #else:
         # use Blender camera properties
         cam = camera.data 
         # thebounty camera subclass properties
