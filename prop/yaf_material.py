@@ -53,19 +53,24 @@ def syncBlenderColors(self, context):
 
 def items_mat1(self, context):
     mat_one = []
-    for mat in[m for m in bpy.data.materials if m.name not in self.name and m.bounty.mat_type not in 'blend']:
-        #for mat in bpy.data.materials:
-        #if mat.name not in self.name:            
-        mat_one +=((mat.name, mat.name, "First blend material"),)
+    # for fix 'no enum' error
+    if bpy.data.materials.__len__() > 1:
+        for mat in[m for m in bpy.data.materials if m.name not in self.name and m.bounty.mat_type not in 'blend']:
+            mat_one +=((mat.name, mat.name, "First blend material"),)
+    else:
+        mat_one +=(('defaultMat', 'defaultMat', "First blend material"),)
             
     return mat_one
 
 def items_mat2(self, context):
     mat_two = []
-    for mat in[m for m in bpy.data.materials if m.name not in self.name and m.bounty.mat_type not in 'blend']:
-        #for mat in bpy.data.materials:
-        #if mat.name not in self.name:
-        mat_two +=((mat.name, mat.name, "Second blend material"),)
+    # for fix 'no enum' error
+    if bpy.data.materials.__len__() > 1:
+        for mat in[m for m in bpy.data.materials if m.name not in self.name and m.bounty.mat_type not in 'blend']:
+            mat_two +=((mat.name, mat.name, "Second blend material"),)
+    else:
+        mat_two +=(('defaultMat', 'defaultMat', "First blend material"),)
+            
             
     return mat_two
 
