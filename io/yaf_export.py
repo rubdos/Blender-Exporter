@@ -72,6 +72,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     def setInterface(self, yi):
         self.materialMap = {}
         self.materials = set()
+        self.blendMaterials = {}
         self.yi = yi
         # setup specific values for render preview mode
         if self.is_preview:
@@ -226,20 +227,24 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
     def handleBlendMat(self, mat):
         # improve blend material
-        # step one: reduce risk of blender crash's
         #    - don't allow recursive blend materials
-        try:
-            mat1 = bpy.data.materials[mat.bounty.blendmaterial1]
-            mat2 = bpy.data.materials[mat.bounty.blendmaterial2]
-        except:
-            self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                 " Could not find one of the two blended materials".format(mat.name))
-            return
+        #    - use defaultMat how a 'blend material base' (so.. you can remove 'try / except ')
+        #    - allow use the same materials for each 'blend' component ( show warning message, but don't force 'return')
+        if mat.name not in self.blendMaterials:
+            self.blendMaterials[mat.name]= (mat.bounty.blendmaterial1, mat.bounty.blendmaterial2)
+        else:
+            mat.bounty.blendmaterial1 = self.blendMaterials[mat.name][0]
+            mat.bounty.blendmaterial2 = self.blendMaterials[mat.name][1]
+
+            
+        mat1 = bpy.data.materials[self.blendMaterials[mat.name][0]]
+        mat2 = bpy.data.materials[self.blendMaterials[mat.name][1]]
+        print('mat one: ' + self.blendMaterials[mat.name][0])
             
         if mat1.name == mat2.name:
             self.yi.printWarning("Exporter: Problem with blend material {0}."
                                  " {1} and {2} to blend are the same materials".format(mat.name, mat1.name, mat2.name))
-            return
+            #return
         if mat1 not in self.materials:
             self.materials.add(mat1)
             self.yaf_material.writeMaterial(mat1)
@@ -251,11 +256,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         if mat not in self.materials:
             self.materials.add(mat)
             self.yaf_material.writeMaterial(mat)
-
-    def exportMaterials(self):
-        self.yi.printInfo("Exporter: Processing Materials...")
-        self.materials = set()
-        
+            
+    def createDefaultMat(self):
         #---------------------------------------------------
         # create shiny diffuse material for use by default
         # it will be assigned, if object has no material(s)
@@ -266,6 +268,16 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
         ymat = self.yi.createMaterial("defaultMat")
         self.materialMap["default"] = ymat
+        # add to blender materials for allowed to use with 'blend'
+        if 'defaultMat' not in bpy.data.materials:
+            bpy.data.materials.new('defaultMat')
+        
+            
+    def exportMaterials(self):
+        self.yi.printInfo("Exporter: Processing Materials...")
+        self.materials = set()
+        self.createDefaultMat()
+        
         #---------------------------------------------------
         # create a shinydiffuse material for "Clay Render"
         # exception: don't create for material preview mode
@@ -290,7 +302,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         if material:
             # must make sure all materials used by a blend mat
             # are written before the blend mat itself                
-            if material.bounty.mat_type == 'blend':
+            if material.bounty.mat_type == 'blend':                    
                 self.handleBlendMat(material)
             else:
                 self.materials.add(material)
