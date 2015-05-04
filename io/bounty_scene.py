@@ -43,11 +43,10 @@ def getRenderCoords(scene):
                 break
 
     # Shift only available if camera is selected
-    #if not cam_data:
     shiftX = 0
     shiftY = 0
 
-    #else:
+    #
     if cam_data:
         # Sanne: get lens shift
         #camera = self.scene.objects.camera.getData()
@@ -94,10 +93,8 @@ def exportRenderSettings(yi, scene):
     yi.paramsSetString("integrator_name", "default")
     yi.paramsSetString("volintegrator_name", "volintegr")
     
-    # use exporter params from UI
     # gamma output
-    yi.paramsSetFloat("gamma", scene.view_settings.gamma)
-    #yi.paramsSetFloat("gamma", scene.gs_gamma)
+    yi.paramsSetFloat("gamma", scene.bounty.gs_gamma)
     
     exportAA(yi, scene)
 
