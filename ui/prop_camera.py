@@ -135,34 +135,14 @@ class THEBOUNTY_PT_camera(CameraButtonsPanel, Panel):
 
 class THEBOUNTY_PT_camera_display(CameraButtonsPanel, Panel):
     bl_label = "Display"
-    #povman add
     bl_context = "data"
     
     @classmethod
     def poll(cls, context):
         return context.camera and CameraButtonsPanel.poll(context)
-    #end
     
     def draw(self, context):
-        layout = self.layout
-
-        camera = context.camera
-
-        split = layout.split()
-
-        col = split.column()
-        col.prop(camera, "show_limits", text="Limits")
-        col.prop(camera, "show_title_safe", text="Title Safe")
-        col.prop(camera, "show_sensor", text="Sensor")
-        col.prop(camera, "show_name", text="Name")
-
-        col = split.column()
-        col.prop_menu_enum(camera, "show_guide")
-        col.prop(camera, "draw_size", text="Size")
-        col.prop(camera, "show_passepartout", text="Passepartout")
-        sub = col.column()
-        sub.active = camera.show_passepartout
-        sub.prop(camera, "passepartout_alpha", text="Alpha", slider=True)
+        properties_data_camera.DATA_PT_camera_display.draw(self, context)
 
 
 if __name__ == "__main__":  # only for live edit.
