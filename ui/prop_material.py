@@ -68,6 +68,24 @@ def node_tree_selector_draw(layout, mat, output_type):
     return True
 
 #------------------------------------------------
+def blend_one_draw(layout, mat): #, output_type):
+    #
+    try:
+        layout.prop_search(mat.bounty, "blendOne", bpy.data, "materials")
+    except:
+        return False
+    
+    return True
+
+def blend_two_draw(layout, mat): #, output_type):
+    #
+    try:
+        layout.prop_search(mat.bounty, "blendTwo", bpy.data, "materials")
+    except:
+        return False
+    return True
+
+#---------------------------------------------------------------------------
 
 class TheBountyMaterialButtonsPanel():
     bl_space_type = 'PROPERTIES'
@@ -230,13 +248,12 @@ class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
         layout = self.layout
         mat = active_node_mat(context.material)
 
-        col = layout.column()
         layout.separator()
-        col.prop(mat.bounty, "blendmaterial1", text="Material one")            
-        col.separator()
-        col.prop(mat.bounty, "blend_value", slider=True)
-        col.separator()
-        col.prop(mat.bounty, "blendmaterial2", text="Material two")
+        blend_one_draw(layout, mat)
+        layout.separator()
+        layout.prop(mat.bounty, "blend_value", slider=True)
+        layout.separator()
+        blend_two_draw(layout, mat)
                     
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
     bl_label = "Diffuse reflection"
