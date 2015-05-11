@@ -542,11 +542,8 @@ class TheBountyMaterialWrite:
         yi.printInfo("Exporter: Blend material with: [" + mat.bounty.blendOne + "] [" + mat.bounty.blendTwo + "]")
         yi.paramsSetString("type", "blend_mat")
         
-        mat1 = bpy.data.materials[mat.bounty.blendOne]
-        yi.paramsSetString("material1", self.namehash(mat1))
-        #
-        mat2 = bpy.data.materials[mat.bounty.blendTwo]
-        yi.paramsSetString("material2", self.namehash(mat2))
+        yi.paramsSetString("material1", self.namehash(bpy.data.materials[mat.bounty.blendOne]))
+        yi.paramsSetString("material2", self.namehash(bpy.data.materials[mat.bounty.blendTwo]))
 
         i = 0
 
