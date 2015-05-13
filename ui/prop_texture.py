@@ -59,8 +59,7 @@ class TheBounty_PT_context_texture(TextureButtonsPanel, Panel):
                 (engine in cls.COMPAT_ENGINES))
 
     def draw(self, context):
-        layout = self.layout
-        
+        layout = self.layout        
         slot = getattr(context, "texture_slot", None)
         node = getattr(context, "texture_node", None)
         space = context.space_data
@@ -68,9 +67,10 @@ class TheBounty_PT_context_texture(TextureButtonsPanel, Panel):
         idblock = context_tex_datablock(context)
         pin_id = space.pin_id
 
+        space.use_limited_texture_context = True
+
         if space.use_pin_id and not isinstance(pin_id, Texture):
-            idblock = pin_id
-            #idblock = context_tex_datablock(pin_id) # is use for texture lamp??
+            idblock = id_tex_datablock(pin_id)
             pin_id = None
 
         if not space.use_pin_id:
