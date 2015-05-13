@@ -46,6 +46,8 @@ class yafWorld:
             useIBL = world.bg_use_ibl
             iblSamples = world.bg_ibl_samples
             bgPower = world.bg_power
+            with_caustic = world.bg_with_caustic
+            with_diffuse = world.bg_with_diffuse
             
         yi.paramsClearAll()
 
@@ -92,7 +94,7 @@ class yafWorld:
                     yi.paramsSetFloat("rotation", world.bg_rotation)
                 else:
                     self.yi.printInfo("World Texture, name: {0} is not valid format".format(worldTexture.name))
-
+            
         elif bg_type == 'gradientback':
             c = world.bg_horizon_color
             yi.paramsSetColor("horizon_color", c[0], c[1], c[2])
@@ -153,5 +155,5 @@ class yafWorld:
         yi.paramsSetString("type", bg_type)
         yi.createBackground("world_background")
         self.yi.printInfo("Exporting World, type: {0}".format(bg_type))
-
+        
         return True
