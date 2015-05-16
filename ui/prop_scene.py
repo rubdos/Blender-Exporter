@@ -46,6 +46,7 @@ class TheBounty_PT_project(TheBountySceneButtonsPanel, Panel):
         layout.label("Project settings values (W.I.P)")
         row=layout.row()
         row.prop(bounty, "gs_gamma_input")
+        row.prop(bounty, "gs_gamma")
         sub = layout.row()
         sub.enabled = bounty.gs_gamma_input > 1.0
         sub.prop(bounty, "sc_apply_gammaInput", text="Apply Gamma correction", toggle=True)
