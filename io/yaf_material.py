@@ -264,13 +264,10 @@ class TheBountyMaterialWrite:
         #-------------------------------------------
         if mat.bounty.mat_type == "coated_glossy":
             #
-            yi.paramsSetString("type", "coated_glossy")
             yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
             mir_col = mat.bounty.coat_mir_col
             yi.paramsSetColor("mirror_color", mir_col[0], mir_col[1], mir_col[2])
-        else:
-            yi.paramsSetString("type", "glossy")
-
+        
         #diffuse_color = mat.diffuse_color
         diffuse_color = mat.bounty.diff_color
         glossy_color = mat.bounty.glossy_color
@@ -284,6 +281,12 @@ class TheBountyMaterialWrite:
         yi.paramsSetBool("anisotropic", mat.bounty.anisotropic)
         yi.paramsSetFloat("exp_u", mat.bounty.exp_u)
         yi.paramsSetFloat("exp_v", mat.bounty.exp_v)
+        #
+        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for glossy
+            yi.paramsSetString("diffuse_brdf", "Oren-Nayar")
+            yi.paramsSetFloat("sigma", mat.bounty.sigma)
+        #
+        yi.paramsSetString("type", mat.bounty.mat_type)
 
         # init shader values..
         diffRoot = glossRoot = glRefRoot = bumpRoot = ''
@@ -334,10 +337,6 @@ class TheBountyMaterialWrite:
             yi.paramsSetString("glossy_reflect_shader", glRefRoot)
         if len(bumpRoot) > 0:
             yi.paramsSetString("bump_shader", bumpRoot)
-
-        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for glossy
-            yi.paramsSetString("diffuse_brdf", "Oren-Nayar")
-            yi.paramsSetFloat("sigma", mat.bounty.sigma)
 
         return yi.createMaterial(self.namehash(mat))
     
@@ -448,6 +447,23 @@ class TheBountyMaterialWrite:
         if self.preview:
             if mat.name.startswith("checker"):
                 bEmit = 2.50
+        ##
+        yi.paramsSetColor("color", bCol[0], bCol[1], bCol[2])
+        yi.paramsSetFloat("transparency", bTransp)
+        yi.paramsSetFloat("translucency", bTransl)
+        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
+        yi.paramsSetFloat("emit", bEmit)
+        yi.paramsSetFloat("transmit_filter", mat.bounty.transmit_filter)
+
+        yi.paramsSetFloat("specular_reflect", bSpecr)
+        yi.paramsSetColor("mirror_color", mirCol[0], mirCol[1], mirCol[2])
+        yi.paramsSetBool("fresnel_effect", mat.bounty.fresnel_effect)
+        yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
+
+        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
+            yi.paramsSetString("diffuse_brdf", "oren_nayar")
+            yi.paramsSetFloat("sigma", mat.bounty.sigma)
+        ##
 
         i = 0
         used_textures = self.getUsedTextures(mat)
@@ -516,22 +532,6 @@ class TheBountyMaterialWrite:
             yi.paramsSetString("mirror_shader", mirrorRoot)
         if len(bumpRoot) > 0:
             yi.paramsSetString("bump_shader", bumpRoot)
-
-        yi.paramsSetColor("color", bCol[0], bCol[1], bCol[2])
-        yi.paramsSetFloat("transparency", bTransp)
-        yi.paramsSetFloat("translucency", bTransl)
-        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
-        yi.paramsSetFloat("emit", bEmit)
-        yi.paramsSetFloat("transmit_filter", mat.bounty.transmit_filter)
-
-        yi.paramsSetFloat("specular_reflect", bSpecr)
-        yi.paramsSetColor("mirror_color", mirCol[0], mirCol[1], mirCol[2])
-        yi.paramsSetBool("fresnel_effect", mat.bounty.fresnel_effect)
-        yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
-
-        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
-            yi.paramsSetString("diffuse_brdf", "oren_nayar")
-            yi.paramsSetFloat("sigma", mat.bounty.sigma)
 
         return yi.createMaterial(self.namehash(mat))
 
