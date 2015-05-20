@@ -22,6 +22,8 @@ import bpy
 import mathutils
 from bpy.types import Operator
 from bpy.props import PointerProperty, StringProperty
+#
+operators_class = []
 
 class OBJECT_OT_get_position(Operator):
     bl_label = "From( get position )"
@@ -35,7 +37,8 @@ class OBJECT_OT_get_position(Operator):
             return {'CANCELLED'}
         else:
             return{'FINISHED'}
-
+#            
+operators_class.append(OBJECT_OT_get_position)
 
 class OBJECT_OT_get_angle(Operator):
     bl_label = "From( get angle )"
@@ -49,7 +52,8 @@ class OBJECT_OT_get_angle(Operator):
             return {'CANCELLED'}
         else:
             return{'FINISHED'}
-
+            
+operators_class.append(OBJECT_OT_get_angle)
 
 class OBJECT_OT_update_sun(Operator):
     bl_label = "From( update sun )"
@@ -63,7 +67,8 @@ class OBJECT_OT_update_sun(Operator):
             return {'CANCELLED'}
         else:
             return{'FINISHED'}
-
+#
+operators_class.append(OBJECT_OT_update_sun)
 
 def sunPosAngle(mode="get", val="position"):
     active_object = bpy.context.active_object
@@ -128,7 +133,8 @@ class TheBounty_OT_presets_ior_list(Operator):
         bpy.types.TheBounty_presets_ior_list.bl_label = self.name
         mat.bounty.IOR_refraction = self.index
         return {'FINISHED'}
-
+#
+operators_class.append(TheBounty_OT_presets_ior_list)
 #-------------------------------------------
 # Add support for use ibl files
 #-------------------------------------------
@@ -216,19 +222,13 @@ class Thebounty_OT_ParseIBL(Operator):
                      
         f.close()
         return self.iblValues
+#
+operators_class.append(Thebounty_OT_ParseIBL)
 
 def register():
-    bpy.utils.register_class(OBJECT_OT_get_position)
-    bpy.utils.register_class(OBJECT_OT_get_angle)
-    bpy.utils.register_class(OBJECT_OT_update_sun)
-    bpy.utils.register_class(TheBounty_OT_presets_ior_list)
-    bpy.utils.register_class(Thebounty_OT_ParseIBL)
-    
+    for classes in operators_class:
+        bpy.utils.register_class(classes)
 
 def unregister():
-    bpy.utils.unregister_class(OBJECT_OT_get_position)
-    bpy.utils.unregister_class(OBJECT_OT_get_angle)
-    bpy.utils.unregister_class(OBJECT_OT_update_sun)
-    bpy.utils.unregister_class(TheBounty_OT_presets_ior_list)
-    bpy.utils.unregister_class(Thebounty_OT_ParseIBL)
-
+    for classes in operators_class:
+        bpy.utils.unregister_class(classes)
