@@ -113,9 +113,11 @@ class TheBountyMaterialTypePanel(TheBountyMaterialButtonsPanel):
     @classmethod
     def poll(cls, context):
         mat = context.material
+        nodetree = bpy.context.object.active_material.bounty.nodetree
+
         engine = context.scene.render.engine
         #
-        return check_material(mat) and (mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES)
+        return check_material(mat) and (mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES) and (nodetree == "")
 
 
 class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
@@ -256,7 +258,7 @@ class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
         blend_two_draw(layout, mat)
                     
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
-    bl_label = "Diffuse reflection"
+    bl_label = "Shiny Diffuse Material" #reflection"
     material_type = 'shinydiffusemat'
     
     def draw(self, context):
@@ -287,13 +289,13 @@ class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "translucency", slider=True)
         box.row().prop(mat.bounty, "transmit_filter", slider=True)
 
-class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
-    bl_label = "Specular reflection"
-    material_type = 'shinydiffusemat'    
+        #class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
+        #bl_label = "Specular reflection"
+        #material_type = 'shinydiffusemat'    
             
-    def draw(self, context):
-        layout = self.layout
-        mat = active_node_mat(context.material)
+        #def draw(self, context):
+        #layout = self.layout
+        #mat = active_node_mat(context.material)
         
         split = layout.split()
         col = split.column()

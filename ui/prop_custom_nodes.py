@@ -414,21 +414,16 @@ bounty_node_class.append(TheBountyBrdfNode)
 # Imagemap node
 #------------------------------------------------
 class TheBountyImageMapNode(Node, TheBountyNode):
-    # for register category
+    #-------------------------
+    # texture image map nodee
+    #-------------------------
     bl_idname = 'TheBountyImageMapNode'
-    # for name on node editor tab
-    bl_label = 'Texture ImageMap'
+    bl_label = 'ImageMap'
     # 
-    bl_width_min = 200
-    
-    #-----------------------------------------------
-    # test for re-use definitions from 'prop' folder
-    #-----------------------------------------------
-    #diff_color = MatProperty.diff_color
-    #diff_reflect = MatProperty.diffuse_reflect
+    bl_width_min = 220
     
     #----------------------------------------------- 
-    # also is possible create a next properties
+    # properties
     #-----------------------------------------------
     influence = FloatProperty(
         name="Influence", description="Amount of texture/color influence on a  material ( 0 : color, 1: texture)",
@@ -447,7 +442,7 @@ class TheBountyImageMapNode(Node, TheBountyNode):
         self.inputs.new("projection", "Projection")
         
     def draw_buttons(self, context, layout):
-        #layout.prop(self, 'diff_color', text='Color')
+        #
         layout.label('Image file')
         layout.prop(self, "image_map")
         layout.prop(self,'influence', text='Texture Influence', slider=True)

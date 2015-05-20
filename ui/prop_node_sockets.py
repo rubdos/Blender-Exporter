@@ -169,7 +169,7 @@ class brdf_socket(NodeSocket):
             col.label("Reflectance model")
         else:
             col.prop(self, "brdf_type")
-            col.prop(self, "sigma", slider=True)
+            col.prop(self, "sigma", text='Sigma', slider=True)
     #
     def draw_color(self, context, node):
         return (float_socket)
