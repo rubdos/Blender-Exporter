@@ -62,7 +62,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     )
     blendTwo = StringProperty(
             name="Material Two",
-            description="Name of the material one in blend material",
+            description="Name of the material two in blend material",
             default="blendtwo"
     )
     node_output = StringProperty( 
