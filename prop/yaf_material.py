@@ -50,7 +50,7 @@ def syncBlenderColors(self, context):
     #
     context.object.active_material.diffuse_color = context.object.active_material.bounty.diff_color   
   
-
+'''
 def items_mat1(self, context):
     mat_one = []
     for mat in bpy.data.materials:
@@ -66,11 +66,21 @@ def items_mat2(self, context):
             mat_two +=((mat.name, mat.name, "Second blend material"),)
             
     return mat_two
-
+'''
 class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     #---------------------------
     # list of material properies
     #---------------------------
+    blendOne = StringProperty(
+            name="Material One",
+            description="Name of the material one in blend material",
+            default="blendone"
+    )
+    blendTwo = StringProperty(
+            name="Material Two",
+            description="Name of the material one in blend material",
+            default="blendtwo"
+    )
     node_output = StringProperty( 
             name = "Output Node",
             description = "Material node tree output node to link to the current material"
@@ -295,7 +305,8 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             min=0.0, max=1.0, step=3, precision=3,
             soft_min=0.0, soft_max=1.0,
             default=0.500
-    )       
+    )
+    '''       
     blendmaterial1 = EnumProperty(
             name="Material one",
             description="First blend material",
@@ -305,7 +316,8 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             name="Material two",
             description="Second blend material",
             items=items_mat2
-    )        
+    )
+    '''        
     #--------------------------------------------
     #  Translucent SubSurface Scattering settings
     #--------------------------------------------

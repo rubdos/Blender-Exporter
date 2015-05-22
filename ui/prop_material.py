@@ -23,6 +23,25 @@ from ..ui.ior_values import ior_list
 from bpy.types import Panel, Menu
 from bl_ui.properties_material import (active_node_mat, check_material)
 
+#------------------------------------------------
+def blend_one_draw(layout, mat): #, output_type):
+    #
+    try:
+        layout.prop_search(mat.bounty, "blendOne", bpy.data, "materials")
+    except:
+        return False
+    
+    return True
+
+def blend_two_draw(layout, mat): #, output_type):
+    #
+    try:
+        layout.prop_search(mat.bounty, "blendTwo", bpy.data, "materials")
+    except:
+        return False
+    return True
+
+#---------------------------------------------------------------------------
 class TheBountyMaterialButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -175,13 +194,12 @@ class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
         layout = self.layout
         mat = active_node_mat(context.material)
 
-        col = layout.column()
         layout.separator()
-        col.prop(mat.bounty, "blendmaterial1", text="Material one")            
-        col.separator()
-        col.prop(mat.bounty, "blend_value", slider=True)
-        col.separator()
-        col.prop(mat.bounty, "blendmaterial2", text="Material two")
+        blend_one_draw(layout, mat)
+        layout.separator()
+        layout.prop(mat.bounty, "blend_value", slider=True)
+        layout.separator()
+        blend_two_draw(layout, mat)
                     
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
     bl_label = "Diffuse reflection"
@@ -348,20 +366,19 @@ class TheBountyScatteringPresets(Menu):
     draw = Menu.draw_preset
     
 class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
-    bl_label = ""
+    bl_label = "Translucent Scattering Material"
     material_type = 'translucent'
     
     def draw(self, context):
         #
         layout = self.layout
-        self.bl_label="Translucent Scattering Material"
-            
-        self.drawTranslucent(context, layout)
-        self.drawScattering(context, layout)
-
-    def drawTranslucent(self, context, layout):
-        #layout = self.layout
         mat = active_node_mat(context.material)
+        
+        self.drawTranslucent(context, layout, mat)
+        self.drawScattering(context, layout, mat)
+
+    def drawTranslucent(self, context, layout, mat):
+        #
         
         split = layout.split()
         col = split.column()
@@ -374,10 +391,9 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         row.prop(mat.bounty, "sssSpecularColor")
         layout.prop(mat.bounty, "exponent", text="Specular Exponent")
 
-    def drawScattering(self, context, layout):
-        #layout = self.layout
-        mat = active_node_mat(context.material)
-        layout.separator() #("Scattering properties")
+    def drawScattering(self, context, layout, mat):
+        #
+        layout.separator()
         
         row = layout.row()
         row.label("SSS Presets")
