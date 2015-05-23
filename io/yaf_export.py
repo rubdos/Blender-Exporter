@@ -119,19 +119,19 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # create two basic material defination for use when any blend component are selected.
         self.createDefaultBlends()
         
-        # First export the textures of the materials type 'blend'
+        # First export textures from blend materials
         for mat_slot in [m for m in obj.material_slots if m.material is not None]:
             #    
             if mat_slot.material.bounty.mat_type == 'blend':
                 #-------------------------------------------
                 if mat_slot.material.bounty.blendOne =="":
-                    mat1 = bpy.data.materials['blendone']
-                #else:
+                    mat_slot.material.bounty.blendOne = bpy.data.materials['blendone']
+                #
                 mat1 = bpy.data.materials[mat_slot.material.bounty.blendOne]
                 
                 if mat_slot.material.bounty.blendTwo =="":
-                    mat2 = bpy.data.materials['blendtwo']
-                #else:
+                    mat_slot.material.bounty.blendTwo = bpy.data.materials['blendtwo']
+                #
                 mat2 = bpy.data.materials[mat_slot.material.bounty.blendTwo]
                 #                
                 for blendMat in [mat1, mat2]:
