@@ -113,11 +113,11 @@ class TheBountyMaterialTypePanel(TheBountyMaterialButtonsPanel):
     @classmethod
     def poll(cls, context):
         mat = context.material
-        nodetree = bpy.context.object.active_material.bounty.nodetree
-
-        engine = context.scene.render.engine
+        
+        if context.scene.render.engine not in cls.COMPAT_ENGINES:
+            return False
         #
-        return check_material(mat) and (mat.bounty.mat_type in cls.material_type) and (engine in cls.COMPAT_ENGINES) and (nodetree == "")
+        return (check_material(mat) and (mat.bounty.mat_type in cls.material_type) and (context.material.bounty.nodetree == ""))
 
 
 class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
@@ -128,8 +128,7 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
     @classmethod
     def poll(cls, context):
         #
-        engine = context.scene.render.engine
-        return (context.material or context.object) and (engine in cls.COMPAT_ENGINES)
+        return ((context.material or context.object) and (context.scene.render.engine in cls.COMPAT_ENGINES))
 
     def draw(self, context):
         layout = self.layout
@@ -181,17 +180,16 @@ class TheBountyContextMaterial(TheBountyMaterialButtonsPanel, Panel):
             row.menu("TheBountyMaterialPresets", text=bpy.types.TheBountyMaterialPresets.bl_label)
             row.operator("bounty.material_preset_add", text="", icon='ZOOMIN')
             row.operator("bounty.material_preset_add", text="", icon='ZOOMOUT').remove_active = True
-            #
-            #layout.prop(mat.bounty, "mat_type")
+            
+        #----------------------------------------------------
+        # show nodetree button
         #----------------------------------------------------
         node_tree_selector_draw(layout, mat, 'MaterialOutputNode')
-        if not panel_node_draw(layout, mat, 'MaterialOutputNode'): #, 'Surface'):
+        if not panel_node_draw(layout, mat, 'MaterialOutputNode'): 
             row = self.layout.row(align=True)
             if slot is not None and slot.name:
                 layout.prop(mat.bounty, "mat_type")
-                #row.label("Material type")
-                #row.menu('MATERIAL_MT_luxrender_type', text=context.material.luxrender_material.type_label)
-                #super().draw(context)
+                
                       
 
 class TheBountyMaterialPreview(TheBountyMaterialButtonsPanel, Panel):
@@ -258,7 +256,7 @@ class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
         blend_two_draw(layout, mat)
                     
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
-    bl_label = "Shiny Diffuse Material" #reflection"
+    bl_label = "Shiny Diffuse Material"
     material_type = 'shinydiffusemat'
     
     def draw(self, context):
@@ -288,14 +286,6 @@ class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
         col = split.column()
         col.prop(mat.bounty, "translucency", slider=True)
         box.row().prop(mat.bounty, "transmit_filter", slider=True)
-
-        #class TheBountyShinySpecular(TheBountyMaterialTypePanel, Panel):
-        #bl_label = "Specular reflection"
-        #material_type = 'shinydiffusemat'    
-            
-        #def draw(self, context):
-        #layout = self.layout
-        #mat = active_node_mat(context.material)
         
         split = layout.split()
         col = split.column()
