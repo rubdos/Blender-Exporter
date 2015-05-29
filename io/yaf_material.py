@@ -431,12 +431,8 @@ class TheBountyMaterialWrite:
         yi.paramsClearAll()
 
         yi.paramsSetString("type", "shinydiffusemat")
-        #---------------------------------------------------
-        # know issue with the use of own variable diff_color
-        # and the background texture on material preview
-        #---------------------------------------------------
-        #bCol = mat.bounty.diff_color
-        bCol = mat.diffuse_color
+        
+        bCol = mat.bounty.diff_color
         mirCol = mat.bounty.mirr_color
         bSpecr = mat.bounty.specular_reflect
         bTransp = mat.bounty.transparency
@@ -445,11 +441,16 @@ class TheBountyMaterialWrite:
         
         # for fix dark preview
         if self.preview:
+            #---------------------------------------------------
+            # fix know issue with the use of own variable diff_color
+            # and the background texture on material preview
+            #---------------------------------------------------
+            bCol = mat.diffuse_color
             if mat.name.startswith("checker"):
                 bEmit = 2.50
         ##
         yi.paramsSetColor("color", bCol[0], bCol[1], bCol[2])
-        yi.paramsSetFloat("transparency", bTransp)
+        yi.paramsSetFloat("transparency", mat.bounty.transparency) #bTransp)
         yi.paramsSetFloat("translucency", bTransl)
         yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
         yi.paramsSetFloat("emit", bEmit)
@@ -493,7 +494,7 @@ class TheBountyMaterialWrite:
             #
             if mtex.use_map_alpha:
                 lname = "transp_layer%x" % i
-                if self.writeTexLayer(lname, mappername, transpRoot, mtex, [bTransp], mtex.alpha_factor):
+                if self.writeTexLayer(lname, mappername, transpRoot, mtex, [mat.bounty.transparency], mtex.alpha_factor):
                     used = True
                     transpRoot = lname
             #
