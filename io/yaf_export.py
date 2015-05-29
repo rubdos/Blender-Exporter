@@ -237,13 +237,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             m2.bounty.mat_type = 'glossy'
     
     def handleBlendMat(self, obj, mat):
-        # improve blend material
-        #    - change enum property to prop_search. This change fix know issue when you add new materials to scene.
-        #    - use default blend defination's how a 'blend material base' ('try / except' are can removed)
-        #    - allow use the same materials for each 'blend' component ( show warning message, but don't force 'return')
-        #    - allowed recursive blend materials, with one limitation: 
-        #        - you can't use the blend material inside their own blend declaration.
-                          
         #-------------------------
         # blend material one
         #-------------------------
