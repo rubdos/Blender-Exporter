@@ -125,7 +125,7 @@ bounty_node_class.append(TheBountyMaterialOutputNode)
 #------------------------------------------------           
 class TheBountyShinyDiffuseShaderNode(Node, TheBountyNode):
     bl_idname = 'ShinyDiffuseShaderNode'
-    bl_label = 'ShinyDiffuseMat'
+    bl_label = 'shinydiffusemat'
     bl_icon = 'MATERIAL'
     bl_width_min = 180
     
@@ -173,7 +173,7 @@ bounty_node_class.append(TheBountyShinyDiffuseShaderNode)
 class TheBountyTranslucentShaderNode(Node, TheBountyNode):
     #
     bl_idname = 'TranslucentScattering'
-    bl_label = 'Scattering Shader'
+    bl_label = 'translucent'
     bl_icon = 'MATERIAL'
     bl_width_min = 180
     
@@ -218,7 +218,7 @@ bounty_node_class.append(TheBountyTranslucentShaderNode)
 #------------------------------------------------
 class TheBountyGlossyShaderNode(Node, TheBountyNode):
     bl_idname = 'GlossyShaderNode'
-    bl_label = 'Glossy Shader'
+    bl_label = 'glossy'
     bl_icon = 'MATERIAL'
     bl_width_min = 180
     
@@ -283,7 +283,7 @@ bounty_node_class.append(TheBountyGlossyShaderNode)
 #------------------------------------------------                      
 class TheBountyGlassShaderNode(Node, TheBountyNode):
     bl_idname = 'GlassShaderNode'
-    bl_label = 'Glass Shader'
+    bl_label = 'glass'
     bl_icon = 'MATERIAL'
     bl_width_min = 180
 
@@ -335,7 +335,7 @@ bounty_node_class.append(TheBountyGlassShaderNode)
 class TheBountyBlendShaderNode(Node, TheBountyNode):
     # Glossy custom node
     bl_idname = 'BlendShaderNode'
-    bl_label = 'Blend Shader'
+    bl_label = 'blend'
     bl_icon = 'MATERIAL'
     bl_width_min = 180
         
