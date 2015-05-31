@@ -431,8 +431,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             
             self.yi.render(self.co)
             result = self.begin_result(0, 0, self.resX, self.resY)
-            lay = result.layers[0] if bpy.app.version < (2, 74, 4 ) else result.layers[0].passes[0]
-            #lay = result.layers[0]
+            lay = result.layers[0]
 
             # exr format has z-buffer included, so no need to load '_zbuffer' - file
             if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':
@@ -467,11 +466,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 x, y, w, h, tile = args
                 result = self.begin_result(x, y, w, h)
                 try:
+                    lay = result.layers[0]
                     if bpy.app.version < (2, 74, 4 ):
-                        lay = result.layers[0]
                         lay.rect, lay.passes[0].rect = tile 
                     else:
-                        result.layers[0].passes[0]
+                        #result.layers[0].passes[0]
                         lay.passes[0].rect, lay.passes[1].rect = tile
                 except:
                     pass
@@ -482,11 +481,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 w, h, tile = args
                 result = self.begin_result(0, 0, w, h)
                 try:
+                    lay = result.layers[0]
                     if bpy.app.version < (2, 74, 4 ):
-                        lay = result.layers[0]
                         lay.rect, lay.passes[0].rect = tile 
                     else:
-                        result.layers[0].passes[0]
                         lay.passes[0].rect, lay.passes[1].rect = tile
                 except BaseException as e:
                     pass
