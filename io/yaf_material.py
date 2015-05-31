@@ -426,44 +426,85 @@ class TheBountyMaterialWrite:
         return yi.createMaterial(self.namehash(mat))
     #-------->
     
+    def shinyMat(self, mat):
+        #
+        #
+        node_type = mat.bounty.mat_type
+        if mat.bounty.nodetree != "":
+            shiny = {
+                "color"             : bpy.data.node_groups[mat.name].nodes[node_type].inputs[0].diff_color,
+                "transparency"      : bpy.data.node_groups[mat.name].nodes[node_type].inputs[2].transparency,
+                "translucency"      : bpy.data.node_groups[mat.name].nodes[node_type].inputs[3].translucency,
+                "diffuse_reflect"   : bpy.data.node_groups[mat.name].nodes[node_type].inputs[0].diffuse_reflect,
+                "emit"              : bpy.data.node_groups[mat.name].nodes[node_type].inputs[0].emittance,
+                "transmit_filter"   : bpy.data.node_groups[mat.name].nodes[node_type].inputs[3].transmit,
+                "specular_reflect"  : bpy.data.node_groups[mat.name].nodes[node_type].inputs[4].specular_reflect,
+                "mirror_color"      : bpy.data.node_groups[mat.name].nodes[node_type].inputs[4].mirror_color,
+                "fresnel_effect"    : bpy.data.node_groups[mat.name].nodes[node_type].inputs[5].fresnel_effect,
+                "IOR"               : bpy.data.node_groups[mat.name].nodes[node_type].inputs[5].IOR_reflection,
+                "diffuse_brdf"      : bpy.data.node_groups[mat.name].nodes[node_type].inputs[1].brdf_type,
+                "sigma"             : bpy.data.node_groups[mat.name].nodes[node_type].inputs[1].sigma
+            }
+            
+        else:
+            shiny = {
+                "color"             : mat.bounty.diff_color,
+                "transparency"      : mat.bounty.transparency,
+                "translucency"      : mat.translucency,
+                "diffuse_reflect"   : mat.bounty.diffuse_reflect,
+                "emit"              : mat.bounty.emittance,
+                "transmit_filter"   : mat.bounty.transmit_filter,
+                "specular_reflect"  : mat.bounty.specular_reflect,
+                "mirror_color"      : mat.bounty.mirr_color,
+                "fresnel_effect"    : mat.bounty.fresnel_effect,
+                "IOR"               : mat.bounty.IOR_reflection,
+                "diffuse_brdf"      : mat.bounty.brdf_type,
+                "sigma"             : mat.bounty.sigma
+            }
+        return shiny
+            
     def writeShinyDiffuseShader(self, mat):
         yi = self.yi
+        shinyParams = self.shinyMat(mat)
+        
+        bCol = shinyParams.get('color', (0.8, 0.8, 0.8))
+        mirCol = shinyParams.get('mirror_color', (0.8, 0.8, 0.8))
+        
+        specular_reflect = shinyParams.get('specular_reflect', 0.0)
+        transparency = shinyParams.get('transparency', 0.0)
+        translucency = shinyParams.get('translucency', 0.0)
+        brdf = shinyParams.get('diffuse_brdf', 'lambert')
+        bEmit = shinyParams.get('emit', 0.0)
+
         yi.paramsClearAll()
 
         yi.paramsSetString("type", "shinydiffusemat")
         
-        bCol = mat.bounty.diff_color
-        mirCol = mat.bounty.mirr_color
-        bSpecr = mat.bounty.specular_reflect
-        bTransp = mat.bounty.transparency
-        bTransl = mat.translucency
-        bEmit = mat.bounty.emittance
-        
-        # for fix dark preview
         if self.preview:
             #---------------------------------------------------
             # fix know issue with the use of own variable diff_color
             # and the background texture on material preview
             #---------------------------------------------------
             bCol = mat.diffuse_color
+            # for fix dark texture backgroung in material preview
             if mat.name.startswith("checker"):
                 bEmit = 2.50
         ##
         yi.paramsSetColor("color", bCol[0], bCol[1], bCol[2])
-        yi.paramsSetFloat("transparency", mat.bounty.transparency) #bTransp)
-        yi.paramsSetFloat("translucency", bTransl)
-        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
+        yi.paramsSetFloat("transparency", transparency)
+        yi.paramsSetFloat("translucency", translucency)
+        yi.paramsSetFloat("diffuse_reflect", shinyParams.get('diffuse_reflect', 1.0))
         yi.paramsSetFloat("emit", bEmit)
-        yi.paramsSetFloat("transmit_filter", mat.bounty.transmit_filter)
+        yi.paramsSetFloat("transmit_filter", shinyParams.get('transmit_filter', 1.0))
 
-        yi.paramsSetFloat("specular_reflect", bSpecr)
+        yi.paramsSetFloat("specular_reflect", specular_reflect)
         yi.paramsSetColor("mirror_color", mirCol[0], mirCol[1], mirCol[2])
-        yi.paramsSetBool("fresnel_effect", mat.bounty.fresnel_effect)
-        yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
-
-        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
-            yi.paramsSetString("diffuse_brdf", "oren_nayar")
-            yi.paramsSetFloat("sigma", mat.bounty.sigma)
+        yi.paramsSetBool("fresnel_effect", shinyParams.get('fresnel_effect', False))
+        yi.paramsSetFloat("IOR", shinyParams.get('IOR', 1.0))
+        
+        yi.paramsSetString("diffuse_brdf", brdf)
+        if brdf == "oren_nayar":  # oren-nayar fix for shinydiffuse
+            yi.paramsSetFloat("sigma", shinyParams.get('sigma', 0.1))
         ##
 
         i = 0
@@ -494,19 +535,19 @@ class TheBountyMaterialWrite:
             #
             if mtex.use_map_alpha:
                 lname = "transp_layer%x" % i
-                if self.writeTexLayer(lname, mappername, transpRoot, mtex, [mat.bounty.transparency], mtex.alpha_factor):
+                if self.writeTexLayer(lname, mappername, transpRoot, mtex, [transparency], mtex.alpha_factor):
                     used = True
                     transpRoot = lname
             #
             if mtex.use_map_translucency:
                 lname = "translu_layer%x" % i
-                if self.writeTexLayer(lname, mappername, translRoot, mtex, [bTransl], mtex.translucency_factor):
+                if self.writeTexLayer(lname, mappername, translRoot, mtex, [translucency], mtex.translucency_factor):
                     used = True
                     translRoot = lname
             #
             if mtex.use_map_raymir:
                 lname = "mirr_layer%x" % i
-                if self.writeTexLayer(lname, mappername, mirrorRoot, mtex, [bSpecr], mtex.raymir_factor):
+                if self.writeTexLayer(lname, mappername, mirrorRoot, mtex, [specular_reflect], mtex.raymir_factor):
                     used = True
                     mirrorRoot = lname
             #
