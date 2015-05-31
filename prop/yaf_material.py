@@ -39,7 +39,7 @@ enum_material_types = (
 )
 
 enum_reflectance_mode = (
-    ('oren-nayar', "Oren-Nayar", "Reflectance Model"),
+    ('oren_nayar', "Oren-Nayar", "Reflectance Model"),
     ('lambert', "Lambert", "Reflectance Model"),
 )
 #-----------------------------------------
@@ -48,7 +48,12 @@ enum_reflectance_mode = (
 #-----------------------------------------
 def syncBlenderColors(self, context):
     #
-    context.object.active_material.diffuse_color = context.object.active_material.bounty.diff_color   
+    if bpy.context.object.active_material.bounty.nodetree == "":
+        context.object.active_material.diffuse_color = context.object.active_material.bounty.diff_color
+    else:
+        name = bpy.context.object.active_material.name
+        nodetype = bpy.context.object.active_material.bounty.mat_type
+        context.object.active_material.diffuse_color = bpy.data.node_groups[name].nodes[nodetype].inputs[0].diff_color    
   
 
 class TheBountyMaterialProperties(bpy.types.PropertyGroup):
