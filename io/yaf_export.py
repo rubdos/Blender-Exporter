@@ -255,7 +255,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         if mat1 not in self.exportedMaterials:
             self.exportedMaterials.add(mat1)
             self.yaf_material.writeMaterial(mat1)
-            
+        #
         #-------------------------
         # blend material two
         #-------------------------

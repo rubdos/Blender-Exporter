@@ -20,6 +20,7 @@
 
 import bpy
 import yafrayinterface
+from bpy_types import NodeTree
 
 
 def proj2int(val):
@@ -148,14 +149,14 @@ class TheBountyMaterialWrite:
 
         return True
 
-    def writeMappingNode(self, name, texname, mtex):
+    def writeMappingNode(self, mapname, mtex): #texname, mtex):
         yi = self.yi
         yi.paramsPushList()
 
         yi.paramsSetString("element", "shader_node")
         yi.paramsSetString("type", "texture_mapper")
-        yi.paramsSetString("name", name)
-        yi.paramsSetString("texture", texname)
+        yi.paramsSetString("name", mapname)
+        yi.paramsSetString("texture", mtex.texture.name) #texname)
         
         # get texture coords, default is 'orco'
         texco = switchTextureCoordinates.get(mtex.texture_coords, 'orco')
@@ -244,7 +245,7 @@ class TheBountyMaterialWrite:
                     bumpRoot = lname
                 
             if used:
-                self.writeMappingNode(mappername, mtex.texture.name, mtex)
+                self.writeMappingNode(mappername, mtex) #.texture.name, mtex)
                 i += 1
 
         yi.paramsEndList()
@@ -324,7 +325,7 @@ class TheBountyMaterialWrite:
                     bumpRoot = lname
             #
             if used:
-                self.writeMappingNode(mappername, mtex.texture.name, mtex)
+                self.writeMappingNode(mappername, mtex) #.texture.name, mtex)
             i += 1
 
         yi.paramsEndList()
@@ -412,7 +413,7 @@ class TheBountyMaterialWrite:
                     bumpRoot = lname
             #
             if used:
-                self.writeMappingNode(mappername, mtex.texture.name, mtex)
+                self.writeMappingNode(mappername, mtex) #.texture.name, mtex)
             i +=1
         
         yi.paramsEndList()
@@ -427,7 +428,6 @@ class TheBountyMaterialWrite:
     #-------->
     
     def shinyMat(self, mat):
-        #
         #
         node_type = mat.bounty.mat_type
         if mat.bounty.nodetree != "":
@@ -558,7 +558,7 @@ class TheBountyMaterialWrite:
                     bumpRoot = lname
             #
             if used:
-                self.writeMappingNode(mappername, mtex.texture.name, mtex)
+                self.writeMappingNode(mappername, mtex) #.texture.name, mtex)
             i += 1
 
         yi.paramsEndList()
@@ -632,7 +632,7 @@ class TheBountyMaterialWrite:
         yi.paramsSetString("type", "null")
         return yi.createMaterial(self.namehash(mat))
     
-    def writeMaterial(self, mat, preview=False): # test
+    def writeMaterial(self, mat, preview=False):
         self.preview = preview
         self.yi.printInfo("Exporter: Creating Material: \"" + self.namehash(mat) + "\"")
         ymat = None
