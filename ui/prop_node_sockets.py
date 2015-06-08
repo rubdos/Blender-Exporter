@@ -117,7 +117,7 @@ class emitt_socket(NodeSocket):
     def default_value_set(self, value):
         self.emittance = value
     #
-    default_value =  bpy.props.FloatProperty( get=default_value_get, set=default_value_set)
+    default_value = bpy.props.FloatProperty( get=default_value_get, set=default_value_set)
     #    
     def draw(self, context, layout, node, text):
         if self.is_linked:
@@ -142,7 +142,7 @@ class brdf_socket(NodeSocket):
     
     enum_reflectance_mode = [
         ('lambert', "Lambert", "Reflectance Model",0),
-        ('oren-nayar', "Oren-Nayar", "Reflectance Model",1),
+        ('oren_nayar', "Oren-Nayar", "Reflectance Model",1),
         
     ]
     # small trick..
@@ -164,7 +164,7 @@ class brdf_socket(NodeSocket):
     default_value =  EnumProperty(items=enum_reflectance_mode, set=default_value_set)
     #
     def draw(self, context, layout, node, text):
-        col = layout.column()
+        col = layout.box()
         if self.is_linked:
             col.label("Reflectance model")
         else:

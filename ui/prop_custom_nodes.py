@@ -47,6 +47,7 @@ class TheBountyNodeTree(bpy.types.NodeTree):
     # code orignally from Matt Ebb's 3Delight exporter   
     @classmethod
     def get_from_context(cls, context):
+        
         ob = context.active_object
         if ob and ob.type not in {'LAMP', 'CAMERA'}:
             active_mat = ob.active_material
@@ -54,11 +55,7 @@ class TheBountyNodeTree(bpy.types.NodeTree):
                 nt_name = active_mat.bounty.nodetree
                 if nt_name != '':
                     return bpy.data.node_groups[active_mat.bounty.nodetree], active_mat, active_mat
-        #elif ob and ob.type == 'LAMP':
-        #    la = ob.data
-        #    nt_name = la.bounty.nodetree
-        #    if nt_name != '':
-        #        return bpy.data.node_groups[la.bounty.nodetree], la, la
+                
         return (None, None, None)
         
     # This block updates the preview, when socket links change
@@ -80,7 +77,7 @@ bounty_node_class.append(TheBountyNodeTree)
 class TheBountyNode:
     @classmethod
     def poll( cls, context):
-        engine = context.scene.render.engine 
+        # 
         return (context.bl_idname == "TheBountyNodeTree" and context.scene.render.engine == 'THEBOUNTY')
 
     def draw_buttons( self, context, layout):
@@ -135,7 +132,6 @@ class TheBountyShinyDiffuseShaderNode(Node, TheBountyNode):
         self.outputs.new('NodeSocketColor', "Shader")
         
         self.inputs.new('diffuse_color',"Color")
-        #self.inputs.new('emittance', 'Emission')
         
         self.inputs.new('brdf', 'BRDF')
         
@@ -226,11 +222,8 @@ class TheBountyGlossyShaderNode(Node, TheBountyNode):
         #
         self.outputs.new('NodeSocketColor', "Shader")
         
-        self.inputs.new('diffuse_color',"Diffuse Color")
-        self.inputs.new('diffuse_reflection', 'Diffuse Reflection')
-        
-        self.inputs.new('brdf', 'BRDF Type')
-        self.inputs.new('sigma', 'Sigma')
+        self.inputs.new('diffuse_color',"Diffuse Color")        
+        self.inputs.new('brdf', 'BRDF')
     
     def draw_buttons(self, context, layout):
         """ Same design to a UI panels ( column, split, row..) """
@@ -361,6 +354,7 @@ class TheBountyBlendShaderNode(Node, TheBountyNode):
 #
 bounty_node_class.append(TheBountyBlendShaderNode)
 
+'''
 class TheBountyTextureShaderNode(Node, TheBountyNode):
     # Texture shader node
     bl_idname = 'TextureShaderNode'
@@ -388,6 +382,7 @@ class TheBountyTextureShaderNode(Node, TheBountyNode):
 #
 bounty_node_class.append(TheBountyTextureShaderNode)
 
+
 #-------------------------------------------
 # BDRF model
 #-------------------------------------------
@@ -409,7 +404,7 @@ class TheBountyBrdfNode(Node, TheBountyNode):
         layout.prop(self,'sigma', text='', slider=True)       
 #
 bounty_node_class.append(TheBountyBrdfNode)   
-       
+'''       
 #------------------------------------------------
 # Imagemap node
 #------------------------------------------------
@@ -450,6 +445,7 @@ class TheBountyImageMapNode(Node, TheBountyNode):
 #
 bounty_node_class.append(TheBountyImageMapNode)
 
+'''
 #------------------------------------------------
 # Mirror node
 #------------------------------------------------      
@@ -470,6 +466,7 @@ class TheBountyMirrorNode(Node, TheBountyNode):
 #
 bounty_node_class.append(TheBountyMirrorNode)    
        
+'''
 
 # our own base class with an appropriate poll function,
 # so the categories only show up in our own tree type
@@ -497,13 +494,13 @@ TheBountyNodeCategories = [
         NodeItem(TheBountyBlendShaderNode.bl_idname),
         NodeItem(TheBountyGlassShaderNode.bl_idname),
         NodeItem(TheBountyTranslucentShaderNode.bl_idname),
-        NodeItem(TheBountyBrdfNode.bl_idname),
-        NodeItem(TheBountyMirrorNode.bl_idname),
+        #NodeItem(TheBountyBrdfNode.bl_idname),
+        #NodeItem(TheBountyMirrorNode.bl_idname),
         ]),
     TheBountyNodeCategory("TheBountyTextures", "Textures", items=[
         # texture nodes
         NodeItem(TheBountyImageMapNode.bl_idname),
-        NodeItem(TheBountyTextureShaderNode.bl_idname),
+        #NodeItem(TheBountyTextureShaderNode.bl_idname),
         #NodeItem(TheBountyBrdfNode.bl_idname)
         ]),
     ]
