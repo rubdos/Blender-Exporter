@@ -65,7 +65,7 @@ class TheBountyCameraSettings(bpy.types.PropertyGroup):
             items=enum_camera_types,
             update=call_camera_update,
             default='perspective'
-     )        
+    )        
     angular_angle = FloatProperty(
             name="Angle",
             min=0.0, max=180.0, precision=3,
@@ -116,6 +116,7 @@ def register():
     
 def unregister():
     bpy.utils.unregister_class(TheBountyCameraSettings)
+    del bpy.types.Camera.bounty
             
             
             
