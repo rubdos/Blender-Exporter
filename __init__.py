@@ -34,33 +34,10 @@ import sys
 import os
 import ctypes
 
-#------------------------------------
-# find environment for install path
-#------------------------------------
-def find_bounty_path():
-    from os import getenv
-    #
-    BIN_PATH = "none"
-    HOME = getenv('BOUNTY_ROOT','none' )
 
-    if HOME != 'none' and os.path.exists(HOME):
-        # c:\TheBounty.. or /home/user/app/TheBounty in Unix 
-        BIN_PATH = os.path.join(HOME)
-    else:
-        # keep the old way: the binaries inside the scripts/addons/folder
-        PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
-        BIN_PATH = os.path.join(__path__[0], 'bin')
-        
-    return BIN_PATH
-#
-BIN_PATH = find_bounty_path()
-
-# if bin path is valid..
-# you also can use 'if BIN_PATH is not "none"' way
-if os.path.exists(BIN_PATH):
-    PLUGIN_PATH = BIN_PATH + "/plugins"
-    sys.path.append(BIN_PATH)
-
+PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
+BIN_PATH = os.path.join(__path__[0], 'bin')
+sys.path.append(BIN_PATH)
 
 #---------------------------------------------------------------        
 # The order of libs is very important. Please do not alter it.
@@ -108,7 +85,8 @@ else:
     from . import io
     from . import ui
     from . import ot
-
+    
+    '''
     #-------------------------------------------------------------------------------------
     # add path option on 'User Preferences', based on Corona Exporter and LuxBlend
     #-------------------------------------------------------------------------------------
@@ -126,7 +104,7 @@ else:
             layout = self.layout
             layout.prop(self, "install_path")
 
-
+    '''
 def register():
     #
     nodeitems_utils.register_node_categories("BOUNTY_NODES", ui.prop_custom_nodes.TheBountyNodeCategories)
