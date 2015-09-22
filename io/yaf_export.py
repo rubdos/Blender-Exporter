@@ -24,7 +24,7 @@ import threading
 import time
 import yafrayinterface
 from .. import PLUGIN_PATH
-from .. import YAF_ID_NAME
+#from .. import YAF_ID_NAME
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -406,7 +406,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         else:
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(scene.gs_gamma_input, False) #True)
+            self.yi.setInputGamma(2.2, False) #True)
 
         self.yi.startScene()
         self.exportScene()# to above, line 92
@@ -472,7 +472,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 x, y, w, h, tile = args
                 result = self.begin_result(x, y, w, h)
                 lay = result.layers[0]
-                lay = res.layers[0]
                 try:
                     if bpy.app.version < (2, 74, 4 ):
                         lay.rect, lay.passes[0].rect = tile 
@@ -487,7 +486,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 w, h, tile = args
                 result = self.begin_result(0, 0, w, h)
                 lay = result.layers[0]
-                lay = res.layers[0]
                 try:
                     if bpy.app.version < (2, 74, 4 ):
                         lay.rect, lay.passes[0].rect = tile 
