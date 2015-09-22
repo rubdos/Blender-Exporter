@@ -22,8 +22,8 @@ bl_info = {
     "name": "TheBounty Render Engine",
     "description": "TheBounty Renderer integration for Blender",
     "author": "Pedro Alcaide (povmaniaco), rubdos, TynkaTopi, paultron",
-    "version": (0, 1, 6, 0),
-    "blender": (2, 74, 0),
+    "version": (0, 1, 6, 4),
+    "blender": (2, 75, 0),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
     "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
@@ -34,6 +34,7 @@ import sys
 import os
 import ctypes
 
+'''
 #------------------------------------
 # find environment for install path
 #------------------------------------
@@ -45,7 +46,7 @@ def find_bounty_path():
 
     if HOME != 'none' and os.path.exists(HOME):
         # c:\TheBounty.. or /home/user/app/TheBounty in Unix 
-        BIN_PATH = os.path.join(HOME)
+        BIN_PATH = os.path.join(HOME+'/bin')
     else:
         # keep the old way: the binaries inside the scripts/addons/folder
         PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
@@ -54,13 +55,17 @@ def find_bounty_path():
     return BIN_PATH
 #
 BIN_PATH = find_bounty_path()
-
 # if bin path is valid..
 # you also can use 'if BIN_PATH is not "none"' way
 if os.path.exists(BIN_PATH):
     PLUGIN_PATH = BIN_PATH + "/plugins"
     sys.path.append(BIN_PATH)
 
+'''
+
+PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
+BIN_PATH = os.path.join(__path__[0], 'bin')
+sys.path.append(BIN_PATH)
 
 #---------------------------------------------------------------        
 # The order of libs is very important. Please do not alter it.
@@ -106,7 +111,7 @@ else:
     from . import io
     from . import ui
     from . import ot
-
+    '''
     #-------------------------------------------------------------------------------------
     # add path option on 'User Preferences', based on Corona Exporter and LuxBlend
     #-------------------------------------------------------------------------------------
@@ -123,7 +128,7 @@ else:
         def draw(self, context):
             layout = self.layout
             layout.prop(self, "install_path")
-
+    '''
 
 def register():
     #
