@@ -81,7 +81,7 @@ if sys.platform == 'win32':
         else:
             dllArray = ['libzlib', 'libiconv-2', 'libxml2', 'libjpeg-8', 'libpng16', 'libtiff-5', \
                         'libfreetype', 'libHalf', 'libIex', 'libIlmThread', 'libImath', \
-                        'libIlmImf', 'libyafaraycore', 'libyafarayplugin']                        
+                        'libIlmImf', 'libyafaraycore', 'libyafarayplugin']
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']

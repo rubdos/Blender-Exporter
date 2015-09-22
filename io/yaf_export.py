@@ -23,8 +23,8 @@ import os
 import threading
 import time
 import yafrayinterface
-
 from .. import PLUGIN_PATH
+from .. import YAF_ID_NAME
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -385,8 +385,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # render type setup
         if scene.bounty.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
-            self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
+            self.yi.setInputGamma(scene.gs_gamma_input, False)
+            self.outputFile, self.output, self.file_type = self.decideOutputFileName(fp, scene.img_output)
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", self.file_type)
             self.yi.paramsSetBool("alpha_channel", render.image_settings.color_mode == "RGBA")
@@ -405,11 +405,9 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.setOutfile(self.outputFile)
 
         else:
-            #
-            self.setInterface(yafrayinterface.yafrayInterface_t()) # to line 68
-            self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
-        
-        #.. process scene
+            self.setInterface(yafrayinterface.yafrayInterface_t())
+            self.yi.setInputGamma(scene.gs_gamma_input, False) #True)
+
         self.yi.startScene()
         self.exportScene()# to above, line 92
         self.yaf_integrator.exportIntegrator(self.scene.bounty) # yaf_integrator, line 26
@@ -474,8 +472,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 x, y, w, h, tile = args
                 result = self.begin_result(x, y, w, h)
                 lay = result.layers[0]
+                lay = res.layers[0]
                 try:
-                    #lay = result.layers[0]
                     if bpy.app.version < (2, 74, 4 ):
                         lay.rect, lay.passes[0].rect = tile 
                     else:
@@ -489,6 +487,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 w, h, tile = args
                 result = self.begin_result(0, 0, w, h)
                 lay = result.layers[0]
+                lay = res.layers[0]
                 try:
                     if bpy.app.version < (2, 74, 4 ):
                         lay.rect, lay.passes[0].rect = tile 
