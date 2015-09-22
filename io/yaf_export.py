@@ -24,8 +24,8 @@ import os
 import threading
 import time
 import yafrayinterface
-from yafaray import PLUGIN_PATH
-from yafaray import YAF_ID_NAME
+from .. import PLUGIN_PATH
+from .. import YAF_ID_NAME
 from .yaf_object import yafObject
 from .yaf_light  import yafLight
 from .yaf_world  import yafWorld
@@ -294,7 +294,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         if scene.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(scene.gs_gamma_input, True)
+            self.yi.setInputGamma(scene.gs_gamma_input, False)
             self.outputFile, self.output, self.file_type = self.decideOutputFileName(fp, scene.img_output)
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", self.file_type)
@@ -315,7 +315,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         else:
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(scene.gs_gamma_input, True)
+            self.yi.setInputGamma(scene.gs_gamma_input, False) #True)
 
         self.yi.startScene()
         self.exportScene()
@@ -364,9 +364,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             def drawAreaCallback(*args):
                 x, y, w, h, tile = args
                 res = self.begin_result(x, y, w, h)
+                lay = res.layers[0]
                 try:
-                    l = res.layers[0]
-                    l.rect, l.passes[0].rect = tile
+                    if bpy.app.version < (2, 74, 4 ):
+                        lay.rect, lay.passes[0].rect = tile 
+                    else:
+                        lay.passes[0].rect, lay.passes[1].rect = tile
                 except:
                     pass
 
@@ -375,9 +378,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             def flushCallback(*args):
                 w, h, tile = args
                 res = self.begin_result(0, 0, w, h)
+                lay = res.layers[0]
                 try:
-                    l = res.layers[0]
-                    l.rect, l.passes[0].rect = tile
+                    if bpy.app.version < (2, 74, 4 ):
+                        lay.rect, lay.passes[0].rect = tile 
+                    else:
+                        lay.passes[0].rect, lay.passes[1].rect = tile
                 except BaseException as e:
                     pass
 

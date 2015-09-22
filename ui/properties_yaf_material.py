@@ -19,7 +19,7 @@
 # <pep8 compliant>
 
 import bpy
-from yafaray.ui.ior_values import ior_list
+from ..ui.ior_values import ior_list
 from bpy.types import Panel, Menu
 from bl_ui.properties_material import (MaterialButtonsPanel,
                                        active_node_mat,

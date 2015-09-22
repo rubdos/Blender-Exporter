@@ -53,8 +53,9 @@ if sys.platform == 'win32':
             break
         # load dll's from a MinGW installation
         else:
-            dllArray = ['zlib1', 'libxml2-2', 'libgcc_s_sjlj-1', 'Half', 'Iex', 'IlmThread', 'IlmImf', 'libjpeg-8', \
-                       'libpng14', 'libtiff-3', 'libfreetype-6', 'libyafaraycore', 'libyafarayplugin']
+            dllArray = ['libzlib', 'libiconv-2', 'libxml2', 'libjpeg-8', 'libpng16', 'libtiff-5', \
+                        'libfreetype', 'libHalf', 'libIex', 'libIlmThread', 'libImath', \
+                        'libIlmImf', 'libyafaraycore', 'libyafarayplugin']
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
