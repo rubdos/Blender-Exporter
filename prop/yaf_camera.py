@@ -116,6 +116,7 @@ def register():
     
 def unregister():
     bpy.utils.unregister_class(TheBountyCameraSettings)
+    del bpy.types.Camera.bounty
             
             
             

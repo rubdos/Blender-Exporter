@@ -74,111 +74,103 @@ def sync_with_distance(self, context):
        
 class TheBountyLightProperties(bpy.types.PropertyGroup):
     #
-    @classmethod
-    def register(cls):
-        bpy.types.Lamp.bounty = PointerProperty(
-            name="TheBounty Light Settings",
-            description="TheBounty light settings",
-            type=cls,
-        )
-        cls.nodetree = StringProperty(
+    nodetree = StringProperty(
             name="Node Tree",
             description="Name of the node tree for this light",
             default=""
-        ) 
-        cls.lamp_type = EnumProperty(
+    ) 
+    lamp_type = EnumProperty(
             name="Light type",
             description="Type of lamp",
             items=enum_lamp_type,
             default="POINT", 
             update=sync_light_type
-        )    
-        cls.yaf_energy = FloatProperty(
+    )    
+    yaf_energy = FloatProperty(
             name="Power",
             description="Intensity multiplier for color",
             min=0.0, max=10000.0,
             default=1.0
-        )
-        cls.use_sphere = BoolProperty(
+    )
+    use_sphere = BoolProperty(
             name="Use Sphere",
             description="Use sphere object for light",
             default=False,
             update = sync_sphere_light # call_update_sphere
-        )    
-        cls.yaf_sphere_radius = FloatProperty(
+    )    
+    yaf_sphere_radius = FloatProperty(
             name="Radius",
             description="Radius of the sphere light",
             min=0.01, max=10000.0,
             soft_min=0.01, soft_max=100.0,
             default=1.0, update=sync_with_distance
-        )    
-        #cls.directional = BoolProperty(
-        #    name="Directional",
-        #    description="Directional sunlight type, like 'spot' (for concentrate photons at area)",
-        #    default=False
-        #)
-        cls.create_geometry = BoolProperty(
+    )    
+    #cls.directional = BoolProperty(
+    #    name="Directional",
+    #    description="Directional sunlight type, like 'spot' (for concentrate photons at area)",
+    #    default=False
+    #)
+    create_geometry = BoolProperty(
             name="Create and show geometry",
             description="Creates a visible geometry in the dimensions of the light during the render",
             default=False
-        )    
-        cls.infinite = BoolProperty(
+    )    
+    infinite = BoolProperty(
             name="Infinite",
             description="Determines if light is infinite or filling a semi-infinite cylinder",
             default=True
-        )    
-        cls.spot_soft_shadows = BoolProperty(
+    )    
+    spot_soft_shadows = BoolProperty(
             name="Soft shadows (unused with photon only)",
             description="Use soft shadows(turn disabled with 'photon only')",
             default=False
-        )    
-        cls.shadow_fuzzyness = FloatProperty(
+    )    
+    shadow_fuzzyness = FloatProperty(
             name="Shadow fuzzyness",
             description="Fuzzyness of the soft shadows (0 - hard shadow, 1 - fuzzy shadow)",
             min=0.0, max=1.0,
             default=1.0
-        )    
-        cls.photon_only = BoolProperty(
+    )    
+    photon_only = BoolProperty(
             name="Photon only",
             description="This spot will only throw photons, not direct light",
             default=False
-        )    
-        cls.angle = FloatProperty(
+    )    
+    angle = FloatProperty(
             name="Angle",
             description="Angle of the cone in degrees (shadow softness)",
             min=0.0, max=80.0,
             default=0.5
-        )    
-        cls.ies_soft_shadows = BoolProperty(
+    )    
+    ies_soft_shadows = BoolProperty(
             name="IES Soft shadows",
             description="Use soft shadows for IES light type",
             default=False
-        )    
-        cls.ies_file = StringProperty(
+    )    
+    ies_file = StringProperty(
             name="IES File",
             description="File to be used as the light projection",
             subtype='FILE_PATH',
             default=""
-        )    
-        cls.yaf_samples = IntProperty(
+    )    
+    yaf_samples = IntProperty(
             name="Samples",
             description="Number of samples to be taken for direct lighting",
             min=0, max=512,
             default=16
-        )    
-        cls.yaf_show_dist_clip = BoolProperty(
+    )    
+    yaf_show_dist_clip = BoolProperty(
             name="Show clipping",
             description="Show clip start and clip end settings for spot lamp in 3D view",
             default=False, 
             update=set_shadow_method
-        )
-    #    
-    @classmethod
-    def unregister(cls):
-        del bpy.types.Lamp.bounty
-        
+    )
+    
+#
 def register():
     bpy.utils.register_class(TheBountyLightProperties)
+    bpy.types.Lamp.bounty = PointerProperty(type=TheBountyLightProperties )
     
 def unregister():
     bpy.utils.unregister_class(TheBountyLightProperties)
+    del bpy.types.Lamp.bounty
