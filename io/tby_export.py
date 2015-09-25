@@ -25,13 +25,13 @@ import time
 import yafrayinterface
 from .. import PLUGIN_PATH
 #from .. import YAF_ID_NAME
-from .yaf_object import yafObject
-from .yaf_light  import yafLight
-from .yaf_world  import yafWorld
-from .yaf_integrator import yafIntegrator
-from . import bounty_scene
-from .yaf_texture import yafTexture
-from .yaf_material import TheBountyMaterialWrite
+from .tby_object import yafObject
+from .tby_light  import yafLight
+from .tby_world  import yafWorld
+from .tby_integrator import yafIntegrator
+from . import tby_scene
+from .tby_texture import yafTexture
+from .tby_material import TheBountyMaterialWrite
 from bpy import context
 
 switchFileType = {
@@ -374,7 +374,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         filePath = os.path.realpath(filePath)
         filePath = os.path.normpath(filePath)
 
-        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = bounty_scene.getRenderCoords(scene)
+        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
 
         if render.use_border:
             self.resX = self.bsizeX
@@ -385,8 +385,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # render type setup
         if scene.bounty.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(scene.gs_gamma_input, False)
-            self.outputFile, self.output, self.file_type = self.decideOutputFileName(fp, scene.img_output)
+            self.yi.setInputGamma(scene.bounty.gs_gamma_input, False)
+            self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", self.file_type)
             self.yi.paramsSetBool("alpha_channel", render.image_settings.color_mode == "RGBA")
@@ -414,7 +414,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yaf_integrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
-        bounty_scene.exportRenderSettings(self.yi, self.scene)
+        tby_scene.exportRenderSettings(self.yi, self.scene)
 
     def render(self, scene):
         #--------------------------------------------

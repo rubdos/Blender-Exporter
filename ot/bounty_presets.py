@@ -21,7 +21,6 @@
 
 # review for fix error with path
 from bl_operators.presets import AddPresetBase
-from bpy.types import Operator
 
 import os
 import bpy
