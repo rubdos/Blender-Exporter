@@ -24,7 +24,6 @@ import threading
 import time
 import yafrayinterface
 from .. import PLUGIN_PATH
-#from .. import YAF_ID_NAME
 from .tby_object import yafObject
 from .tby_light  import yafLight
 from .tby_world  import yafWorld
@@ -87,16 +86,16 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.loadPlugins(PLUGIN_PATH)
                 
         # process geometry
-        self.yaf_object = yafObject(self.yi, self.materialMap, self.is_preview)
+        self.geometry = yafObject(self.yi, self.materialMap, self.is_preview)
              
         # process lights
-        self.yaf_lamp = yafLight(self.yi, self.is_preview)
+        self.lights = yafLight(self.yi, self.is_preview)
               
         # process environment world
-        self.yaf_world = yafWorld(self.yi)
+        self.environment = yafWorld(self.yi)
               
         # process lighting integrators..
-        self.yaf_integrator = yafIntegrator(self.yi, self.is_preview)
+        self.lightIntegrator = yafIntegrator(self.yi, self.is_preview)
               
         # textures before materials
         self.yaf_texture = yafTexture(self.yi)
@@ -110,10 +109,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.exportTexture(obj)
             
         self.exportMaterials()
-        self.yaf_object.setScene(self.scene)
+        self.geometry.setScene(self.scene)
         self.exportObjects()
-        self.yaf_object.createCamera()
-        self.yaf_world.exportWorld(self.scene)
+        self.geometry.createCamera()
+        self.environment.exportWorld(self.scene)
 
     def exportTexture(self, obj):
         # create two basic material defination for use when any blend component are selected.
@@ -163,14 +162,14 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 obj.create_dupli_list(self.scene)
                 for obj_dupli in obj.dupli_list:
                     matrix = obj_dupli.matrix.copy()
-                    self.yaf_lamp.createLight(self.yi, obj_dupli.object, matrix)
+                    self.lights.createLight(self.yi, obj_dupli.object, matrix)
 
                 if obj.dupli_list:
                     obj.free_dupli_list()
             else:
                 if obj.parent and obj.parent.is_duplicator:
                     continue
-                self.yaf_lamp.createLight(self.yi, obj, obj.matrix_world)
+                self.lights.createLight(self.yi, obj, obj.matrix_world)
 
         self.yi.printInfo("Exporter: Processing Geometry...")
 
@@ -195,12 +194,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
                     if not self.scene.render.use_instances:
                         matrix = obj_dupli.matrix.copy()
-                        self.yaf_object.writeMesh(obj_dupli.object, matrix)
+                        self.geometry.writeMesh(obj_dupli.object, matrix)
                     else:
                         if obj_dupli.object.name not in dupBaseIds:
-                            dupBaseIds[obj_dupli.object.name] = self.yaf_object.writeInstanceBase(obj_dupli.object)
+                            dupBaseIds[obj_dupli.object.name] = self.geometry.writeInstanceBase(obj_dupli.object)
                         matrix = obj_dupli.matrix.copy()
-                        self.yaf_object.writeInstance(dupBaseIds[obj_dupli.object.name], matrix, obj_dupli.object.name)
+                        self.geometry.writeInstance(dupBaseIds[obj_dupli.object.name], matrix, obj_dupli.object.name)
 
                 if obj.dupli_list is not None:
                     obj.dupli_list_clear()
@@ -211,7 +210,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                         check_rendertype = pSys.settings.render_type in {'OBJECT', 'GROUP'}
                         if check_rendertype and pSys.settings.use_render_emitter:
                             matrix = obj.matrix_world.copy()
-                            self.yaf_object.writeMesh(obj, matrix)
+                            self.geometry.writeMesh(obj, matrix)
 
             # no need to write empty object from here on, so continue with next object in loop
             elif obj.type == 'EMPTY':
@@ -221,14 +220,14 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             elif obj.data.users > 1 and self.scene.render.use_instances:
                 self.yi.printInfo("Processing shared mesh data node object: {0}".format(obj.name))
                 if obj.data.name not in baseIds:
-                    baseIds[obj.data.name] = self.yaf_object.writeInstanceBase(obj)
+                    baseIds[obj.data.name] = self.geometry.writeInstanceBase(obj)
 
                 if obj.name not in dupBaseIds:
                     matrix = obj.matrix_world.copy()
-                    self.yaf_object.writeInstance(baseIds[obj.data.name], matrix, obj.data.name)
+                    self.geometry.writeInstance(baseIds[obj.data.name], matrix, obj.data.name)
 
             elif obj.data.name not in baseIds and obj.name not in dupBaseIds:
-                self.yaf_object.writeObject(obj)
+                self.geometry.writeObject(obj)
 
     #
     def createDefaultBlends(self):
@@ -242,13 +241,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     
     
     def handleBlendMat(self, mat):
-        # improve blend material
-        #    - change enum property to prop_search. This change fix know issue when you add new materials to scene.
-        #    - create default blend defination's for use when any blend component are selected ('try / except' are can removed)
-        #    - allow use the same materials for each 'blend' component ( show warning message, but don't force 'return')
-        #    - allowed recursive blend materials, with one limitation: 
-        #        - you can't use the blend material inside their own blend declaration.
-                          
         #-------------------------
         # blend material one
         #-------------------------
@@ -410,8 +402,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         self.yi.startScene()
         self.exportScene()# to above, line 92
-        self.yaf_integrator.exportIntegrator(self.scene.bounty) # yaf_integrator, line 26
-        self.yaf_integrator.exportVolumeIntegrator(self.scene)
+        self.lightIntegrator.exportIntegrator(self.scene.bounty) # lightIntegrator, line 26
+        self.lightIntegrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
         tby_scene.exportRenderSettings(self.yi, self.scene)
