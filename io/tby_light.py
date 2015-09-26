@@ -23,7 +23,7 @@ from mathutils import Vector
 from math import degrees, pi, sin, cos
 from bpy.path import abspath
 
-class yafLight:
+class exportLight:
     def __init__(self, interface, preview):
         self.yi = interface
         self.lightMat = None

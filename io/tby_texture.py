@@ -78,7 +78,7 @@ def noise2string(ntype):
     return a.get(ntype, 'newperlin')
 
 
-class yafTexture:
+class exportTexture:
     def __init__(self, interface):
         self.yi = interface
         self.loadedTextures = set()

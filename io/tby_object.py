@@ -34,7 +34,7 @@ def multiplyMatrix4x4Vector4(matrix, vector):
     return result
 
 
-class yafObject(object):
+class exportObject(object):
     def __init__(self, yi, mMap, preview):
         self.yi = yi
         self.materialMap = mMap

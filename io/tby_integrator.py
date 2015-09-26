@@ -55,7 +55,7 @@ def haveSSS():
             return True
     return False
 
-class yafIntegrator:
+class exportIntegrator:
     def __init__(self, interface, preview):
         self.yi = interface
         self.preview = preview
