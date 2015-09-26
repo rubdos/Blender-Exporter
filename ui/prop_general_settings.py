@@ -35,7 +35,7 @@ class THEBOUNTY_MT_render_presets(Menu):
 
 # povman: test for next panel distribution
 class THEBOUNTY_PT_pass_settings(RenderButtonsPanel, Panel):
-    bl_label = "Render Passes"
+    bl_label = "Extra Passes"
 
     def draw(self, context):
         layout = self.layout
