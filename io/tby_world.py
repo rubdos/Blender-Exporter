@@ -23,11 +23,11 @@ from bpy.path import abspath
 from os.path import realpath, normpath
 
 
-class yafWorld:
+class exportWorld:
     def __init__(self, interface):
         self.yi = interface
 
-    def exportWorld(self, scene):
+    def setEnvironment(self, scene):
         yi = self.yi
         
         # init..

@@ -26,10 +26,10 @@ import yafrayinterface
 from .. import PLUGIN_PATH
 from .tby_object import yafObject
 from .tby_light  import yafLight
-from .tby_world  import yafWorld
-from .tby_integrator import yafIntegrator
+from .tby_world  import exportWorld
+from .tby_integrator import exportIntegrator
 from . import tby_scene
-from .tby_texture import yafTexture
+from .tby_texture import exportTexture
 from .tby_material import TheBountyMaterialWrite
 from bpy import context
 
@@ -92,16 +92,16 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.lights = yafLight(self.yi, self.is_preview)
               
         # process environment world
-        self.environment = yafWorld(self.yi)
+        self.environment = exportWorld(self.yi)
               
         # process lighting integrators..
-        self.lightIntegrator = yafIntegrator(self.yi, self.is_preview)
+        self.lightIntegrator = exportIntegrator(self.yi, self.is_preview)
               
         # textures before materials
-        self.yaf_texture = yafTexture(self.yi)
+        self.yaf_texture = exportTexture(self.yi)
              
         # and materials
-        self.yaf_material = TheBountyMaterialWrite(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
+        self.setMaterial = TheBountyMaterialWrite(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
 
     def exportScene(self):
         #
@@ -112,7 +112,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.geometry.setScene(self.scene)
         self.exportObjects()
         self.geometry.createCamera()
-        self.environment.exportWorld(self.scene)
+        self.environment.setEnvironment(self.scene)
 
     def exportTexture(self, obj):
         # create two basic material defination for use when any blend component are selected.
@@ -258,7 +258,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         #
         if mat1 not in self.exportedMaterials:
             self.exportedMaterials.add(mat1)
-            self.yaf_material.writeMaterial(mat1)
+            self.setMaterial.writeMaterial(mat1)
             
         #-------------------------
         # blend material two
@@ -279,7 +279,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # write blend material two    
         if mat2 not in self.exportedMaterials:
             self.exportedMaterials.add(mat2)
-            self.yaf_material.writeMaterial(mat2)
+            self.setMaterial.writeMaterial(mat2)
             
         if mat1.name == mat2.name:
             self.yi.printWarning("Exporter: Problem with blend material {0}."
@@ -287,7 +287,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         
         if mat not in self.exportedMaterials:
             self.exportedMaterials.add(mat)
-            self.yaf_material.writeMaterial(mat)
+            self.setMaterial.writeMaterial(mat)
 
     def exportMaterials(self):
         self.yi.printInfo("Exporter: Processing Materials...")
@@ -331,7 +331,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 self.handleBlendMat(material)
             else:
                 self.exportedMaterials.add(material)
-                self.yaf_material.writeMaterial(material, self.is_preview)
+                self.setMaterial.writeMaterial(material, self.is_preview)
 
     def decideOutputFileName(self, output_path, filetype):
                 
@@ -377,7 +377,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         # render type setup
         if scene.bounty.gs_type_render == "file":
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(scene.bounty.gs_gamma_input, False)
+            self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
             self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
             self.yi.paramsClearAll()
             self.yi.paramsSetString("type", self.file_type)
@@ -398,7 +398,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
         else:
             self.setInterface(yafrayinterface.yafrayInterface_t())
-            self.yi.setInputGamma(2.2, False) #True)
+            self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
 
         self.yi.startScene()
         self.exportScene()# to above, line 92
@@ -435,8 +435,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':
                 # TODO: need review that option for load both files when z-depth is rendered
                 # except when use exr format
-                lay.load_from_file("{0}.{1}".format(self.output, self.file_type))
-                #lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
+                #lay.load_from_file("{0}.{1}".format(self.output, self.file_type))
+                lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
                 
             else:
                 lay.load_from_file(self.outputFile)
