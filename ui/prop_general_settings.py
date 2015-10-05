@@ -20,7 +20,7 @@
 
 import bpy
 from ..ot import bounty_presets
-from bl_ui.properties_render import RenderButtonsPanel
+from . prop_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
@@ -35,7 +35,7 @@ class THEBOUNTY_MT_render_presets(Menu):
 
 # povman: test for next panel distribution
 class THEBOUNTY_PT_pass_settings(RenderButtonsPanel, Panel):
-    bl_label = "Extra Passes"
+    bl_label = "Render Passes"
 
     def draw(self, context):
         layout = self.layout
