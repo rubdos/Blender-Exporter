@@ -49,9 +49,10 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
     bl_label = "TheBounty Render"
     prog = 0.0
     tag = ""
-    useViewToRender = False
-    viewMatrix = None
+    #useViewToRender = False
+    #viewMatrix = None
     sceneMat = []
+    textureMat = []
     
     #--------------------------------
     # set console  verbosity levels
@@ -189,7 +190,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
                 for obj_dupli in [od for od in obj.dupli_list if not od.object.type == 'EMPTY']:
                     self.exportTexture(obj_dupli.object)
                     for mat_slot in obj_dupli.object.material_slots:
-                        if mat_slot.material not in self.materials:
+                        if mat_slot.material not in self.exportedMaterials: #materials:
                             self.exportMaterial(mat_slot.material)
 
                     if not self.scene.render.use_instances:
@@ -253,7 +254,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
                 self.handleBlendMat(obj, mat1)
             else:
                 self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat1.name))
+                                     " You can't use blend material {1}, inside their own blend definition".format(mat.name, mat1.name))
                 return
         #
         if mat1 not in self.exportedMaterials:
@@ -273,7 +274,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
                 self.handleBlendMat(obj, mat2)
             else:
                 self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat2.name))
+                                     " You can't use blend material {1}, inside their own blend definition".format(mat.name, mat2.name))
                 return
             
         # write blend material two    
