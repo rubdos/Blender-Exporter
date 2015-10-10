@@ -52,7 +52,6 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
     #useViewToRender = False
     #viewMatrix = None
     sceneMat = []
-    textureMat = []
     
     #--------------------------------
     # set console  verbosity levels
@@ -254,7 +253,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
                 self.handleBlendMat(obj, mat1)
             else:
                 self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                     " You can't use blend material {1}, inside their own blend definition".format(mat.name, mat1.name))
+                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat1.name))
                 return
         #
         if mat1 not in self.exportedMaterials:
@@ -274,7 +273,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
                 self.handleBlendMat(obj, mat2)
             else:
                 self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                     " You can't use blend material {1}, inside their own blend definition".format(mat.name, mat2.name))
+                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat2.name))
                 return
             
         # write blend material two    
