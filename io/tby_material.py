@@ -598,8 +598,6 @@ class TheBountyMaterialWrite:
         self.yi.paramsSetString("type", "shinydiffusemat")
         self.yi.paramsSetColor("color", 0.8, 0.8, 0.8)
         self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
-        #ymat = self.yi.createMaterial("defaultMat")
-        #self.materialMap["default"] = ymat
         return yi.createMaterial("defaultMat")
 
     def writeMaterial(self, mat, preview=False): # test
