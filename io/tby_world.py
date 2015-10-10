@@ -18,9 +18,9 @@
 
 # <pep8 compliant>
 
-import bpy
-from bpy.path import abspath
-from os.path import realpath, normpath
+import bpy, os
+from bpy.path import abspath, clean_name
+from os.path import realpath, normpath, basename
 
 
 class exportWorld:
@@ -60,13 +60,21 @@ class exportWorld:
                 self.yi.printInfo("World Texture, name: {0}".format(worldTexture.name))
 
                 if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
-                    #-----------------------------------
-                    # create a texture
-                    # check for a right image format ??
-                    #-----------------------------------                
-                    image_file = abspath(worldTexture.image.filepath)
+                    #
+                    image_file = ''
+                    if worldTexture.image.packed_file:
+                        # is packed but too exists on disk..
+                        if not os.path.exists(abspath(worldTexture.image.filepath)):
+                            worldTexture.image.unpack(method='WRITE_LOCAL')
+                            yi.printInfo("Image file unpacked to: {0}".format(abspath(worldTexture.image.filepath)))
+                        image_file = abspath(worldTexture.image.filepath)
+                            
+                    else:
+                        # not packed..
+                        image_file = abspath(worldTexture.image.filepath)
+                    #
                     image_file = realpath(image_file)
-                    image_file = normpath(image_file)
+                    image_file = normpath(image_file)                        
                     
                     yi.paramsSetString("filename", image_file)
                     
@@ -93,7 +101,9 @@ class exportWorld:
                     yi.paramsSetFloat("power", world.bg_power)
                     yi.paramsSetFloat("rotation", world.bg_rotation)
                 else:
-                    self.yi.printInfo("World Texture, name: {0} is not valid format".format(worldTexture.name))
+                    self.yi.printWarning("World Texture, name: {0} is not valid format".format(worldTexture.name))
+            else:
+                self.yi.printWarning('texture background not found')
             
         elif bg_type == 'gradientback':
             c = world.bg_horizon_color
