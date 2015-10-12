@@ -20,7 +20,7 @@
 
 import bpy
 from ..ot import bounty_presets
-from . prop_render import RenderButtonsPanel
+from bl_ui.properties_render import RenderButtonsPanel
 from bpy.types import Panel, Menu
 
 RenderButtonsPanel.COMPAT_ENGINES = {'THEBOUNTY'}
