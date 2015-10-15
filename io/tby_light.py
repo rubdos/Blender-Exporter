@@ -70,7 +70,7 @@ class exportLight:
         lamp_name = lamp_object.name
         
         # use exporter properties..
-        lamp = lamp_object.data.bounty
+        lamp = lamp_object.data #.bounty
 
         if matrix is None:
             matrix = lamp_object.matrix_world.copy()
@@ -81,8 +81,8 @@ class exportLight:
         # up = matrix[1]  /* UNUSED */
         to = pos - direct
 
-        lampType = lamp.lamp_type
-        power = lamp.yaf_energy
+        lampType = lamp.type #lamp_type
+        power = lamp.bounty.energy
         color = lamp_data.color
 
         if self.preview:
@@ -104,27 +104,27 @@ class exportLight:
 
         yi.printInfo("Exporting Lamp: {0} [{1}]".format(lamp_name, lampType))
 
-        if lamp.create_geometry:
+        if lamp.bounty.create_geometry:
             yi.paramsClearAll()
-            yi.paramsSetColor("color", color[0], color[1], color[2])  # color for spherelight and area light geometry
+            yi.paramsSetColor("color", color[0], color[1], color[2])
             yi.paramsSetString("type", "light_mat")
             self.lightMat = self.yi.createMaterial(lamp_name)
             self.yi.paramsClearAll()
 
         if lampType == "POINT":
             yi.paramsSetString("type", "pointlight")
-            yi.paramsSetBool("useGeometry", lamp.create_geometry)
+            yi.paramsSetBool("useGeometry", lamp.bounty.create_geometry)
             power = 0.5 * power * power
             #
-            if lamp.use_sphere:
+            if lamp.bounty.use_sphere:
                 yi.paramsSetString("type", "spherelight")
-                yi.paramsSetInt("samples", lamp.yaf_samples)
-                yi.paramsSetFloat("radius", lamp.yaf_sphere_radius)
+                yi.paramsSetInt("samples", lamp.bounty.samples)
+                yi.paramsSetFloat("radius", lamp.bounty.sphere_radius)
                 # use sphere light attenuation  
-                power /= lamp.yaf_sphere_radius * lamp.yaf_sphere_radius
+                power /= lamp.bounty.sphere_radius * lamp.bounty.sphere_radius
                 #
-                if lamp.create_geometry:
-                    ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.yaf_sphere_radius, self.lightMat)
+                if lamp.bounty.create_geometry:
+                    ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.bounty.sphere_radius, self.lightMat)
                     yi.paramsSetInt("object", ID)
 
         elif lampType == "SPOT":
@@ -136,47 +136,60 @@ class exportLight:
                 # and we need half of the apperture angle in degrees
                 #-------------------------------------------------------
                 angle = degrees(lamp_data.spot_size) * 0.5
-
-            yi.paramsSetString("type", "spotlight")
-            ''' 
-            fix issue when some spot_blend >= 0.70 with caustic photons
-            ERROR: Index out of bounds in pdf1D_t::Sample: index, u, ptr, cdf = -1, 0, 00000000082D7840, 00000000082D7840
-            '''
-            if lamp_data.spot_blend > 0.650:
-                lamp_data.spot_blend = 0.650
-            yi.paramsSetFloat("cone_angle", angle)
-            yi.paramsSetFloat("blend", lamp_data.spot_blend)
+            ###
+            light_type = "spotlight"
+            if lamp.bounty.ies_file !="":
+                ies_file = abspath(lamp.bounty.ies_file)
+                if not any(ies_file) and not os.path.exists(ies_file):
+                    yi.printWarning("IES file not found for {0}".format(lamp_name))
+                    return False
+                yi.paramsSetString("file", ies_file)
+                light_type = "ieslight"
+                            
+            else:
+                ''' 
+                fix issue when some spot_blend >= 0.70 with caustic photons
+                ERROR: Index out of bounds in pdf1D_t::Sample: index, u, ptr, cdf = -1, 0, 00000000082D7840, 00000000082D7840
+                '''
+                if lamp_data.spot_blend > 0.650:
+                    lamp_data.spot_blend = 0.650
+                yi.paramsSetFloat("cone_angle", angle)
+                yi.paramsSetFloat("blend", lamp_data.spot_blend)            
+                yi.paramsSetFloat("shadowFuzzyness", lamp.bounty.shadow_fuzzyness)
+                yi.paramsSetBool("photon_only", lamp.bounty.photon_only)
+                
+            ## commons values
             yi.paramsSetPoint("to", to[0], to[1], to[2])
-            yi.paramsSetBool("soft_shadows", lamp.spot_soft_shadows)
-            yi.paramsSetFloat("shadowFuzzyness", lamp.shadow_fuzzyness)
-            yi.paramsSetBool("photon_only", lamp.photon_only)
-            yi.paramsSetInt("samples", lamp.yaf_samples)
+            yi.paramsSetBool("soft_shadows", lamp.bounty.spot_soft_shadows)
+            yi.paramsSetInt("samples", lamp.bounty.samples)
+            
+            yi.paramsSetString("type", light_type)
 
         elif lampType == "SUN":
             yi.paramsSetString("type", "sunlight")
-            yi.paramsSetInt("samples", lamp.yaf_samples)
-            yi.paramsSetFloat("angle", lamp.angle)
-            yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])
-
-        elif lampType == "DIRECTIONAL":
+            yi.paramsSetInt("samples", lamp.bounty.samples)
+            yi.paramsSetFloat("angle", lamp.bounty.angle)
+            yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])        
+        
+        elif lampType == "HEMI": # "DIRECTIONAL":
             yi.paramsSetString("type", "directional")
             yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])
-            yi.paramsSetBool("infinite", lamp.infinite)
-            if not lamp.infinite:
-                yi.paramsSetFloat("radius", lamp_data.shadow_soft_size)
+            yi.paramsSetBool("infinite", lamp.bounty.infinite)
+            if not lamp.bounty.infinite:
+                yi.paramsSetFloat("radius", lamp.bounty.shadows_size)
                 yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
-
-        elif lampType == "IES":
+            """
+            elif lampType == "IES":
             yi.paramsSetString("type", "ieslight")
             yi.paramsSetPoint("to", to[0], to[1], to[2])
-            ies_file = abspath(lamp.ies_file)
+            ies_file = abspath(lamp.bounty.ies_file)
             if not any(ies_file) and not os.path.exists(ies_file):
                 yi.printWarning("IES file not found for {0}".format(lamp_name))
                 return False
             yi.paramsSetString("file", ies_file)
-            yi.paramsSetInt("samples", lamp.yaf_samples)
-            yi.paramsSetBool("soft_shadows", lamp.ies_soft_shadows)
-
+            yi.paramsSetInt("samples", lamp.bounty.samples)
+            yi.paramsSetBool("soft_shadows", lamp.bounty.ies_soft_shadows)
+            """
         elif lampType == "AREA":
             sizeX = lamp_data.size
             sizeY = lamp_data.size
@@ -184,9 +197,8 @@ class exportLight:
                 sizeY = lamp_data.size_y
             matrix = lamp_object.matrix_world.copy()
 
-            # generate an untransformed rectangle in the XY plane
-            # with the light's position as the centerpoint and
-            # transform it using its transformation matrix
+            # generate an untransformed rectangle in the XY plane with the light's position
+            # as the centerpoint and transform it using its transformation matrix
             point = Vector((-sizeX / 2, -sizeY / 2, 0))
             corner1 = Vector((-sizeX / 2, sizeY / 2, 0))
             corner2 = Vector((sizeX / 2, sizeY / 2, 0))
@@ -198,7 +210,7 @@ class exportLight:
             corner3 = matrix * corner3  # ----------------------------------
 
             yi.paramsClearAll()
-            if lamp.create_geometry:
+            if lamp.bounty.create_geometry:
                 ID = yi.getNextFreeID()
                 yi.startGeometry()
                 yi.startTriMesh(ID, 4, 2, False, False, 0)
@@ -214,13 +226,13 @@ class exportLight:
                 yi.paramsSetInt("object", ID)
 
             yi.paramsSetString("type", "arealight")
-            yi.paramsSetInt("samples", lamp.yaf_samples)
+            yi.paramsSetInt("samples", lamp.bounty.samples)
             yi.paramsSetPoint("corner", point[0], point[1], point[2])
             yi.paramsSetPoint("point1", corner1[0], corner1[1], corner1[2])
             yi.paramsSetPoint("point2", corner3[0], corner3[1], corner3[2])
 
         # sunlight and directional light don't use 'from' parameter
-        if lampType not in {"SUN", "DIRECTIONAL"}:
+        if lampType not in {"SUN", "HEMI"}:
             yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
         
         #
