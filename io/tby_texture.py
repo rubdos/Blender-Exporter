@@ -247,7 +247,7 @@ class exportTexture:
                 noise_size = 1.0 / noise_size
             yi.paramsSetFloat("size", noise_size)
 
-            ts = switchDistMetric.get(tex.distance_metric, 'minkovsky')  # set distance metric for VORONOI Texture, default is 'minkovsky'
+            ts = switchDistMetric.get(tex.distance_metric, 'minkovsky')
             yi.paramsSetString("distance_metric", ts)
 
             textureConfigured = True
@@ -256,7 +256,7 @@ class exportTexture:
             yi.printInfo("Exporter: Creating Texture: '{0}' type {1}".format(name, tex.yaf_tex_type))
             yi.paramsSetString("type", "musgrave")
 
-            ts = switchMusgraveType.get(tex.musgrave_type, 'multifractal')  # set MusgraveType, default is 'multifractal'
+            ts = switchMusgraveType.get(tex.musgrave_type, 'multifractal')
 
             yi.paramsSetString("musgrave_type", ts)
             yi.paramsSetString("noise_type", noise2string(tex.noise_basis))
@@ -309,10 +309,13 @@ class exportTexture:
                 image_tex = "baked_image_{0}.{1}".format(clean_name(tex.name), fileformat)
                 image_tex = os.path.join(save_dir, extract_path, image_tex)
                 image_tex = abspath(image_tex)
-                tex.image.save_render(image_tex, scene)
+                # test for not overwrite current file (or non extract every time)
+                if not os.path.exists(image_tex):
+                    tex.image.save_render(image_tex, scene)
+                    
             if tex.image.source == 'FILE':
                 #
-                image_tex = '' #abspath(tex.image.filepath)
+                image_tex = ''
                 if tex.image.packed_file:
                     # checking local path
                     if not os.path.exists(abspath(tex.image.filepath)):

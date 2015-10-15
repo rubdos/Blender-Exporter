@@ -51,6 +51,7 @@ class exportObject(object):
 
         camera = self.scene.camera
         render = self.scene.render
+        cam = camera.data
         
         # get cam worldspace transformation matrix, e.g. if cam is parented matrix_local does not work
         matrix = camera.matrix_world.copy()
@@ -65,26 +66,18 @@ class exportObject(object):
         x = int(render.resolution_x * render.resolution_percentage * 0.01)
         y = int(render.resolution_y * render.resolution_percentage * 0.01)
 
-        yi.paramsClearAll()
+        yi.paramsClearAll() 
 
+        yi.paramsSetString("type", cam.bounty.camera_type)
 
-        # use Blender camera properties
-        cam = camera.data 
-        # thebounty camera subclass properties
-        camera = camera.data.bounty
-            
-        camType = camera.camera_type
-
-        yi.paramsSetString("type", camType)
-
-        if camera.use_clipping:
+        if cam.bounty.use_clipping:
             yi.paramsSetFloat("nearClip", cam.clip_start)
             yi.paramsSetFloat("farClip", cam.clip_end)
 
-        if camType == "orthographic":
+        if cam.bounty.camera_type == "orthographic":
             yi.paramsSetFloat("scale", cam.ortho_scale)
 
-        elif camType in {"perspective", "architect"}:
+        elif cam.bounty.camera_type in {"perspective", "architect"}:
             # Blenders GSOC 2011 project "tomato branch" merged into trunk.
             # Check for sensor settings and use them in yafaray exporter also.
             if cam.sensor_fit == 'AUTO':
@@ -115,17 +108,17 @@ class exportObject(object):
                 dof_distance = cam.dof_distance
 
             yi.paramsSetFloat("dof_distance", dof_distance)
-            yi.paramsSetFloat("aperture", camera.aperture)
+            yi.paramsSetFloat("aperture", cam.bounty.aperture)
             # bokeh params
-            yi.paramsSetString("bokeh_type", camera.bokeh_type)
-            yi.paramsSetString("bokeh_bias", camera.bokeh_bias)
-            yi.paramsSetFloat("bokeh_rotation", camera.bokeh_rotation)
+            yi.paramsSetString("bokeh_type", cam.bounty.bokeh_type)
+            yi.paramsSetString("bokeh_bias", cam.bounty.bokeh_bias)
+            yi.paramsSetFloat("bokeh_rotation", cam.bounty.bokeh_rotation)
 
-        elif camType == "angular":
-            yi.paramsSetBool("circular", camera.circular)
-            yi.paramsSetBool("mirrored", camera.mirrored)
-            yi.paramsSetFloat("max_angle", camera.max_angle)
-            yi.paramsSetFloat("angle", camera.angular_angle)
+        elif cam.bounty.camera_type == "angular":
+            yi.paramsSetBool("circular", cam.bounty.circular)
+            yi.paramsSetBool("mirrored", cam.bounty.mirrored)
+            yi.paramsSetFloat("max_angle", cam.bounty.max_angle)
+            yi.paramsSetFloat("angle", cam.bounty.angular_angle)
 
         yi.paramsSetInt("resx", x)
         yi.paramsSetInt("resy", y)
