@@ -533,11 +533,13 @@ class TheBounty_PT_mapping(TextureSlotPanel, Panel):
                 col = split.column()
                 col.prop(tex, "texture_coords", text="")
 
-            """
+            
             if tex.texture_coords == 'UV':
-                pass
+                #pass
                 
-                #### UV layers not supported in yafaray engine ###
+                '''
+                 Maybe UV layers ist not supported in TheBounty engine
+                '''
                 split = layout.split(percentage=0.3)
                 split.label(text="Layer:")
                 ob = context.object
@@ -545,10 +547,9 @@ class TheBounty_PT_mapping(TextureSlotPanel, Panel):
                     split.prop_search(tex, "uv_layer", ob.data, "uv_textures", text="")
                 else:
                     split.prop(tex, "uv_layer", text="")
-            """
+            
 
-            #el
-            if tex.texture_coords == 'OBJECT':
+            elif tex.texture_coords == 'OBJECT':
                 split = layout.split(percentage=0.3)
                 split.label(text="Object:")
                 split.prop(tex, "object", text="")
