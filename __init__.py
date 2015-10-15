@@ -34,34 +34,6 @@ import sys
 import os
 import ctypes
 
-'''
-#------------------------------------
-# find environment for install path
-#------------------------------------
-def find_bounty_path():
-    from os import getenv
-    #
-    BIN_PATH = "none"
-    HOME = getenv('BOUNTY_ROOT','none' )
-
-    if HOME != 'none' and os.path.exists(HOME):
-        # c:\TheBounty.. or /home/user/app/TheBounty in Unix 
-        BIN_PATH = os.path.join(HOME+'/bin')
-    else:
-        # keep the old way: the binaries inside the scripts/addons/folder
-        PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
-        BIN_PATH = os.path.join(__path__[0], 'bin')
-        
-    return BIN_PATH
-#
-BIN_PATH = find_bounty_path()
-# if bin path is valid..
-# you also can use 'if BIN_PATH is not "none"' way
-if os.path.exists(BIN_PATH):
-    PLUGIN_PATH = BIN_PATH + "/plugins"
-    sys.path.append(BIN_PATH)
-
-'''
 
 PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
 BIN_PATH = os.path.join(__path__[0], 'bin')
@@ -74,7 +46,7 @@ if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1', 'libiconv', 'libpng16', 'libxml2', 'Half', 'Iex', \
+            dllArray = ['zlib', 'libiconv', 'libpng16', 'jpeg8', 'libxml2', 'Half', 'Iex', \
                         'Imath', 'IlmThread', 'IlmImf', 'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a GCC build's
@@ -111,24 +83,6 @@ else:
     from . import io
     from . import ui
     from . import ot
-    '''
-    #-------------------------------------------------------------------------------------
-    # add path option on 'User Preferences', based on Corona Exporter and LuxBlend
-    #-------------------------------------------------------------------------------------
-    class TheBountyAddonPreferences(bpy.types.AddonPreferences):
-        # don't remove!! ----------
-        bl_idname = __name__
-        #--------------------------
-        
-        install_path = bpy.props.StringProperty(
-                name="Path to TheBounty binaries", description="", 
-                subtype='DIR_PATH', default=find_bounty_path(),
-        )
-                
-        def draw(self, context):
-            layout = self.layout
-            layout.prop(self, "install_path")
-    '''
 
 def register():
     #
