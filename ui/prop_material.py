@@ -23,8 +23,8 @@ from ..ui.ior_values import ior_list
 from bpy.types import Panel, Menu
 from bl_ui.properties_material import (active_node_mat, check_material)
 
-#------------------------------------------------
-def blend_one_draw(layout, mat): #, output_type):
+
+def blend_one_draw(layout, mat):
     #
     try:
         layout.prop_search(mat.bounty, "blendOne", bpy.data, "materials")
@@ -33,7 +33,7 @@ def blend_one_draw(layout, mat): #, output_type):
     
     return True
 
-def blend_two_draw(layout, mat): #, output_type):
+def blend_two_draw(layout, mat):
     #
     try:
         layout.prop_search(mat.bounty, "blendTwo", bpy.data, "materials")
@@ -41,7 +41,7 @@ def blend_two_draw(layout, mat): #, output_type):
         return False
     return True
 
-#---------------------------------------------------------------------------
+
 class TheBountyMaterialButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -375,6 +375,7 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         mat = active_node_mat(context.material)
         
         self.drawTranslucent(context, layout, mat)
+        self.drawSSS(context, layout, mat)
         self.drawScattering(context, layout, mat)
 
     def drawTranslucent(self, context, layout, mat):
@@ -396,8 +397,9 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         layout.separator()
         
         row = layout.row()
-        row.label("SSS Presets")
-        row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
+        #row.label("SSS Presets")
+        #row.prop(mat.bounty, 'sss_presets', text="")
+        #row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
         
         split = layout.split()
         
@@ -411,6 +413,19 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "sss_transmit", text="Translucency")
         col.prop(mat.bounty, "sssIOR")
 
+    #---------------------------
+    # IBL definitions file (wip)
+    #---------------------------
+    def drawSSS(self, context, layout, mat):
+        #world = context.world.bounty
+        #layout = self.layout
+        row = layout.row()
+        row.label("SSS Presets")
+        row.prop(mat.bounty, 'sss_presets', text="")
+        
+        if not mat.bounty.sss_presets == "":
+            # test
+            layout.operator("material.parse_sss")
 if __name__ == "__main__":  # only for live edit.
     #import bpy
     bpy.utils.register_module(__name__)
