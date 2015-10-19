@@ -147,12 +147,6 @@ class exportLight:
                 light_type = "ieslight"
                             
             else:
-                ''' 
-                fix issue when some spot_blend >= 0.70 with caustic photons
-                ERROR: Index out of bounds in pdf1D_t::Sample: index, u, ptr, cdf = -1, 0, 00000000082D7840, 00000000082D7840
-                '''
-                if lamp_data.spot_blend > 0.650:
-                    lamp_data.spot_blend = 0.650
                 yi.paramsSetFloat("cone_angle", angle)
                 yi.paramsSetFloat("blend", lamp_data.spot_blend)            
                 yi.paramsSetFloat("shadowFuzzyness", lamp.bounty.shadow_fuzzyness)
