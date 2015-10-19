@@ -24,7 +24,7 @@ from bl_ui.properties_texture import context_tex_datablock, id_tex_datablock
 from bpy.types import (Panel, Texture, Brush, Material, World, ParticleSettings)
 
 
-class TextureButtonsPanel():
+class TheBountyTextureButtonsPanel():
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "texture"
@@ -37,7 +37,7 @@ class TextureButtonsPanel():
         return tex and (tex.yaf_tex_type not in 'NONE' or tex.use_nodes) and (engine in cls.COMPAT_ENGINES)
 
 
-class TheBounty_PT_context_texture(TextureButtonsPanel, Panel):
+class TheBounty_PT_context_texture(TheBountyTextureButtonsPanel, Panel):
     bl_label = "TheBounty Textures"
     bl_options = {'HIDE_HEADER'}
     COMPAT_ENGINES = {'THEBOUNTY'}
@@ -79,7 +79,7 @@ class TheBounty_PT_context_texture(TextureButtonsPanel, Panel):
         
         # copied from Blender, but not use atm
         # TODO: review
-        """
+        #'''
         if space.texture_context == 'OTHER':
             if not pin_id:
                 layout.template_texture_user()
@@ -104,9 +104,9 @@ class TheBounty_PT_context_texture(TextureButtonsPanel, Panel):
                             split.prop(slot, "output_node", text="")
                     else:
                         split.label(text="Type:")
-                        split.prop(tex, "type", text="")
+                        split.prop(tex, "yaf_tex_type", text="")
             return
-        """
+        #"""
 
         tex_collection = (pin_id is None) and (node is None) and (not isinstance(idblock, Brush))
 
@@ -151,7 +151,7 @@ class TheBounty_PT_context_texture(TextureButtonsPanel, Panel):
                 split.prop(tex, "yaf_tex_type", text="")
 
 
-class TheBounty_PT_texture_preview(TextureButtonsPanel, Panel):
+class TheBounty_PT_texture_preview(TheBountyTextureButtonsPanel, Panel):
     bl_label = "Preview"
     COMPAT_ENGINES = {'THEBOUNTY'}
 
@@ -172,7 +172,7 @@ class TheBounty_PT_texture_preview(TextureButtonsPanel, Panel):
             layout.prop(tex, "use_preview_alpha")
 
 
-class TextureSlotPanel(TextureButtonsPanel):
+class TextureSlotPanel(TheBountyTextureButtonsPanel):
     COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
@@ -181,10 +181,10 @@ class TextureSlotPanel(TextureButtonsPanel):
             return False
 
         engine = context.scene.render.engine
-        return THEBOUNTY_TextureButtonsPanel.poll(cls, context) and (engine in cls.COMPAT_ENGINES)
+        return TheBountyTextureButtonsPanel.poll(cls, context) and (engine in cls.COMPAT_ENGINES)
 
 
-class TextureTypePanel(TextureButtonsPanel):
+class TextureTypePanel(TheBountyTextureButtonsPanel):
     COMPAT_ENGINES = {'THEBOUNTY'}
 
     @classmethod
