@@ -29,8 +29,7 @@ def blend_one_draw(layout, mat):
     try:
         layout.prop_search(mat.bounty, "blendOne", bpy.data, "materials")
     except:
-        return False
-    
+        return False    
     return True
 
 def blend_two_draw(layout, mat):
@@ -357,14 +356,14 @@ class TheBountyFakeGlass(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "glass_mir_col")
         layout.row().prop(mat.bounty, "glass_transmit", slider=True)
         layout.row().prop(mat.bounty, "fake_shadows")
-        
+'''        
 class TheBountyScatteringPresets(Menu):
     bl_label = "Scattering Presets"
     preset_subdir = "thebounty/sss"
     preset_operator = "script.execute_preset"
     COMPAT_ENGINES = {'THEBOUNTY'}
     draw = Menu.draw_preset
-    
+'''    
 class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
     bl_label = "Translucent Scattering Material"
     material_type = 'translucent'
@@ -379,8 +378,7 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         self.drawScattering(context, layout, mat)
 
     def drawTranslucent(self, context, layout, mat):
-        #
-        
+        #        
         split = layout.split()
         col = split.column()
         col.prop(mat.bounty, "diff_color")
@@ -391,16 +389,20 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         row= layout.row()
         row.prop(mat.bounty, "sssSpecularColor")
         layout.prop(mat.bounty, "exponent", text="Specular Exponent")
+        
+    def drawSSS(self, context, layout, mat):
+        #
+        row = layout.row()
+        row.label("SSS Presets")
+        row.prop(mat.bounty, 'sss_presets', text="")
+        
+        if not mat.bounty.sss_presets == "custom":
+            layout.operator("material.parse_sss")
 
     def drawScattering(self, context, layout, mat):
         #
-        layout.separator()
-        
-        row = layout.row()
-        #row.label("SSS Presets")
-        #row.prop(mat.bounty, 'sss_presets', text="")
-        #row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
-        
+        layout.separator()        
+        row = layout.row()        
         split = layout.split()
         
         col = split.column()        
@@ -412,20 +414,8 @@ class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "sssSigmaA", text="Absorption (Sigma A)")
         col.prop(mat.bounty, "sss_transmit", text="Translucency")
         col.prop(mat.bounty, "sssIOR")
-
-    #---------------------------
-    # IBL definitions file (wip)
-    #---------------------------
-    def drawSSS(self, context, layout, mat):
-        #world = context.world.bounty
-        #layout = self.layout
-        row = layout.row()
-        row.label("SSS Presets")
-        row.prop(mat.bounty, 'sss_presets', text="")
-        
-        if not mat.bounty.sss_presets == "":
-            # test
-            layout.operator("material.parse_sss")
+    
+            
 if __name__ == "__main__":  # only for live edit.
     #import bpy
     bpy.utils.register_module(__name__)
