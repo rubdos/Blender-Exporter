@@ -356,14 +356,7 @@ class TheBountyFakeGlass(TheBountyMaterialTypePanel, Panel):
         col.prop(mat.bounty, "glass_mir_col")
         layout.row().prop(mat.bounty, "glass_transmit", slider=True)
         layout.row().prop(mat.bounty, "fake_shadows")
-'''        
-class TheBountyScatteringPresets(Menu):
-    bl_label = "Scattering Presets"
-    preset_subdir = "thebounty/sss"
-    preset_operator = "script.execute_preset"
-    COMPAT_ENGINES = {'THEBOUNTY'}
-    draw = Menu.draw_preset
-'''    
+
 class TheBountyTranslucent(TheBountyMaterialTypePanel, Panel):
     bl_label = "Translucent Scattering Material"
     material_type = 'translucent'
