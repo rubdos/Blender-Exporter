@@ -52,6 +52,7 @@ enum_sss_presets = (
     ('skinbrown',   "Skin Brown",   ""),
     ('skinpink',    "Skin Pink",    ""),
     ('skinyellow',  "Skin Yellow",  ""),
+    ('custom',      "Custom",       ""),
 )
 #-----------------------------------------
 # syncronize some colors with Blender

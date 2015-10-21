@@ -274,6 +274,19 @@ class Thebounty_OT_ParseSSS(Operator):
             mat.phaseFuction = 0.8
             mat.sssSigmaS_factor = 10.0
             mat.glossy_reflect = 0.5
+        
+        elif mat.sss_presets=='custom':
+            # colors
+            mat.diff_color = mat.diff_color
+            mat.sssSigmaS = mat.sssSigmaS
+            mat.sssSigmaA = mat.sssSigmaA
+            mat.sssSpecularColor = mat.sssSpecularColor
+            # values
+            mat.sssIOR = mat.sssIOR
+            mat.phaseFuction = mat.phaseFuction
+            mat.sssSigmaS_factor = mat.sssSigmaS_factor
+            mat.glossy_reflect = mat.glossy_reflect
+            
             
         return {'FINISHED'}
       
