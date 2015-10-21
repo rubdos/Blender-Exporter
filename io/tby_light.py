@@ -64,16 +64,13 @@ class exportLight:
 
         return ID
 
-    def createLight(self, yi, lamp_object, matrix=None):
+    def createLight(self, yi, object, matrix=None):
         # for use Blender properties
-        lamp_data = lamp_object.data
-        lamp_name = lamp_object.name
+        lamp = object.data
+        lamp_name = object.name
         
-        # use exporter properties..
-        lamp = lamp_object.data #.bounty
-
         if matrix is None:
-            matrix = lamp_object.matrix_world.copy()
+            matrix = object.matrix_world.copy()
         # matrix indexing (row, colums) changed in Blender rev.42816, for explanation see also:
         # http://wiki.blender.org/index.php/User:TrumanBlending/Matrix_Indexing
         pos = matrix.col[3]
@@ -81,9 +78,8 @@ class exportLight:
         # up = matrix[1]  /* UNUSED */
         to = pos - direct
 
-        lampType = lamp.type #lamp_type
         power = lamp.bounty.energy
-        color = lamp_data.color
+        color = lamp.color
 
         if self.preview:
             if lamp_name == "Lamp":
@@ -97,12 +93,12 @@ class exportLight:
                 to = (-0.0062182024121284485, 0.6771485209465027, 1.8015732765197754, 1.0)
                 power = 5
             elif lamp_name == "Lamp.008":
-                lampType = "SUN"
-                power = 0.8
+                lamp.type = "SUN"
+                power = 1.0 #0.8
 
         yi.paramsClearAll()
 
-        yi.printInfo("Exporting Lamp: {0} [{1}]".format(lamp_name, lampType))
+        yi.printInfo("Exporting Lamp: {0} [{1}]".format(lamp_name, lamp.type))
 
         if lamp.bounty.create_geometry:
             yi.paramsClearAll()
@@ -111,7 +107,7 @@ class exportLight:
             self.lightMat = self.yi.createMaterial(lamp_name)
             self.yi.paramsClearAll()
 
-        if lampType == "POINT":
+        if lamp.type == "POINT":
             yi.paramsSetString("type", "pointlight")
             yi.paramsSetBool("useGeometry", lamp.bounty.create_geometry)
             power = 0.5 * power * power
@@ -127,7 +123,7 @@ class exportLight:
                     ID = self.makeSphere(24, 48, pos[0], pos[1], pos[2], lamp.bounty.sphere_radius, self.lightMat)
                     yi.paramsSetInt("object", ID)
 
-        elif lampType == "SPOT":
+        elif lamp.type == "SPOT":
             if self.preview and lamp_name == "Lamp.002":
                 angle = 50
             else:
@@ -135,7 +131,7 @@ class exportLight:
                 # Blender reports the angle of the full cone in radians
                 # and we need half of the apperture angle in degrees
                 #-------------------------------------------------------
-                angle = degrees(lamp_data.spot_size) * 0.5
+                angle = degrees(lamp.spot_size) * 0.5
             ###
             light_type = "spotlight"
             if lamp.bounty.ies_file !="":
@@ -148,7 +144,7 @@ class exportLight:
                             
             else:
                 yi.paramsSetFloat("cone_angle", angle)
-                yi.paramsSetFloat("blend", lamp_data.spot_blend)            
+                yi.paramsSetFloat("blend", lamp.spot_blend)            
                 yi.paramsSetFloat("shadowFuzzyness", lamp.bounty.shadow_fuzzyness)
                 yi.paramsSetBool("photon_only", lamp.bounty.photon_only)
                 
@@ -159,37 +155,26 @@ class exportLight:
             
             yi.paramsSetString("type", light_type)
 
-        elif lampType == "SUN":
+        elif lamp.type == "SUN":
             yi.paramsSetString("type", "sunlight")
             yi.paramsSetInt("samples", lamp.bounty.samples)
             yi.paramsSetFloat("angle", lamp.bounty.angle)
             yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])        
         
-        elif lampType == "HEMI": # "DIRECTIONAL":
+        elif lamp.type == "HEMI":
             yi.paramsSetString("type", "directional")
             yi.paramsSetPoint("direction", direct[0], direct[1], direct[2])
             yi.paramsSetBool("infinite", lamp.bounty.infinite)
             if not lamp.bounty.infinite:
                 yi.paramsSetFloat("radius", lamp.bounty.shadows_size)
                 yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
-            """
-            elif lampType == "IES":
-            yi.paramsSetString("type", "ieslight")
-            yi.paramsSetPoint("to", to[0], to[1], to[2])
-            ies_file = abspath(lamp.bounty.ies_file)
-            if not any(ies_file) and not os.path.exists(ies_file):
-                yi.printWarning("IES file not found for {0}".format(lamp_name))
-                return False
-            yi.paramsSetString("file", ies_file)
-            yi.paramsSetInt("samples", lamp.bounty.samples)
-            yi.paramsSetBool("soft_shadows", lamp.bounty.ies_soft_shadows)
-            """
-        elif lampType == "AREA":
-            sizeX = lamp_data.size
-            sizeY = lamp_data.size
-            if lamp_data.shape == 'RECTANGLE':
-                sizeY = lamp_data.size_y
-            matrix = lamp_object.matrix_world.copy()
+            
+        elif lamp.type == "AREA":
+            sizeX = lamp.size
+            sizeY = lamp.size
+            if lamp.shape == 'RECTANGLE':
+                sizeY = lamp.size_y
+            matrix = object.matrix_world.copy()
 
             # generate an untransformed rectangle in the XY plane with the light's position
             # as the centerpoint and transform it using its transformation matrix
@@ -226,7 +211,7 @@ class exportLight:
             yi.paramsSetPoint("point2", corner3[0], corner3[1], corner3[2])
 
         # sunlight and directional light don't use 'from' parameter
-        if lampType not in {"SUN", "HEMI"}:
+        if lamp.type not in {"SUN", "HEMI"}:
             yi.paramsSetPoint("from", pos[0], pos[1], pos[2])
         
         #
