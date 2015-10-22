@@ -297,6 +297,11 @@ class Thebounty_OT_ParseIBL(Operator):
     bl_idname = "world.parse_ibl"
     bl_label = "Parse IBL"
     iblValues = {}
+    ''' TODO:
+    - test paths on linux systems.
+    - add support for relative paths.
+    - solve the question about packed ibl files inside the .blend 
+    '''
     
     @classmethod
     def poll(cls, context):
@@ -309,17 +314,13 @@ class Thebounty_OT_ParseIBL(Operator):
         file = world.ibl_file
         # parse..
         self.iblValues = self.parseIbl(file)
-        # maybe dirname only work with Win OS ??
-        # TODO: 
-        # - test on linux OS
-        # - add support for 'relative path'..
         iblFolder = os.path.dirname(file) 
-        print(iblFolder)
+        #print(iblFolder)
         worldTexture = scene.world.active_texture
         if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
             evfile = self.iblValues.get('EV')
             newval = os.path.join(iblFolder, evfile) 
-            worldTexture.image.filepath = newval #self.iblValues.get('EV')
+            worldTexture.image.filepath = newval
         
         return {'FINISHED'}
     
