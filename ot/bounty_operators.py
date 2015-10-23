@@ -25,6 +25,8 @@ from bpy.props import PointerProperty, StringProperty
 #
 operators_class = []
 
+opClasses = []
+
 class OBJECT_OT_get_position(Operator):
     bl_label = "From( get position )"
     bl_idname = "world.get_position"
@@ -40,6 +42,8 @@ class OBJECT_OT_get_position(Operator):
 #            
 operators_class.append(OBJECT_OT_get_position)
 
+opClasses.append(OBJECT_OT_get_position)
+
 class OBJECT_OT_get_angle(Operator):
     bl_label = "From( get angle )"
     bl_idname = "world.get_angle"
@@ -52,8 +56,8 @@ class OBJECT_OT_get_angle(Operator):
             return {'CANCELLED'}
         else:
             return{'FINISHED'}
-            
-operators_class.append(OBJECT_OT_get_angle)
+#
+opClasses.append(OBJECT_OT_get_angle)
 
 class OBJECT_OT_update_sun(Operator):
     bl_label = "From( update sun )"
@@ -68,7 +72,7 @@ class OBJECT_OT_update_sun(Operator):
         else:
             return{'FINISHED'}
 #
-operators_class.append(OBJECT_OT_update_sun)
+opClasses.append(OBJECT_OT_update_sun)
 
 def sunPosAngle(mode="get", val="position"):
     active_object = bpy.context.active_object
@@ -117,6 +121,8 @@ def sunPosAngle(mode="get", val="position"):
     else:
         return "No selected LAMP object in the scene!"
 
+
+
 class TheBounty_OT_presets_ior_list(Operator):
     bl_idname = "material.set_ior_preset"
     bl_label = "IOR presets"
@@ -134,21 +140,176 @@ class TheBounty_OT_presets_ior_list(Operator):
         mat.bounty.IOR_refraction = self.index
         return {'FINISHED'}
 #
-operators_class.append(TheBounty_OT_presets_ior_list)
+opClasses.append(TheBounty_OT_presets_ior_list)
+
 #-------------------------------------------
 # Add support for use ibl files
 #-------------------------------------------
 import re, os
-   
+
+class Thebounty_OT_ParseSSS(Operator):
+    bl_idname = "material.parse_sss"
+    bl_label = "Apply SSS preset values"
+    
+    
+    @classmethod
+    def poll(cls, context):
+        material = context.material
+        return material and (material.bounty.mat_type == "translucent")
+    #
+    def execute(self, context):
+
+        material = bpy.context.object.active_material
+        mat = material.bounty
+        scene = bpy.context.scene.bounty
+        if scene.intg_light_method == 'pathtracing':
+            exp = 1
+        else:
+            exp = 500
+        #
+        mat.exponent = exp        
+        
+        if mat.sss_presets=='cream':
+            # colors
+            mat.diff_color = (0.987, 0.90, 0.73)
+            mat.sssSigmaS = (.738, .547, .315)
+            mat.sssSigmaA = (0.0002, 0.0028, 0.0163)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            
+            # values
+            mat.sssIOR = 1.3
+            mat.phaseFuction = 0.8
+            mat.sssSigmaS_factor = 10.0
+            mat.glossy_reflect = 0.6
+            
+        elif mat.sss_presets=='ketchup':
+            # colors
+            mat.diff_color = (0.16, 0.01, 0.00)
+            mat.sssSigmaS = (0.018, 0.007, 0.0034)
+            mat.sssSigmaA = (0.061, 0.97, 1.45)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            # values
+            mat.sssIOR = 1.3
+            mat.phaseFuction = 0.9
+            mat.sssSigmaS_factor = 10.0
+            mat.glossy_reflect = 0.7       
+        
+        elif mat.sss_presets=='marble':
+            mat.diff_color = (0.83, 0.79, 0.75)
+            mat.sssSigmaS = (0.219, 0.262, 0.300)
+            mat.sssSigmaA = (0.0021, 0.0041, 0.0071)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            # values
+            mat.sssIOR = 1.5
+            mat.phaseFuction = -0.25
+            mat.sssSigmaS_factor = 10.0
+            mat.glossy_reflect = 0.7
+            
+        elif mat.sss_presets=='milkskimmed':
+            # colors
+            mat.diff_color = (0.81, 0.81, 0.69)
+            mat.sssSigmaS = (0.070, 0.122, 0.190)
+            mat.sssSigmaA = (0.81, 0.81, 0.68)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            # values
+            mat.sssIOR = 1.3
+            mat.phaseFuction = 0.8
+            mat.sssSigmaS_factor = 10.0
+            mat.glossy_reflect = 0.8
+            
+        elif mat.sss_presets=='milkwhole':
+            # colors
+            mat.diff_color = (0.90, 0.88, 0.76)
+            mat.sssSigmaS = (0.255, 0.321, 0.377)
+            mat.sssSigmaA = (0.011, 0.0024, 0.014)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            # values
+            mat.sssIOR = 1.3
+            mat.phaseFuction = 0.9
+            mat.sssSigmaS_factor = 10.0
+            mat.glossy_reflect = 0.8
+            
+        elif mat.sss_presets=='potato':
+            # colors
+            mat.diff_color = (0.77, 0.62, 0.21)
+            mat.sssSigmaS = (0.068, 0.070, 0.055)
+            mat.sssSigmaA = (0.0024, 0.0090, 0.12)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+    
+            # values
+            mat.sssIOR = 1.3
+            mat.phaseFuction = 0.8
+            mat.sssSigmaS_factor = 10.0
+            mat.glossy_reflect = 0.5
+            
+        elif mat.sss_presets=='skinbrown': #skin1
+            # colors
+            mat.diff_color = (0.44, 0.22, 0.13)
+            mat.sssSigmaS = (0.074, 0.088, 0.101)
+            mat.sssSigmaA = (0.032, 0.17, 0.48)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            # values
+            mat.glossy_reflect = 0.5
+            mat.sssSigmaS_factor = 10.0
+            mat.phaseFuction = 0.8
+            mat.sssIOR = 1.3
+            
+        elif mat.sss_presets=='skinpink':
+            #
+            mat.diff_color = (0.63, 0.44, 0.34)
+            mat.sssSigmaS = (0.109, 0.159, 0.179) # *10
+            mat.sssSigmaA = (0.013, 0.070, 0.145)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            #
+            mat.glossy_reflect = 0.5
+            mat.sssSigmaS_factor = 10.0
+            mat.phaseFuction = 0.8
+            mat.sssIOR = 1.3
+            
+        elif mat.sss_presets=='skinyellow':
+            # colors
+            mat.diff_color = (0.64, 0.42, 0.27)
+            mat.sssSigmaS = (0.48, 0.17, 0.10)
+            mat.sssSigmaA = (0.64, 0.42, 0.27)
+            mat.sssSpecularColor = (1.00, 1.00, 1.00)
+            # values
+            mat.sssIOR = 1.3
+            mat.phaseFuction = 0.8
+            mat.sssSigmaS_factor = 10.0
+            mat.glossy_reflect = 0.5
+        
+        elif mat.sss_presets=='custom':
+            # colors
+            mat.diff_color = mat.diff_color
+            mat.sssSigmaS = mat.sssSigmaS
+            mat.sssSigmaA = mat.sssSigmaA
+            mat.sssSpecularColor = mat.sssSpecularColor
+            # values
+            mat.sssIOR = mat.sssIOR
+            mat.phaseFuction = mat.phaseFuction
+            mat.sssSigmaS_factor = mat.sssSigmaS_factor
+            mat.glossy_reflect = mat.glossy_reflect
+            
+            
+        return {'FINISHED'}
+      
+#
+opClasses.append(Thebounty_OT_ParseSSS)
+
 class Thebounty_OT_ParseIBL(Operator):
     bl_idname = "world.parse_ibl"
     bl_label = "Parse IBL"
     iblValues = {}
+    ''' TODO:
+    - test paths on linux systems.
+    - add support for relative paths.
+    - solve the question about packed ibl files inside the .blend 
+    '''
     
     @classmethod
     def poll(cls, context):
         world = context.world
-        return world and (world.bounty.bg_type == "Texture")
+        return world and (world.bounty.bg_type == "textureback")
     #
     def execute(self, context):
         world = context.world.bounty
@@ -156,15 +317,13 @@ class Thebounty_OT_ParseIBL(Operator):
         file = world.ibl_file
         # parse..
         self.iblValues = self.parseIbl(file)
-        # maybe dirname only work with Win OS ??
-        # TODO: test on linux OS
         iblFolder = os.path.dirname(file) 
-        print(iblFolder)
+        #print(iblFolder)
         worldTexture = scene.world.active_texture
         if worldTexture.type == "IMAGE" and (worldTexture.image is not None):
             evfile = self.iblValues.get('EV')
             newval = os.path.join(iblFolder, evfile) 
-            worldTexture.image.filepath = newval #self.iblValues.get('EV')
+            worldTexture.image.filepath = newval
         
         return {'FINISHED'}
     
@@ -222,13 +381,16 @@ class Thebounty_OT_ParseIBL(Operator):
                      
         f.close()
         return self.iblValues
-#
-operators_class.append(Thebounty_OT_ParseIBL)
+    
+opClasses.append(Thebounty_OT_ParseIBL)
+# test
 
 def register():
-    for classes in operators_class:
-        bpy.utils.register_class(classes)
+    for cls in opClasses:
+        bpy.utils.register_class(cls)
+    
 
 def unregister():
-    for classes in operators_class:
-        bpy.utils.unregister_class(classes)
+    for cls in opClasses:
+        bpy.utils.unregister_class(cls)
+

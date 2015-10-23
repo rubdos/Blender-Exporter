@@ -17,7 +17,7 @@
 # ##### END GPL LICENSE BLOCK #####
 
 # <pep8 compliant>
-
+import bpy
 from bpy.types import Panel
 
 class DataButtonsPanel():
@@ -73,8 +73,8 @@ class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
         
         split = layout.split()
         col = split.column(align=True)
-        col.prop(lamp, "yaf_show_dist_clip", toggle=True)
-        if lamp.yaf_show_dist_clip:
+        col.prop(lamp, "show_dist_clip", toggle=True)
+        if lamp.show_dist_clip:
             col.prop(context.lamp, "distance")
             col.prop(context.lamp, "shadow_buffer_clip_start", text="Clip Start")
             col.prop(context.lamp, "shadow_buffer_clip_end", text=" Clip End")
@@ -102,55 +102,61 @@ class THEBOUNTY_PT_lamp(DataButtonsPanel, Panel):
     def draw(self, context):
         layout = self.layout
         # exporter own Lamp properties
-        lamp = context.lamp.bounty
+        lamp = context.lamp
         
         # commons values
-        layout.prop(lamp, "lamp_type", expand=True)
-        layout.prop(context.lamp, "color")
-        layout.prop(lamp, "yaf_energy", text="Power")
+        layout.prop(lamp, "type", expand=True)
+        layout.prop(lamp, "color")
+        layout.prop(lamp.bounty, "energy", text="Power")
 
-        if lamp.lamp_type == "AREA":
-            layout.prop(lamp, "yaf_samples")
-            layout.prop(lamp, "create_geometry", toggle=True)
+        if lamp.type == "AREA":
+            layout.prop(lamp.bounty, "samples")
+            layout.prop(lamp.bounty, "create_geometry", toggle=True)
             #
             self.draw_area_shape(context)
 
-        elif lamp.lamp_type == "SPOT":
-            layout.prop(lamp, "photon_only", toggle=True)
+        elif lamp.type == "SPOT":
+            layout.prop(lamp.bounty, "ies_file")
+            if lamp.bounty.ies_file =="":
+                layout.prop(lamp.bounty, "photon_only", toggle=True)
             col = layout.column(align=True)
-            if not lamp.photon_only:
-                col.prop(lamp, "spot_soft_shadows", toggle=True)
-                if lamp.spot_soft_shadows:
-                    col.prop(lamp, "yaf_samples")
-                    col.prop(lamp, "shadow_fuzzyness")
-            #
-            self.draw_spot_shape(context)            
+            if not lamp.bounty.photon_only:
+                col.prop(lamp.bounty, "spot_soft_shadows", toggle=True)
+                if lamp.bounty.spot_soft_shadows:
+                    col.prop(lamp.bounty, "samples")
+                    if lamp.bounty.ies_file =="":
+                        col.prop(lamp.bounty, "shadow_fuzzyness")
+             
+            if lamp.bounty.ies_file =="":
+                self.draw_spot_shape(context)            
 
-        elif lamp.lamp_type == "SUN":
-            layout.prop(lamp, "yaf_samples")
-            layout.prop(lamp, "angle")
+        elif lamp.type == "SUN":
+            layout.prop(lamp.bounty, "samples")
+            layout.prop(lamp.bounty, "angle")
 
-        elif lamp.lamp_type == "DIRECTIONAL":
-            layout.prop(lamp, "infinite")
-            if not lamp.infinite:
-                layout.prop(context.lamp, "shadow_soft_size", text="Radius of directional cone")
+        elif lamp.type == "HEMI": #"DIRECTIONAL":
+            layout.label("TheBounty 'directional' light type")
+            layout.prop(lamp.bounty, "infinite")
+            if not lamp.bounty.infinite:
+                layout.prop(lamp.bounty, "shadows_size", text="Radius of directional cone")
 
-        elif lamp.lamp_type == "POINT":
+        elif lamp.type == "POINT":
             col = layout.column(align=True)
-            col.prop(lamp, "use_sphere", toggle=True)
+            col.prop(lamp.bounty, "use_sphere", toggle=True)
             if lamp.use_sphere:
-                col.prop(lamp, "yaf_sphere_radius")
-                col.prop(lamp, "yaf_samples")
-                col.prop(lamp, "create_geometry", toggle=True)
-
-        elif lamp.lamp_type == "IES":
+                col.prop(lamp.bounty, "sphere_radius")
+                col.prop(lamp.bounty, "samples")
+                col.prop(lamp.bounty, "create_geometry", toggle=True)
+        
+        elif lamp.type == "IES":
             layout.prop(lamp, "ies_file")
             col = layout.column(align=True)            
             col.prop(lamp, "ies_soft_shadows", toggle=True)
             if lamp.ies_soft_shadows:
-                col.prop(lamp, "yaf_samples")
+                col.prop(lamp, "samples")
             #
             self.draw_spot_shape(context)
+        
 
 
 if __name__ == "__main__":  # only for live edit.

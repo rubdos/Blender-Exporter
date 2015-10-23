@@ -584,9 +584,12 @@ class TheBountyMaterialWrite:
         yi.printInfo("Exporter: Blend material with: [" + mat.bounty.blendOne + "] [" + mat.bounty.blendTwo + "]")
         yi.paramsSetString("type", "blend_mat")
         
-        yi.paramsSetString("material1", self.namehash(bpy.data.materials[mat.bounty.blendOne]))
-        yi.paramsSetString("material2", self.namehash(bpy.data.materials[mat.bounty.blendTwo]))
-
+        mat1 = bpy.data.materials[mat.bounty.blendOne]
+        yi.paramsSetString("material1", self.namehash(mat1))
+        #
+        mat2 = bpy.data.materials[mat.bounty.blendTwo]
+        yi.paramsSetString("material2", self.namehash(mat2))
+        
         i = 0
 
         maskRoot = ''
@@ -632,7 +635,14 @@ class TheBountyMaterialWrite:
         yi.paramsSetString("type", "null")
         return yi.createMaterial(self.namehash(mat))
     
-    def writeMaterial(self, mat, preview=False):
+    def writeDefaultMat(self, mat):
+        self.yi.paramsClearAll()
+        self.yi.paramsSetString("type", "shinydiffusemat")
+        self.yi.paramsSetColor("color", 0.8, 0.8, 0.8)
+        self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
+        return yi.createMaterial("defaultMat")
+
+    def writeMaterial(self, mat, preview=False): # test
         self.preview = preview
         self.yi.printInfo("Exporter: Creating Material: \"" + self.namehash(mat) + "\"")
         ymat = None

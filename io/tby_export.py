@@ -23,15 +23,14 @@ import os
 import threading
 import time
 import yafrayinterface
-
 from .. import PLUGIN_PATH
-from .yaf_object import yafObject
-from .yaf_light  import yafLight
-from .yaf_world  import yafWorld
-from .yaf_integrator import yafIntegrator
-from . import bounty_scene
-from .yaf_texture import yafTexture
-from .yaf_material import TheBountyMaterialWrite
+from .tby_object import exportObject
+from .tby_light  import exportLight
+from .tby_world  import exportWorld
+from .tby_integrator import exportIntegrator
+from . import tby_scene
+from .tby_texture import exportTexture
+from .tby_material import TheBountyMaterialWrite
 from bpy import context
 
 switchFileType = {
@@ -44,12 +43,15 @@ switchFileType = {
     'XML': 'xml',
 }
 
-class YafaRayRenderEngine(bpy.types.RenderEngine):
+class TheBountyRenderEngine(bpy.types.RenderEngine):
     bl_idname = 'THEBOUNTY'
     bl_use_preview = True
     bl_label = "TheBounty Render"
     prog = 0.0
     tag = ""
+    #useViewToRender = False
+    #viewMatrix = None
+    sceneMat = []
     
     #--------------------------------
     # set console  verbosity levels
@@ -69,7 +71,6 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
     def setInterface(self, yi):
         self.materialMap = {}
         self.exportedMaterials = set()
-        #self.blendMaterials = {}
         self.yi = yi
         # setup specific values for render preview mode
         if self.is_preview:
@@ -86,22 +87,22 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         self.yi.loadPlugins(PLUGIN_PATH)
                 
         # process geometry
-        self.yaf_object = yafObject(self.yi, self.materialMap, self.is_preview)
+        self.geometry = exportObject(self.yi, self.materialMap, self.is_preview)
              
         # process lights
-        self.yaf_lamp = yafLight(self.yi, self.is_preview)
+        self.lights = exportLight(self.yi, self.is_preview)
               
         # process environment world
-        self.yaf_world = yafWorld(self.yi)
+        self.environment = exportWorld(self.yi)
               
         # process lighting integrators..
-        self.yaf_integrator = yafIntegrator(self.yi, self.is_preview)
+        self.lightIntegrator = exportIntegrator(self.yi, self.is_preview)
               
         # textures before materials
-        self.yaf_texture = yafTexture(self.yi)
+        self.yaf_texture = exportTexture(self.yi)
              
         # and materials
-        self.yaf_material = TheBountyMaterialWrite(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
+        self.setMaterial = TheBountyMaterialWrite(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
 
     def exportScene(self):
         #
@@ -109,10 +110,10 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.exportTexture(obj)
             
         self.exportMaterials()
-        self.yaf_object.setScene(self.scene)
+        self.geometry.setScene(self.scene)
         self.exportObjects()
-        self.yaf_object.createCamera()
-        self.yaf_world.exportWorld(self.scene)
+        self.geometry.createCamera()
+        self.environment.setEnvironment(self.scene)
 
     def exportTexture(self, obj):
         #
@@ -160,14 +161,14 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                 obj.create_dupli_list(self.scene)
                 for obj_dupli in obj.dupli_list:
                     matrix = obj_dupli.matrix.copy()
-                    self.yaf_lamp.createLight(self.yi, obj_dupli.object, matrix)
+                    self.lights.createLight(self.yi, obj_dupli.object, matrix)
 
                 if obj.dupli_list:
                     obj.free_dupli_list()
             else:
                 if obj.parent and obj.parent.is_duplicator:
                     continue
-                self.yaf_lamp.createLight(self.yi, obj, obj.matrix_world)
+                self.lights.createLight(self.yi, obj, obj.matrix_world)
 
         self.yi.printInfo("Exporter: Processing Geometry...")
 
@@ -192,12 +193,12 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
 
                     if not self.scene.render.use_instances:
                         matrix = obj_dupli.matrix.copy()
-                        self.yaf_object.writeMesh(obj_dupli.object, matrix)
+                        self.geometry.writeMesh(obj_dupli.object, matrix)
                     else:
                         if obj_dupli.object.name not in dupBaseIds:
-                            dupBaseIds[obj_dupli.object.name] = self.yaf_object.writeInstanceBase(obj_dupli.object)
+                            dupBaseIds[obj_dupli.object.name] = self.geometry.writeInstanceBase(obj_dupli.object)
                         matrix = obj_dupli.matrix.copy()
-                        self.yaf_object.writeInstance(dupBaseIds[obj_dupli.object.name], matrix, obj_dupli.object.name)
+                        self.geometry.writeInstance(dupBaseIds[obj_dupli.object.name], matrix, obj_dupli.object.name)
 
                 if obj.dupli_list is not None:
                     obj.dupli_list_clear()
@@ -208,7 +209,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                         check_rendertype = pSys.settings.render_type in {'OBJECT', 'GROUP'}
                         if check_rendertype and pSys.settings.use_render_emitter:
                             matrix = obj.matrix_world.copy()
-                            self.yaf_object.writeMesh(obj, matrix)
+                            self.geometry.writeMesh(obj, matrix)
 
             # no need to write empty object from here on, so continue with next object in loop
             elif obj.type == 'EMPTY':
@@ -218,16 +219,41 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             elif obj.data.users > 1 and self.scene.render.use_instances:
                 self.yi.printInfo("Processing shared mesh data node object: {0}".format(obj.name))
                 if obj.data.name not in baseIds:
-                    baseIds[obj.data.name] = self.yaf_object.writeInstanceBase(obj)
+                    baseIds[obj.data.name] = self.geometry.writeInstanceBase(obj)
 
                 if obj.name not in dupBaseIds:
                     matrix = obj.matrix_world.copy()
-                    self.yaf_object.writeInstance(baseIds[obj.data.name], matrix, obj.data.name)
+                    self.geometry.writeInstance(baseIds[obj.data.name], matrix, obj.data.name)
 
             elif obj.data.name not in baseIds and obj.name not in dupBaseIds:
-                self.yaf_object.writeObject(obj)
-    
+                self.geometry.writeObject(obj)
+
+    #
     def createDefaultBlends(self):
+        #
+        if 'blendone' not in bpy.data.materials:
+            m1 = bpy.data.materials.new('blendone')
+            m1.bounty.mat_type = 'shinydiffusemat'            
+        if 'blendtwo' not in bpy.data.materials:
+            m2 = bpy.data.materials.new('blendtwo')
+            m2.bounty.mat_type = 'glossy'
+    
+    
+    def handleBlendMat(self, mat):
+        #-------------------------
+        # blend material one
+        #-------------------------
+        if mat.bounty.blendOne == "":
+            mat.bounty.blendOne ='blendone'            
+        mat1 = bpy.data.materials[mat.bounty.blendOne] 
+        
+        if mat1.bounty.mat_type == 'blend':
+            if mat1.name != mat.name:
+                self.handleBlendMat(obj, mat1)
+            else:
+                self.yi.printWarning("Exporter: Problem with blend material {0}."
+                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat1.name))
+                return
         #
         if 'blendone' not in bpy.data.materials:
             m1 = bpy.data.materials.new('blendone')
@@ -366,7 +392,7 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
         filePath = os.path.realpath(filePath)
         filePath = os.path.normpath(filePath)
 
-        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = bounty_scene.getRenderCoords(scene)
+        [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
 
         if render.use_border:
             self.resX = self.bsizeX
@@ -397,18 +423,16 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             self.yi.setOutfile(self.outputFile)
 
         else:
-            #
-            self.setInterface(yafrayinterface.yafrayInterface_t()) # to line 68
+            self.setInterface(yafrayinterface.yafrayInterface_t())
             self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
-        
-        #.. process scene
+
         self.yi.startScene()
         self.exportScene()# to above, line 92
-        self.yaf_integrator.exportIntegrator(self.scene.bounty) # yaf_integrator, line 26
-        self.yaf_integrator.exportVolumeIntegrator(self.scene)
+        self.lightIntegrator.exportIntegrator(self.scene.bounty) # lightIntegrator, line 26
+        self.lightIntegrator.exportVolumeIntegrator(self.scene)
 
         # must be called last as the params from here will be used by render()
-        bounty_scene.exportRenderSettings(self.yi, self.scene)
+        tby_scene.exportRenderSettings(self.yi, self.scene)
 
     def render(self, scene):
         #--------------------------------------------
@@ -437,8 +461,8 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
             if scene.gs_z_channel and not scene.img_output == 'OPEN_EXR':
                 # TODO: need review that option for load both files when z-depth is rendered
                 # except when use exr format
-                lay.load_from_file("{0}.{1}".format(self.output, self.file_type))
-                #lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
+                #lay.load_from_file("{0}.{1}".format(self.output, self.file_type))
+                lay.load_from_file("{0}_zbuffer.{1}".format(self.output, self.file_type))
                 
             else:
                 lay.load_from_file(self.outputFile)
@@ -461,10 +485,11 @@ class YafaRayRenderEngine(bpy.types.RenderEngine):
                     self.update_stats("TheBounty Render: ", "{0}: {1}".format(integrator, self.tag))
                     #
                     self.update_progress(self.prog)
-
+                    
             def drawAreaCallback(*args):
                 x, y, w, h, tile = args
                 result = self.begin_result(x, y, w, h)
+                lay = result.layers[0]
                 try:
                     lay = result.layers[0]
                     if bpy.app.version < (2, 74, 4 ):

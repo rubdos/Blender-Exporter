@@ -50,6 +50,8 @@ class TheBountyAddNodetree(bpy.types.Operator):
         #
         renderer = context.scene.render.engine
         return (context.material and renderer in cls.COMPAT_ENGINES)
+    #bpy.context.space_data.tree_type = 'TheBountyNodeTree'
+
 
     def execute(self, context):
         # create node

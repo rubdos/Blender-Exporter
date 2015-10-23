@@ -50,28 +50,26 @@ class THEBOUNTY_PT_lens(CameraButtonsPanel, Panel):
         # exporter camera subclass
         camera = context.camera.bounty
 
-        layout.prop(camera, "camera_type", expand=True)
+        layout.prop(cam.bounty, "camera_type", expand=True)
 
         layout.separator()
 
-        if camera.camera_type == 'angular':
-            row = layout.row()
-            row.prop(camera, "angular_angle")
-            row.prop(camera, "max_angle")
-            row = layout.row()
-            row.prop(camera, "mirrored")
-            row.prop(camera, "circular")
+        if cam.bounty.camera_type == 'angular':
+            layout.prop(cam.bounty, "angular_angle")
+            layout.prop(cam.bounty, "max_angle")
+            layout.prop(cam.bounty, "mirrored")
+            layout.prop(cam.bounty, "circular")
 
-        elif camera.camera_type == 'orthographic':
+        elif cam.bounty.camera_type == 'orthographic':
             layout.prop(cam, "ortho_scale")
 
-        elif camera.camera_type in {'perspective', 'architect'}:
+        elif cam.bounty.camera_type in {'perspective', 'architect'}:
             layout.prop(cam, "lens")
 
             layout.separator()
 
             layout.label("Depth of Field:")
-            layout.prop(camera, "aperture")
+            layout.prop(cam.bounty, "aperture")
             split = layout.split()
             split.prop(cam, "dof_object", text="")
             col = split.column()
@@ -79,9 +77,9 @@ class THEBOUNTY_PT_lens(CameraButtonsPanel, Panel):
                 col.enabled = False
             col.prop(cam, "dof_distance", text="Distance")
 
-            layout.prop(camera, "bokeh_type")
-            layout.prop(camera, "bokeh_bias")
-            layout.prop(camera, "bokeh_rotation")
+            layout.prop(cam.bounty, "bokeh_type")
+            layout.prop(cam.bounty, "bokeh_bias")
+            layout.prop(cam.bounty, "bokeh_rotation")
 
         layout.separator()
         split = layout.split()
@@ -91,9 +89,9 @@ class THEBOUNTY_PT_lens(CameraButtonsPanel, Panel):
         col.prop(cam, "shift_y", text="Y")
 
         col = split.column(align=True)
-        col.prop(camera, "use_clipping")
+        col.prop(cam.bounty, "use_clipping")
         sub = col.column()
-        sub.active = camera.use_clipping
+        sub.active = cam.bounty.use_clipping
         sub.prop(cam, "clip_start", text="Start")
         sub.prop(cam, "clip_end", text="End")
 

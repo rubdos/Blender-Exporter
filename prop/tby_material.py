@@ -42,6 +42,18 @@ enum_reflectance_mode = (
     ('oren_nayar', "Oren-Nayar", "Reflectance Model"),
     ('lambert', "Lambert", "Reflectance Model"),
 )
+enum_sss_presets = (
+    ('cream',       "Cream",        ""),
+    ('ketchup',     "Ketchup",      ""),
+    ('marble',      "Marble",       ""),
+    ('milkskimmed', "Milk Skimmed", ""),
+    ('milkwhole',   "Milk Whole",   ""),
+    ('potato',      "Potato",       ""),
+    ('skinbrown',   "Skin Brown",   ""),
+    ('skinpink',    "Skin Pink",    ""),
+    ('skinyellow',  "Skin Yellow",  ""),
+    ('custom',      "Custom",       ""),
+)
 #-----------------------------------------
 # syncronize some colors with Blender
 # for better visualization on viewport
@@ -298,6 +310,12 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
     #--------------------------------------------
     #  Translucent SubSurface Scattering settings
     #--------------------------------------------
+    sss_presets = EnumProperty(
+            name="SSS",
+            description="Scattering presets",
+            items=enum_sss_presets,
+            default='cream',
+    )
     sssColor = FloatVectorProperty(
             name="Diffuse color",
             description="Diffuse color",
@@ -316,8 +334,8 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             name="Absorption Color",
             description="Absorption Color",
             subtype='COLOR',
-            min=0.0, max=1.0,
-            default=(0.0, 0.0, 0.0)
+            min=0.0, max=2.0,
+            default=(0.80, 0.80, 0.80)
     )    
     sssSigmaS = FloatVectorProperty(
             name="Scatter color",
@@ -330,15 +348,15 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             name="SigmaS factor",
             description="Sigma factor for SSS",
             min=0.1, max=100.0,
-            step=0.01, precision=3,
-            default=1.0
+            step=0.1, precision=2,
+            default=10.0
     )    
     sss_transmit = FloatProperty(
             name="Transmittance",
             description="Transmittance",
             min=0.0, max=1.0,
-            step=0.01, precision=3,
-            default=1.0
+            step=0.1, precision=3,
+            default=0.50
     )        
     sssIOR = FloatProperty(
             name="IOR",

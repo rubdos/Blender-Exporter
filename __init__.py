@@ -22,8 +22,8 @@ bl_info = {
     "name": "TheBounty Render Engine",
     "description": "TheBounty Renderer integration for Blender",
     "author": "Pedro Alcaide (povmaniaco), rubdos, TynkaTopi, paultron",
-    "version": (0, 1, 6, 0),
-    "blender": (2, 74, 0),
+    "version": (0, 1, 6, 4),
+    "blender": (2, 75, 0),
     "location": "Info Header > Engine dropdown menu",
     "wiki_url": "https://github.com/TheBounty/Blender-Exporter/wiki",
     "tracker_url": "https://github.com/TheBounty/Blender-Exporter/issues",
@@ -46,14 +46,14 @@ if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib1', 'libiconv', 'libpng16', 'libxml2', 'Half', 'Iex', \
+            dllArray = ['zlib', 'libiconv', 'libpng16', 'jpeg8', 'libxml2', 'Half', 'Iex', \
                         'Imath', 'IlmThread', 'IlmImf', 'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a GCC build's
         else:
             dllArray = ['libzlib', 'libiconv-2', 'libxml2', 'libjpeg-8', 'libpng16', 'libtiff-5', \
                         'libfreetype', 'libHalf', 'libIex', 'libIlmThread', 'libImath', \
-                        'libIlmImf', 'libyafaraycore', 'libyafarayplugin']                        
+                        'libIlmImf', 'libyafaraycore', 'libyafarayplugin']
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
@@ -86,24 +86,6 @@ else:
     from . import ui
     from . import ot
     
-    '''
-    #-------------------------------------------------------------------------------------
-    # add path option on 'User Preferences', based on Corona Exporter and LuxBlend
-    #-------------------------------------------------------------------------------------
-    class TheBountyAddonPreferences(bpy.types.AddonPreferences):
-        # don't remove!! ----------
-        bl_idname = __name__
-        #--------------------------
-        
-        install_path = bpy.props.StringProperty(
-                name="Path to TheBounty binaries", description="", 
-                subtype='DIR_PATH', default=find_bounty_path(),
-        )
-                
-        def draw(self, context):
-            layout = self.layout
-            layout.prop(self, "install_path")
-
     '''
 def register():
     #
