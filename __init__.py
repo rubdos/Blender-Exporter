@@ -86,7 +86,7 @@ else:
     from . import ui
     from . import ot
     
-    '''
+
 def register():
     #
     nodeitems_utils.register_node_categories("BOUNTY_NODES", ui.prop_custom_nodes.TheBountyNodeCategories)

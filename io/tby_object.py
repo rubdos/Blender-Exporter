@@ -64,7 +64,9 @@ class exportObject(object):
 
         x = int(render.resolution_x * render.resolution_percentage * 0.01)
         y = int(render.resolution_y * render.resolution_percentage * 0.01)
-
+        #
+        cam = camera.data
+        #
         yi.paramsClearAll() 
 
         yi.paramsSetString("type", cam.bounty.camera_type)

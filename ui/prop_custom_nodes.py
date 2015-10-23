@@ -28,7 +28,7 @@ from . import prop_node_sockets
 #import nodeitems_utils
 from nodeitems_utils import NodeCategory, NodeItem, NodeItemCustom
 
-from ..prop.yaf_material import TheBountyMaterialProperties as MatProperty
+from ..prop.tby_material import TheBountyMaterialProperties as MatProperty
 
 
 bounty_node_class=[]

@@ -30,7 +30,7 @@ from bpy.props import (FloatProperty,
                        BoolProperty,
                        EnumProperty)
 
-from ..prop.yaf_material import TheBountyMaterialProperties as MatProperty
+from ..prop.tby_material import TheBountyMaterialProperties as MatProperty
 
 color_socket = (0.9, 0.9, 0.0, 1.0)
 float_socket = (0.63, 0.63, 0.63, 1.0)

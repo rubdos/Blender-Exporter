@@ -357,7 +357,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
                 self.handleBlendMat(obj, material)
             else:
                 self.exportedMaterials.add(material)
-                self.yaf_material.writeMaterial(material, self.is_preview)
+                self.setMaterial.writeMaterial(material, self.is_preview)
 
     def decideOutputFileName(self, output_path, filetype):
                 
