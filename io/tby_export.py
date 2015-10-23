@@ -280,7 +280,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
         #
         if mat1 not in self.exportedMaterials:
             self.exportedMaterials.add(mat1)
-            self.yaf_material.writeMaterial(mat1)
+            self.setMaterial.writeMaterial(mat1)
         #
         #-------------------------
         # blend material two
@@ -301,7 +301,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
         # write blend material two    
         if mat2 not in self.exportedMaterials:
             self.exportedMaterials.add(mat2)
-            self.yaf_material.writeMaterial(mat2)
+            self.setMaterial.writeMaterial(mat2)
             
         if mat1.name == mat2.name:
             self.yi.printWarning("Exporter: Problem with blend material {0}."
@@ -309,7 +309,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
         
         if mat not in self.exportedMaterials:
             self.exportedMaterials.add(mat)
-            self.yaf_material.writeMaterial(mat)
+            self.setMaterial.writeMaterial(mat)
             
     def createDefaultMat(self):
         #---------------------------------------------------
