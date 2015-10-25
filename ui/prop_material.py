@@ -62,31 +62,10 @@ def node_tree_selector_draw(layout, mat, output_type):
 
     node = find_node(mat, output_type)
     if not node:
-        if not mat.bounty.nodetree:
-            layout.operator('bounty.add_nodetree', icon='NODETREE')
-            return False
+        #if not mat.bounty.nodetree:
+        layout.operator('bounty.add_nodetree', icon='NODETREE')
+        #return False
     return True
-
-#------------------------------------------------
-def blend_one_draw(layout, mat): #, output_type):
-    #
-    try:
-        layout.prop_search(mat.bounty, "blendOne", bpy.data, "materials")
-    except:
-        return False
-    
-    return True
-
-def blend_two_draw(layout, mat): #, output_type):
-    #
-    try:
-        layout.prop_search(mat.bounty, "blendTwo", bpy.data, "materials")
-    except:
-        return False
-    return True
-
-#---------------------------------------------------------------------------
-
 
 def blend_one_draw(layout, mat):
     #
