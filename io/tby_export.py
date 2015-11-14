@@ -99,10 +99,10 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
         self.lightIntegrator = exportIntegrator(self.yi, self.is_preview)
               
         # textures before materials
-        self.yaf_texture = exportTexture(self.yi)
+        self.textureMat = exportTexture(self.yi)
              
         # and materials
-        self.setMaterial = TheBountyMaterialWrite(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
+        self.setMaterial = TheBountyMaterialWrite(self.yi, self.materialMap, self.textureMat.loadedTextures)
 
     def exportScene(self):
         #
@@ -136,13 +136,12 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
                     for blendTex in [bt for bt in blendMat.texture_slots if (bt and bt.texture and bt.use)]:
                         if self.is_preview and blendTex.texture.name == 'fakeshadow':
                             continue
-                        self.yaf_texture.writeTexture(self.scene, blendTex.texture)
-            else:
-                #
-                for tex in [t for t in mat_slot.material.texture_slots if (t and t.texture and t.use)]:
-                    if self.is_preview and tex.texture.name == "fakeshadow":
-                        continue
-                    self.yaf_texture.writeTexture(self.scene, tex.texture)
+                        self.textureMat.writeTexture(self.scene, blendTex.texture)
+            #
+            for tex in [t for t in mat_slot.material.texture_slots if (t and t.texture and t.use)]:
+                if self.is_preview and tex.texture.name == "fakeshadow":
+                    continue
+                self.textureMat.writeTexture(self.scene, tex.texture)
 
     def object_on_visible_layer(self, obj):
         obj_visible = False
@@ -238,29 +237,6 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
             m2 = bpy.data.materials.new('blendtwo')
             m2.bounty.mat_type = 'glossy'
     
-    
-    def handleBlendMat(self, mat):
-        #-------------------------
-        # blend material one
-        #-------------------------
-        if mat.bounty.blendOne == "":
-            mat.bounty.blendOne ='blendone'            
-        mat1 = bpy.data.materials[mat.bounty.blendOne] 
-        
-        if mat1.bounty.mat_type == 'blend':
-            if mat1.name != mat.name:
-                self.handleBlendMat(obj, mat1)
-            else:
-                self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat1.name))
-                return
-        #
-        if 'blendone' not in bpy.data.materials:
-            m1 = bpy.data.materials.new('blendone')
-            m1.bounty.mat_type = 'shinydiffusemat'            
-        if 'blendtwo' not in bpy.data.materials:
-            m2 = bpy.data.materials.new('blendtwo')
-            m2.bounty.mat_type = 'glossy'
     
     def handleBlendMat(self, obj, mat):
         #-------------------------
