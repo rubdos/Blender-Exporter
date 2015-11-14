@@ -431,6 +431,8 @@ class TheBountyMaterialWrite:
         #
         node_type = mat.bounty.mat_type
         if mat.bounty.nodetree != "":
+            ntree = mat.bounty.nodetree
+            node_inputs = bpy.data.node_groups[mat.name].nodes[ntree.name].inputs
             shiny = {
                 "color"             : bpy.data.node_groups[mat.name].nodes[node_type].inputs[0].diff_color,
                 "transparency"      : bpy.data.node_groups[mat.name].nodes[node_type].inputs[2].transparency,
@@ -609,7 +611,7 @@ class TheBountyMaterialWrite:
                     maskRoot = layername
             #
             if used:
-                self.writeMappingNode(mappername, mtex.texture.name, mtex)
+                self.writeMappingNode(mappername, mtex) #mtex.texture.name, mtex)
             i += 1
 
         yi.paramsEndList()
