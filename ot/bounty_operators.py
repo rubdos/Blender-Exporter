@@ -23,8 +23,6 @@ import mathutils
 from bpy.types import Operator
 from bpy.props import PointerProperty, StringProperty
 #
-operators_class = []
-
 opClasses = []
 
 class OBJECT_OT_get_position(Operator):
@@ -40,8 +38,6 @@ class OBJECT_OT_get_position(Operator):
         else:
             return{'FINISHED'}
 #            
-operators_class.append(OBJECT_OT_get_position)
-
 opClasses.append(OBJECT_OT_get_position)
 
 class OBJECT_OT_get_angle(Operator):
