@@ -67,7 +67,7 @@ class diffuse_color_socket(NodeSocket):
         #                     
         col.prop(self, "diff_color", text= label )
         col.prop(self, "diffuse_reflect", text="Diffuse Reflection")
-        col.prop(self, "emittance", slider=True)
+        #col.prop(self, "emittance", slider=True)
     #
     def draw_color(self, context, node):
         return (color_socket)
