@@ -24,13 +24,13 @@ from bpy.types import Panel, Menu
 from bl_ui.properties_material import (active_node_mat, check_material)
 
 #
-def panel_node_draw(layout, id_data, output_type): #, input_name):
-    node = find_node(id_data, output_type)
+def panel_node_draw(layout, material, output_type): #, input_name):
+    node = find_node(material, output_type)
     if not node:
         return False
     else:
-        if id_data.bounty.nodetree:
-            ntree = bpy.data.node_groups[id_data.bounty.nodetree]
+        if material.bounty.nodetree:
+            ntree = bpy.data.node_groups[material.bounty.nodetree]
             #input = find_node_input(node, input_name)
             #layout.template_node_view(ntree, node, input)
 
@@ -62,9 +62,9 @@ def node_tree_selector_draw(layout, mat, output_type):
 
     node = find_node(mat, output_type)
     if not node:
-        #if not mat.bounty.nodetree:
-        layout.operator('bounty.add_nodetree', icon='NODETREE')
-        #return False
+        if not mat.bounty.nodetree:
+            layout.operator('bounty.add_nodetree', icon='NODETREE')
+            return False
     return True
 
 def blend_one_draw(layout, mat):
