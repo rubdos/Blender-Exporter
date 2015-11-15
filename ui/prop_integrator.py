@@ -48,7 +48,7 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
         layout.prop(scene, "intg_light_method", text="")
         # for recursive raytracing..
         row = layout.row()
-        row.enabled = integrator not in {"bidirectional","SPPM"}
+        #row.enabled = integrator not in {"bidirectional","SPPM"}
         row.prop(scene, "gs_ray_depth")
         #
         if integrator == "directlighting":
