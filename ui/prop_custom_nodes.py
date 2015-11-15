@@ -94,6 +94,18 @@ class TheBountyNode:
     
     def draw_label( self):
         return self.bl_label
+    '''
+    def traverse_tree( self, material_node):
+        
+        #Iterate inputs and traverse the tree backward if any inputs are connected.
+        #Nodes are added to a list attribute of the material output node.
+        
+        for socket in self.inputs:
+            if socket.is_linked:
+                linked_node = socket.links[0].from_node
+                linked_node.traverse_tree( material_node)
+        material_node.tree.append( self)
+    '''
 #
 bounty_node_class.append(TheBountyNode)
 
@@ -132,6 +144,7 @@ class TheBountyShinyDiffuseShaderNode(Node, TheBountyNode):
         self.outputs.new('NodeSocketColor', "Shader")
         
         self.inputs.new('diffuse_color',"Color")
+        self.inputs.new('emittance', 'Emitt')
         
         self.inputs.new('brdf', 'BRDF')
         
@@ -193,9 +206,9 @@ class TheBountyTranslucentShaderNode(Node, TheBountyNode):
         col.prop(mat.bounty, "sssSpecularColor")
         col.prop(mat.bounty, "exponent", text="Specular Exponent")
         
-        row = layout.row()
-        row.label("SSS Presets")
-        row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
+        #row = layout.row()
+        #row.label("SSS Presets")
+        #row.menu("TheBountyScatteringPresets", text=bpy.types.TheBountyScatteringPresets.bl_label)
         
         col = layout.column()        
         
