@@ -128,6 +128,7 @@ class exportIntegrator:
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
 
         elif lightIntegrator == "bidirectional":
+            yi.paramsSetBool("do_LightImage", scene.intg_do_lightImage)
             if not haveLights():
                 yi.printWarning('Bidirectional Integrator need a lights on scene for work')
                 return False

@@ -428,9 +428,9 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
     )
     # Bidirectional test
     intg_do_lightImage = BoolProperty(
-            name="Do light image",
-            description="Enable do light image for bidir",
-            default=False
+            name="Do lightimage",
+            description="Enable or disabled the use of lightimage option for bidir",
+            default=True
     )        
     #--------------------------
     # Anti-aliasing properties
