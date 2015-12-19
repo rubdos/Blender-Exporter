@@ -31,21 +31,23 @@ switchDebugType = {
 }
 def haveLights():
     scene = bpy.context.scene
-    world = bpy.context.scene.world.bounty
+    world = scene.world.bounty
     
-    # expand function for include light from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
-    haveLights = False
-    # use light create with sunsky, sunsky2 or with use ibl ON
-    if world.bg_add_sun or world.bg_background_light or world.bg_use_ibl:
+    # expand function for include light created from 'add sun' or 'add skylight' in sunsky or sunsky2 mode    
+    if world.bg_type in {'sunsky','darksky'} and world.bg_add_sun or world.bg_background_light:
         return True
-    # if above is true, this 'for' is not used
+    # use light created when use ibl is 'ON'
+    if world.bg_type in {'constant','textureback', 'gradientback'} and world.bg_use_ibl:
+        return True
+
+    # check for lamp, meshlight or portal light object in scene
     for sceneObj in scene.objects:
-        if not sceneObj.hide_render and sceneObj.is_visible(scene): # check lamp, meshlight or portal light object
+        if not sceneObj.hide_render and sceneObj.is_visible(scene):
             if sceneObj.type == "LAMP" or sceneObj.bounty.geometry_type in {'mesh_light', 'portal_light'}:
-                haveLights = True
-                break
+                return True
+                #break
     #
-    return haveLights
+    return False
 
 # sss material check
 def haveSSS():
@@ -126,6 +128,7 @@ class exportIntegrator:
                 yi.paramsSetFloat("caustic_radius", scene.intg_caustic_radius)
 
         elif lightIntegrator == "bidirectional":
+            yi.paramsSetBool("do_LightImage", scene.intg_do_lightImage)
             if not haveLights():
                 yi.printWarning('Bidirectional Integrator need a lights on scene for work')
                 return False
