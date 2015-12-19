@@ -48,7 +48,7 @@ enum_lighting_integrator_method =(
     ('photonmapping', "Photon Mapping", ""),
     ('pathtracing', "Pathtracing", ""),
     ('DebugIntegrator', "Debug Integrator", ""),
-    ('bidirectional', "Bidirectional PathTracing (WIP)", ""),
+    ('bidirectional', "Bidirectional PathTracing (W.I.P)", ""),
     ('SPPM', "Stochastic Progressive Photon Mapping", ""),
 )
 
@@ -119,25 +119,26 @@ class TheBountySceneSettings(bpy.types.PropertyGroup):
     )        
     gs_gamma = FloatProperty(
             name="Gamma",
-            description="Gamma correction applied to final output,"
-                        " inverse correction of textures and colors is performed",
+            description="Gamma correction applied to final output,\n"
+                        "inverse correction of textures and colors is performed",
             min=1.0, max=5.0, 
             default= 2.2
     )    
     gs_gamma_input = FloatProperty(
             name="Gamma input",
-            description="Gamma correction applied to input images",
+            description="Set amount of gamma correction applied to image texture input",
             min=0, max=5, default=2.2 # 1.0 for linear mode ??
     )
     sc_apply_gammaInput = BoolProperty(
             name="Use Gamma",
-            description="Apply gamma correction to image input file",
-            default=True
+            description="Enable or disable application of gamma correction to image input file.\n"
+                        "Necessary when gamma input is > 1.0",
+            default=False
     )    
     gs_tile_size = IntProperty(
             name="Tile size",
             description="Size of the render buckets (tiles)",
-            min=4, max=1024, default=32
+            min=8, max=640, default=64
     )    
     gs_tile_order = EnumProperty(
             name="Tile order",

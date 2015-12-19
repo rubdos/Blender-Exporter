@@ -48,7 +48,7 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
         layout.prop(scene, "intg_light_method", text="")
         # for recursive raytracing..
         row = layout.row()
-        row.enabled = integrator not in {"SPPM"}
+        row.enabled = integrator not in {"bidirectional"}
         row.prop(scene, "gs_ray_depth")
         #
         if integrator == "directlighting":
@@ -120,7 +120,7 @@ class THEBOUNTY_PT_integrator(RenderButtonsPanel, Panel):
             layout.row().prop(scene, "intg_show_perturbed_normals")
             
         elif integrator == "bidirectional":
-            layout.row().prop(scene, "intg_do_lightImage")
+            #layout.row().prop(scene, "intg_do_lightImage")
             layout.label("Use a high number of AA samples to reduce render noise")
 
         elif integrator == "SPPM":
