@@ -70,15 +70,6 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             description="Name of the material one in blend material",
             default="blendtwo"
     )
-    node_output = StringProperty( 
-            name = "Output Node",
-            description = "Material node tree output node to link to the current material"
-    )
-    nodetree = StringProperty(
-            name="Node Tree",
-            description="Name of the shader node tree for this material",
-            default=""
-    )
     mat_type = EnumProperty(
             name="Material type",
             items=enum_material_types,
