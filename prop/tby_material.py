@@ -53,14 +53,7 @@ enum_sss_presets = (
     ('skinpink',    "Skin Pink",    ""),
     ('skinyellow',  "Skin Yellow",  ""),
     ('custom',      "Custom",       ""),
-)
-#-----------------------------------------
-# syncronize some colors with Blender
-# for better visualization on viewport
-#-----------------------------------------
-def syncBlenderColors(self, context):
-    #
-    context.object.active_material.diffuse_color = context.object.active_material.bounty.diff_color   
+)   
   
 
 class TheBountyMaterialProperties(bpy.types.PropertyGroup):

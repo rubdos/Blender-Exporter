@@ -271,8 +271,7 @@ class TheBountyMaterialWrite:
         else:
             yi.paramsSetString("type", "glossy")
 
-        #diffuse_color = mat.diffuse_color
-        diffuse_color = mat.bounty.diff_color
+        diffuse_color = mat.diffuse_color
         glossy_color = mat.bounty.glossy_color
 
         yi.paramsSetColor("diffuse_color", diffuse_color[0], diffuse_color[1], diffuse_color[2])
@@ -347,8 +346,7 @@ class TheBountyMaterialWrite:
         yi.paramsSetString("type", "translucent")
         yi.paramsSetFloat("IOR", mat.bounty.sssIOR)
         
-        #diffColor   = mat.diffuse_color #sssColor
-        diffColor   = mat.bounty.diff_color #sssColor
+        diffColor   = mat.diffuse_color
         glossyColor = mat.bounty.glossy_color;
         specColor   = mat.bounty.sssSpecularColor
         sigmaA      = mat.bounty.sssSigmaA
@@ -432,12 +430,8 @@ class TheBountyMaterialWrite:
         yi.paramsClearAll()
 
         yi.paramsSetString("type", "shinydiffusemat")
-        #---------------------------------------------------
-        # know issue with the use of own variable diff_color
-        # and the background texture on material preview
-        #---------------------------------------------------
-        #bCol = mat.bounty.diff_color
-        bCol = mat.diffuse_color
+        
+        diffColor = mat.diffuse_color
         mirCol = mat.bounty.mirr_color
         bSpecr = mat.bounty.specular_reflect
         bTransp = mat.bounty.transparency
@@ -448,7 +442,23 @@ class TheBountyMaterialWrite:
         if self.preview:
             if mat.name.startswith("checker"):
                 bEmit = 2.50
+        #
+        yi.paramsSetColor("color", diffColor[0], diffColor[1], diffColor[2])
+        yi.paramsSetFloat("transparency", bTransp)
+        yi.paramsSetFloat("translucency", bTransl)
+        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
+        yi.paramsSetFloat("emit", bEmit)
+        yi.paramsSetFloat("transmit_filter", mat.bounty.transmit_filter)
 
+        yi.paramsSetFloat("specular_reflect", bSpecr)
+        yi.paramsSetColor("mirror_color", mirCol[0], mirCol[1], mirCol[2])
+        yi.paramsSetBool("fresnel_effect", mat.bounty.fresnel_effect)
+        yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
+
+        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
+            yi.paramsSetString("diffuse_brdf", "oren_nayar")
+            yi.paramsSetFloat("sigma", mat.bounty.sigma)
+        
         i = 0
         used_textures = self.getUsedTextures(mat)
 
@@ -465,7 +475,7 @@ class TheBountyMaterialWrite:
             #
             if mtex.use_map_color_diffuse:
                 lname = "diff_layer%x" % i
-                if self.writeTexLayer(lname, mappername, diffRoot, mtex, bCol, mtex.diffuse_color_factor):
+                if self.writeTexLayer(lname, mappername, diffRoot, mtex, diffColor, mtex.diffuse_color_factor):
                     used = True
                     diffRoot = lname
             #
@@ -515,25 +525,10 @@ class TheBountyMaterialWrite:
         if len(mirrorRoot) > 0:
             yi.paramsSetString("mirror_shader", mirrorRoot)
         if len(bumpRoot) > 0:
-            yi.paramsSetString("bump_shader", bumpRoot)
-
-        yi.paramsSetColor("color", bCol[0], bCol[1], bCol[2])
-        yi.paramsSetFloat("transparency", bTransp)
-        yi.paramsSetFloat("translucency", bTransl)
-        yi.paramsSetFloat("diffuse_reflect", mat.bounty.diffuse_reflect)
-        yi.paramsSetFloat("emit", bEmit)
-        yi.paramsSetFloat("transmit_filter", mat.bounty.transmit_filter)
-
-        yi.paramsSetFloat("specular_reflect", bSpecr)
-        yi.paramsSetColor("mirror_color", mirCol[0], mirCol[1], mirCol[2])
-        yi.paramsSetBool("fresnel_effect", mat.bounty.fresnel_effect)
-        yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
-
-        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
-            yi.paramsSetString("diffuse_brdf", "oren_nayar")
-            yi.paramsSetFloat("sigma", mat.bounty.sigma)
+            yi.paramsSetString("bump_shader", bumpRoot)        
 
         return yi.createMaterial(self.namehash(mat))
+    
 
     def writeBlendShader(self, mat):
         yi = self.yi
@@ -600,7 +595,7 @@ class TheBountyMaterialWrite:
         self.yi.printInfo("Exporter: Creating Material \"defaultMat\"")
         return yi.createMaterial("defaultMat")
 
-    def writeMaterial(self, mat, preview=False): # test
+    def writeMaterial(self, mat, preview=False):
         self.preview = preview
         self.yi.printInfo("Exporter: Creating Material: \"" + self.namehash(mat) + "\"")
         ymat = None
