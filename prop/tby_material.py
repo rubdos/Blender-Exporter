@@ -80,8 +80,7 @@ class TheBountyMaterialProperties(bpy.types.PropertyGroup):
             description="Diffuse albedo color material",
             subtype='COLOR',
             min=0.0, max=1.0,
-            default=(0.8, 0.8, 0.8),
-            update=syncBlenderColors
+            default=(0.8, 0.8, 0.8)
     )
     emittance = FloatProperty(
             name="Emit",
