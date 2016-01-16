@@ -439,9 +439,9 @@ class TheBountyMaterialWrite:
         bEmit = mat.bounty.emittance
         
         # for fix dark preview
-        if self.preview:
-            if mat.name.startswith("checker"):
-                bEmit = 2.50
+        #if self.preview:
+        #    if mat.name.startswith("checker"):
+        #        bEmit = 2.50
         #
         yi.paramsSetColor("color", diffColor[0], diffColor[1], diffColor[2])
         yi.paramsSetFloat("transparency", bTransp)
@@ -455,7 +455,7 @@ class TheBountyMaterialWrite:
         yi.paramsSetBool("fresnel_effect", mat.bounty.fresnel_effect)
         yi.paramsSetFloat("IOR", mat.bounty.IOR_reflection)
 
-        if mat.bounty.brdf_type == "oren-nayar":  # oren-nayar fix for shinydiffuse
+        if mat.bounty.brdf_type == "oren-nayar":
             yi.paramsSetString("diffuse_brdf", "oren_nayar")
             yi.paramsSetFloat("sigma", mat.bounty.sigma)
         
