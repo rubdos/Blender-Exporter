@@ -25,7 +25,6 @@ import math
 import mathutils
 import yafrayinterface
 
-
 def multiplyMatrix4x4Vector4(matrix, vector):
     result = mathutils.Vector((0.0, 0.0, 0.0, 0.0))
     for i in range(4):
@@ -453,7 +452,9 @@ class exportObject(object):
             if mat in self.materialMap:
                 ymaterial = self.materialMap[mat]
         else:
-            for mat_slots in [ms for ms in matSlots if ms.material in self.materialMap]:
+            for mat_slots in matSlots:
+                if not mat_slots.material in self.materialMap:
+                    continue
                 ymaterial = self.materialMap[mat_slots.material]
 
         return ymaterial
