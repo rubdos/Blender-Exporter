@@ -452,9 +452,7 @@ class exportObject(object):
             if mat in self.materialMap:
                 ymaterial = self.materialMap[mat]
         else:
-            for mat_slots in matSlots:
-                if not mat_slots.material in self.materialMap:
-                    continue
+            for mat_slots in filter(lambda mat_slots: mat_slots.material in self.materialMap, matSlots):
                 ymaterial = self.materialMap[mat_slots.material]
 
         return ymaterial
