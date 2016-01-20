@@ -24,6 +24,11 @@ import time
 import math
 import mathutils
 import yafrayinterface
+import mathutils
+
+ones_threevec = mathutils.Vector([1, 1, 1])
+bbmin_base = mathutils.Vector([1e10, 1e10, 1e10])
+bbmax_base = mathutils.Vector([-1e10, -1e10, -1e10])
 
 def multiplyMatrix4x4Vector4(matrix, vector):
     result = mathutils.Vector((0.0, 0.0, 0.0, 0.0))
@@ -130,15 +135,13 @@ class exportObject(object):
     def getBBCorners(self, obj):
         bb = obj.bound_box   # look bpy.types.Object if there is any problem
 
-        bbmin = [1e10, 1e10, 1e10]
-        bbmax = [-1e10, -1e10, -1e10]
+        bbmin = bbmin_base.copy()
+        bbmax = bbmax_base.copy()
 
         for corner in bb:
             for i in range(3):
-                if corner[i] < bbmin[i]:
-                    bbmin[i] = corner[i]
-                if corner[i] > bbmax[i]:
-                    bbmax[i] = corner[i]
+                bbmin[i] = min(bbmin[i], corner[i])
+                bbmax[i] = min(bbmax[i], corner[i])
 
         return bbmin, bbmax
 
@@ -366,21 +369,11 @@ class exportObject(object):
             # into a (-1 -1 -1) (1 1 1) bounding box
             bbMin, bbMax = self.getBBCorners(obj)
 
-            delta = [0, 0, 0]
+            delta = bbMax - bbMin
 
-            for i in range(3):
-                delta[i] = bbMax[i] - bbMin[i]
-                if delta[i] < 0.0001:
-                    delta[i] = 1
+            delta = [(1 if d < 0.0001 else d) for d in delta]
 
-            # use untransformed mesh's vertices
-            def transform(v):
-                normCo = [0, 0, 0]
-                for i in range(3):
-                    normCo[i] = 2 * (v.co[i] - bbMin[i]) / delta[i] - 1
-                return normCo
-
-            ov = list(map(transform, mesh.vertices))
+            ov = [2 * mathutils.Vector([x/y for x, y in zip((v.co - bbMin), delta)]) - ones_threevec for v in mesh.vertices]
 
         # Transform the mesh after orcos have been stored and only if matrix exists
         if matrix is not None:
