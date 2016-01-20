@@ -386,11 +386,10 @@ class exportObject(object):
 
         self.startTriMesh(ID, len(mesh.vertices), len(getattr(mesh, face_attr)), hasOrco, hasUV, obType)
 
-        for ind, v in enumerate(mesh.vertices):
-            if hasOrco:
-                self.addVertex(*v.co, *ov[ind])
-            else:
-                self.addVertex(*v.co)
+        if hasOrco:
+            self.addVertices(mesh.vertices, ov)
+        else:
+            self.addVertices(mesh.vertices)
 
         # Do some material caching
         self.defaultMaterial = self.materialMap["default"]
@@ -443,6 +442,12 @@ class exportObject(object):
 
     def addVertex(self, *args):
         self.vertexCache.append(args)
+
+    def addVertices(self, *args):
+        if len(args) == 1: # No Orco
+            self.vertexCache.extend(map(lambda v: tuple(v.co), args[0]))
+        else:
+            self.vertexCache.extend(map(lambda t: tuple(t[0].co) + tuple(t[1]), zip(args[0], args[1])))
 
     def paramsClearAll(self):
         self.yi.paramsClearAll()
