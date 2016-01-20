@@ -366,20 +366,21 @@ class exportObject(object):
             # into a (-1 -1 -1) (1 1 1) bounding box
             bbMin, bbMax = self.getBBCorners(obj)
 
-            delta = []
+            delta = [0, 0, 0]
 
             for i in range(3):
-                delta.append(bbMax[i] - bbMin[i])
+                delta[i] = bbMax[i] - bbMin[i]
                 if delta[i] < 0.0001:
                     delta[i] = 1
 
             # use untransformed mesh's vertices
-            for v in mesh.vertices:
-                normCo = []
+            def transform(v):
+                normCo = [0, 0, 0]
                 for i in range(3):
-                    normCo.append(2 * (v.co[i] - bbMin[i]) / delta[i] - 1)
+                    normCo[i] = 2 * (v.co[i] - bbMin[i]) / delta[i] - 1
+                return normCo
 
-                ov.append([normCo[0], normCo[1], normCo[2]])
+            ov = list(map(transform, mesh.vertices))
 
         # Transform the mesh after orcos have been stored and only if matrix exists
         if matrix is not None:
