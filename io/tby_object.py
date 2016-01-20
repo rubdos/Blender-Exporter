@@ -442,17 +442,14 @@ class exportObject(object):
 
     def getFaceMaterial(self, meshMats, matIndex, matSlots):
 
-        ymaterial = self.defaultMaterial #materialMap["default"]
-
-        if any(meshMats) and meshMats[matIndex]:
-            mat = meshMats[matIndex]
-            if mat in self.materialMap:
-                ymaterial = self.materialMap[mat]
+        mat = meshMats[matIndex]
+        if mat in self.materialMap:
+            return self.materialMap[mat]
         else:
             for mat_slots in filter(lambda mat_slots: mat_slots.material in self.materialMap, matSlots):
-                ymaterial = self.materialMap[mat_slots.material]
+                return self.materialMap[mat_slots.material]
 
-        return ymaterial
+        return self.defaultMaterial
     
     def defineStrandValues(self, material):
         #
