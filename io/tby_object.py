@@ -390,6 +390,11 @@ class exportObject(object):
             else:
                 self.yi.addVertex(v.co[0], v.co[1], v.co[2])
 
+        # Do some material caching
+        self.defaultMaterial = self.materialMap["default"]
+        if self.scene.bounty.gs_clay_render and not oMat:
+            oMat = self.materialMap["clay"]
+
         for index, f in enumerate(getattr(mesh, face_attr)):
             if f.use_smooth:
                 isSmooth = True
@@ -437,11 +442,9 @@ class exportObject(object):
 
     def getFaceMaterial(self, meshMats, matIndex, matSlots):
 
-        ymaterial = self.materialMap["default"]
+        ymaterial = self.defaultMaterial #materialMap["default"]
 
-        if self.scene.bounty.gs_clay_render:
-            ymaterial = self.materialMap["clay"]
-        elif len(meshMats) and meshMats[matIndex]:
+        if any(meshMats) and meshMats[matIndex]:
             mat = meshMats[matIndex]
             if mat in self.materialMap:
                 ymaterial = self.materialMap[mat]
