@@ -370,10 +370,9 @@ class exportObject(object):
             bbMin, bbMax = self.getBBCorners(obj)
 
             delta = bbMax - bbMin
+            delta = mathutils.Vector([(1 if d < 0.0001 else d) for d in delta])
 
-            delta = [(1 if d < 0.0001 else d) for d in delta]
-
-            ov = [2 * mathutils.Vector([x/y for x, y in zip((v.co - bbMin), delta)]) - ones_threevec for v in mesh.vertices]
+            ov = [2 * (v.co - bbMin)/delta - ones_threevec for v in mesh.vertices]
 
         # Transform the mesh after orcos have been stored and only if matrix exists
         if matrix is not None:
