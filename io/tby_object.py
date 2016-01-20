@@ -43,6 +43,8 @@ class exportObject(object):
         self.yi = yi
         self.materialMap = mMap
         self.is_preview = preview
+        self.triangleCache = []
+        self.vertexCache = []
 
     def setScene(self, scene):
 
@@ -379,16 +381,16 @@ class exportObject(object):
         if matrix is not None:
             mesh.transform(matrix)
 
-        self.yi.paramsClearAll()
-        self.yi.startGeometry()
+        self.paramsClearAll()
+        self.startGeometry()
 
-        self.yi.startTriMesh(ID, len(mesh.vertices), len(getattr(mesh, face_attr)), hasOrco, hasUV, obType)
+        self.startTriMesh(ID, len(mesh.vertices), len(getattr(mesh, face_attr)), hasOrco, hasUV, obType)
 
         for ind, v in enumerate(mesh.vertices):
             if hasOrco:
-                self.yi.addVertex(v.co[0], v.co[1], v.co[2], ov[ind][0], ov[ind][1], ov[ind][2])
+                self.addVertex(*v.co, *ov[ind])
             else:
-                self.yi.addVertex(v.co[0], v.co[1], v.co[2])
+                self.addVertex(*v.co)
 
         # Do some material caching
         self.defaultMaterial = self.materialMap["default"]
@@ -404,9 +406,8 @@ class exportObject(object):
             else:
                 ymaterial = self.getFaceMaterial(mesh.materials, f.material_index, obj.material_slots)
 
-            co = None
             if hasUV:
-
+                co = None
                 if self.is_preview:
                     co = uv_texture[0].data[index].uv
                 else:
@@ -415,19 +416,16 @@ class exportObject(object):
                 uv0 = self.yi.addUV(co[0][0], co[0][1])
                 uv1 = self.yi.addUV(co[1][0], co[1][1])
                 uv2 = self.yi.addUV(co[2][0], co[2][1])
-
-                self.yi.addTriangle(f.vertices[0], f.vertices[1], f.vertices[2], uv0, uv1, uv2, ymaterial)
-            else:
-                self.yi.addTriangle(f.vertices[0], f.vertices[1], f.vertices[2], ymaterial)
-
-            if len(f.vertices) == 4:
-                if hasUV:
+                if len(f.vertices) == 4:
                     uv3 = self.yi.addUV(co[3][0], co[3][1])
-                    self.yi.addTriangle(f.vertices[0], f.vertices[2], f.vertices[3], uv0, uv2, uv3, ymaterial)
+                    uv = (uv0, uv1, uv2, uv3)
                 else:
-                    self.yi.addTriangle(f.vertices[0], f.vertices[2], f.vertices[3], ymaterial)
+                    uv = (uv0, uv1, uv2)
 
-        self.yi.endTriMesh()
+                self.addTriangle(list(f.vertices), uv, ymaterial)
+            else:
+                self.addTriangle(list(f.vertices), ymaterial)
+        self.endTriMesh()
 
         if isSmooth and mesh.use_auto_smooth:
             self.yi.smoothMesh(0, math.degrees(mesh.auto_smooth_angle))
@@ -436,9 +434,34 @@ class exportObject(object):
         elif isSmooth:
             self.yi.smoothMesh(0, 181)
 
-        self.yi.endGeometry()
+        self.endGeometry()
 
         bpy.data.meshes.remove(mesh)
+
+    def addTriangle(self, *args):
+        self.triangleCache.append(args)
+
+    def addVertex(self, *args):
+        self.vertexCache.append(args)
+
+    def paramsClearAll(self):
+        self.yi.paramsClearAll()
+
+    def startGeometry(self):
+        self.yi.startGeometry()
+
+    def startTriMesh(self, ID, vert_len, attr_les, hasOrco, hasUV, obType):
+        self.yi.startTriMesh(ID, vert_len, attr_les, hasOrco, hasUV, obType)
+        self.vertexCache = []
+        self.triangleCache = []
+
+    def endTriMesh(self):
+        self.yi.addVertices(self.vertexCache)
+        self.yi.addTriangles(self.triangleCache)
+        self.yi.endTriMesh()
+
+    def endGeometry(self):
+        self.yi.endTriMesh()
 
     def getFaceMaterial(self, meshMats, matIndex, matSlots):
 
