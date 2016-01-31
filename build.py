@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
@@ -16,13 +18,30 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-# <pep8 compliant>
+# This script will build the native `io` library, which serves as
+# a faster replacement for the Python `io` library.
+# It uses cffipp for generating C++ bindings:
+# https://gitlab.com/rubdos/cffipp
+# pip3 install cffipp --user
 
-#import yafrayinterface
-from . import tby_export
-from . import tby_world
-from . import tby_integrator
-from . import tby_texture
-from . import tby_object
-from . import tby_light
-from . import tby_material
+from cffipp import FFIpp
+
+def readfile(name):
+    with open(name, 'r') as f:
+        return f.read().decode()
+
+def compile():
+    parent_map = "native"
+    sources = []
+    export_headers = []
+
+    ffi = FFIpp()
+    sources = "\n".join(map(readfile, sources))
+    export_headers = "\n".join(map(readfile, export_headers))
+    ffi.cdef(export_headers)
+    
+    ffi.set_source("io", sources)
+    ffi.compile()
+
+if __name__ == "__main__":
+    compile()

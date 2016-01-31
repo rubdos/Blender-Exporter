@@ -6,3 +6,8 @@ __pycache*
 .settings
 *.rar
 *.org
+
+_io.cpp
+_io.*.so
+_io.o
+io.py
