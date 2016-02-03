@@ -43,8 +43,10 @@ def compile():
 
     ffi.cdef(export_headers)
     ffi.set_source("io", sources, include_dirs=["native"])
+
+    ffi.get_class("TheBountyRenderEngine").add_python_import("bpy")
     ffi.get_class("TheBountyRenderEngine").set_python_parent("bpy.types.RenderEngine")
-    ffi.compile()
+    ffi.compile(target="io")
 
 if __name__ == "__main__":
     compile()
