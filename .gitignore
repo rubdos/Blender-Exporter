@@ -11,3 +11,4 @@ _io.cpp
 _io.*.so
 _io.o
 io.py
+io_old

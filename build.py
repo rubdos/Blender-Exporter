@@ -25,22 +25,25 @@
 # pip3 install cffipp --user
 
 from cffipp import FFIpp
+import os
+
+parent_directory = "native"
 
 def readfile(name):
-    with open(name, 'r') as f:
-        return f.read().decode()
+    with open(os.path.join(parent_directory, name), 'r') as f:
+        return f.read()
 
 def compile():
-    parent_map = "native"
-    sources = []
-    export_headers = []
+    sources = ["tby_export.cpp"]
+    export_headers = ["tby_export.hpp"]
 
     ffi = FFIpp()
     sources = "\n".join(map(readfile, sources))
     export_headers = "\n".join(map(readfile, export_headers))
+
     ffi.cdef(export_headers)
-    
-    ffi.set_source("io", sources)
+    ffi.set_source("io", sources, include_dirs=["native"])
+    ffi.get_class("TheBountyRenderEngine").set_python_parent("bpy.types.RenderEngine")
     ffi.compile()
 
 if __name__ == "__main__":
