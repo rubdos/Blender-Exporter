@@ -42,7 +42,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
     tag = ""
 
     def __init__(self):
-        self.backend = tby_blender.construct_render_engine()
+        self.backend = tby_blender.construct_render_engine(self)
 
     def __del__(self):
         if hasattr(self, 'backend'):

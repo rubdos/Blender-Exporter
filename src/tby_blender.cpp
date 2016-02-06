@@ -23,10 +23,10 @@
 #include "tby_export.hpp"
 
 static PyObject *
-tby_construct(PyObject *self, PyObject *args) {
+tby_construct(PyObject *self, PyObject *py_render_engine) {
     std::cout << "Constructing new render_engine" << std::endl;
     PyObject *result = NULL;
-    render_engine *re = new render_engine();
+    render_engine *re = new render_engine(py_render_engine);
     return PyCapsule_New((void *)re, NULL, NULL);
 }
 
@@ -35,6 +35,7 @@ tby_destruct(PyObject *self, PyObject *arg) {
     std::cout << "Destructing render_engine" << std::endl;
     auto *re = (render_engine *) PyCapsule_GetPointer(arg, NULL);
     delete re;
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -46,10 +47,12 @@ tby_update(PyObject *self, PyObject *args)
     PyObject *scene;
     if(!PyArg_UnpackTuple(args, "tby_update", 3, 3, &re_obj, &data, &scene))
     {
+        Py_INCREF(Py_None);
         return Py_None;
     }
     auto *re = (render_engine*) PyCapsule_GetPointer(re_obj, NULL);
     re->update(data, scene);
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -60,15 +63,17 @@ tby_render(PyObject *self, PyObject *args)
     PyObject *scene;
     if(!PyArg_UnpackTuple(args, "tby_render", 2, 2, &re_obj, &scene))
     {
+        Py_INCREF(Py_None);
         return Py_None;
     }
     auto *re = (render_engine*) PyCapsule_GetPointer(re_obj, NULL);
     re->render(scene);
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyMethodDef tby_methods[] = {
-    {"construct_render_engine", tby_construct, METH_NOARGS,
+    {"construct_render_engine", tby_construct, METH_O,
         "Construct the render_engine reference"},
     {"destruct_render_engine", tby_destruct, METH_O,
         "Destruct the render_engine reference"},

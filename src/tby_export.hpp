@@ -19,11 +19,26 @@
 #pragma once
 
 #include <Python.h>
+#include "magic.hpp"
+
+#define APPLY_TYPE(x) VarPyObject x
+#define APPLY_TYPES(...) FOR_EACH(APPLY_TYPE, __VA_ARGS__)
+#define PY_METHOD(x, ...) inline PyObject * x(APPLY_TYPES(__VA_ARGS__)) \
+{\
+    return this->call_python_method(#x, VA_NUM_ARGS(__VA_ARGS__), __VA_ARGS__);\
+}
 
 class render_engine
 {
 public:
-    render_engine();
+    render_engine(PyObject *self);
     void update(PyObject *data, PyObject *scene);
     void render(PyObject *scene);
+    virtual ~render_engine();
+
+private:
+    PyObject *self;
+
+    PyObject *call_python_method(const char *name, size_t count, ...);
+    PY_METHOD(update_stats, stats, info);
 };
