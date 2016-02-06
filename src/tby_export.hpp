@@ -18,6 +18,12 @@
 
 #pragma once
 
+#include <Python.h>
+
 class render_engine
 {
+public:
+    render_engine();
+    void update(PyObject *data, PyObject *scene);
+    void render(PyObject *scene);
 };

@@ -41,12 +41,29 @@ tby_destruct(PyObject *self, PyObject *arg) {
 static PyObject *
 tby_update(PyObject *self, PyObject *args)
 {
+    PyObject *re_obj;
+    PyObject *data;
+    PyObject *scene;
+    if(!PyArg_UnpackTuple(args, "tby_update", 3, 3, &re_obj, &data, &scene))
+    {
+        return Py_None;
+    }
+    auto *re = (render_engine*) PyCapsule_GetPointer(re_obj, NULL);
+    re->update(data, scene);
     return Py_None;
 }
 
 static PyObject *
 tby_render(PyObject *self, PyObject *args)
 {
+    PyObject *re_obj;
+    PyObject *scene;
+    if(!PyArg_UnpackTuple(args, "tby_render", 2, 2, &re_obj, &scene))
+    {
+        return Py_None;
+    }
+    auto *re = (render_engine*) PyCapsule_GetPointer(re_obj, NULL);
+    re->render(scene);
     return Py_None;
 }
 

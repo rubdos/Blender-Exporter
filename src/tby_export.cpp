@@ -16,4 +16,18 @@
  *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <Python.h>
+
 #include "tby_export.hpp"
+
+render_engine::render_engine()
+{
+}
+
+void render_engine::update(PyObject *data, PyObject *scene)
+{
+}
+
+void render_engine::render(PyObject *scene)
+{
+}
