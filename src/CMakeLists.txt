@@ -1,0 +1,6 @@
+set(TBY_BLENDER_SRC tby_export.cpp)
+
+add_library(tby_blender SHARED ${TBY_BLENDER_SRC})
+target_link_libraries(tby_blender ${PYTHON_LIBRARIES})
+set_target_properties(tby_blender PROPERTIES PREFIX "")
+install(TARGETS tby_blender LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/io)

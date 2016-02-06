@@ -6,3 +6,6 @@ __pycache*
 .settings
 *.rar
 *.org
+
+io/tby_blender.so
+build
