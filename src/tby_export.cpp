@@ -21,6 +21,7 @@
 #include <cstdarg>
 
 #include "tby_export.hpp"
+#include "blender_scene.hpp"
 
 render_engine::render_engine(PyObject *self)
 {
@@ -35,6 +36,12 @@ render_engine::~render_engine()
 void render_engine::update(PyObject *data, PyObject *scene)
 {
     Py_DECREF(update_stats("", "Setting up render"));
+    this->scene = std::unique_ptr<blender_scene>(new blender_scene(scene));
+    if(get_is_preview() == Py_True)
+    {
+        //scene.frame_set(scene.frame_current)
+        std::cout << "get_is_preview == True" << std::endl;
+    }
 }
 
 void render_engine::render(PyObject *scene)

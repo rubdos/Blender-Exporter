@@ -19,13 +19,21 @@
 #pragma once
 
 #include <Python.h>
+#include <memory>
+
 #include "magic.hpp"
+#include "blender_scene.hpp"
 
 #define APPLY_TYPE(x) VarPyObject x
 #define APPLY_TYPES(...) FOR_EACH(APPLY_TYPE, __VA_ARGS__)
 #define PY_METHOD(x, ...) inline PyObject * x(APPLY_TYPES(__VA_ARGS__)) \
 {\
     return this->call_python_method(#x, VA_NUM_ARGS(__VA_ARGS__), __VA_ARGS__);\
+}
+
+#define PY_ATTRIBUTE(x) inline PyObject * get_ ## x () \
+{\
+    return PyObject_GetAttrString(self, #x);\
 }
 
 class render_engine
@@ -39,6 +47,12 @@ public:
 private:
     PyObject *self;
 
+    std::unique_ptr<blender_scene> scene;
+
+    // Python methods
     PyObject *call_python_method(const char *name, size_t count, ...);
     PY_METHOD(update_stats, stats, info);
+    
+    // Python attributes
+    PY_ATTRIBUTE(is_preview)
 };
