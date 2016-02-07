@@ -21,29 +21,20 @@
 #include "blender_scene.hpp"
 
 blender_scene::blender_scene(PyObject *scene)
+    : python_class(scene)
 {
-    this->scene = scene;
-    Py_INCREF(scene);
 }
 
 blender_scene::blender_scene(const blender_scene& other) // Copy c'tor
+    : python_class(other)
 {
-    this->scene = other.scene;
-    Py_INCREF(this->scene);
 }
 
 blender_scene & blender_scene::operator= (const blender_scene& other) // Copy assignment
 {
-    if(this != &other)
-    {
-        Py_DECREF(this->scene);
-        this->scene = other.scene;
-        Py_INCREF(this->scene);
-    }
-    return *this;
+    python_class::operator=(other);
 }
 
 blender_scene::~blender_scene()
 {
-    Py_DECREF(scene);
 }

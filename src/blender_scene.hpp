@@ -20,7 +20,9 @@
 
 #include <Python.h>
 
-class blender_scene
+#include "python_class.hpp"
+
+class blender_scene : public python_class
 {
 public:
     blender_scene(PyObject *scene);
@@ -28,6 +30,11 @@ public:
 
     blender_scene(const blender_scene &); // Copy c'tor
     blender_scene &operator=(const blender_scene&); // Copy assignment
+
+    PY_METHOD(frame_set, frame)
+
+    PY_ATTRIBUTE(frame_current);
+
 private:
-    PyObject *scene;
+    PyObject *self;
 };

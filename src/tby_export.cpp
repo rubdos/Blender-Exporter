@@ -24,59 +24,38 @@
 #include "blender_scene.hpp"
 
 render_engine::render_engine(PyObject *self)
+    : python_class(self)
 {
-    this->self = self;
-    Py_INCREF(self);
 }
+
+render_engine::render_engine(const render_engine& other)
+    : python_class(other)
+{
+    this->scene = std::unique_ptr<blender_scene>(new blender_scene(*other.scene));
+}
+
+render_engine &render_engine::operator=(const render_engine& other)
+{
+    python_class::operator=(other);
+    this->scene = std::unique_ptr<blender_scene>(new blender_scene(*other.scene));
+}
+
 render_engine::~render_engine()
 {
-    Py_DECREF(self);
 }
 
 void render_engine::update(PyObject *data, PyObject *scene)
 {
     Py_DECREF(update_stats("", "Setting up render"));
     this->scene = std::unique_ptr<blender_scene>(new blender_scene(scene));
+
     if(get_is_preview() == Py_True)
     {
-        //scene.frame_set(scene.frame_current)
         std::cout << "get_is_preview == True" << std::endl;
+        this->scene->frame_set(this->scene->get_frame_current());
     }
 }
 
 void render_engine::render(PyObject *scene)
 {
-}
-
-PyObject *render_engine::call_python_method(const char *method, size_t count, ...)
-{
-    PyObject *python_method = PyObject_GetAttrString(self, method);
-    if(python_method == NULL)
-    {
-        std::cerr << "I have no attribute `" << method << "'" << std::endl;
-        return Py_None;
-    }
-    if (!PyCallable_Check(python_method))
-    {
-        std::cerr << "Python method `" << method << "' not callable" << std::endl;
-        return Py_None;
-    }
-    std::cout << "Calling underlying Python method `" << method << "'" << std::endl;
-
-    va_list args;
-    va_start(args, count);
-    PyObject *method_args = PyTuple_New(count);
-    for(size_t i = 0; i < count; ++i)
-    {
-        PyObject *o = va_arg(args, VarPyObject).get_PyObject();
-        if(PyTuple_SetItem(method_args, i, o))
-        {
-            std::cerr << "Setting variable " << i << " of callback `" << method << "' failed" << std::endl;
-        }
-    }
-    va_end(args);
-    PyObject * result = PyObject_CallObject(python_method, method_args);
-    Py_DECREF(method_args);
-    Py_DECREF(python_method);
-    return result;
 }
