@@ -38,9 +38,14 @@
 
 #define APPLY_TYPE(x) VarPyObject x
 #define APPLY_TYPES(...) FOR_EACH(APPLY_TYPE, __VA_ARGS__)
-#define PY_METHOD(x, ...) inline PyObject * x(APPLY_TYPES(__VA_ARGS__)) \
+#define PY_METHOD(x, type, ...) inline type x(APPLY_TYPES(__VA_ARGS__)) \
 {\
-    return this->call_python_method(#x, VA_NUM_ARGS(__VA_ARGS__), __VA_ARGS__);\
+    return (type)VarPyObject(this->call_python_method(#x, VA_NUM_ARGS(__VA_ARGS__), __VA_ARGS__));\
+}
+
+#define PY_VOID_METHOD(x, ...) inline void x(APPLY_TYPES(__VA_ARGS__)) \
+{\
+    Py_XDECREF(this->call_python_method(#x, VA_NUM_ARGS(__VA_ARGS__), __VA_ARGS__));\
 }
 
 #define PY_ATTRIBUTE(x, type) inline type get_ ## x () \

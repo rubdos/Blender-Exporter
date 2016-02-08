@@ -47,13 +47,13 @@ render_engine::~render_engine()
 
 void render_engine::update(PyObject *data, PyObject *scene)
 {
-    Py_DECREF(update_stats("", "Setting up render"));
+    update_stats("", "Setting up render");
     this->scene = std::unique_ptr<blender_scene>(new blender_scene(scene));
 
     if(get_is_preview())
     {
         std::cout << "get_is_preview == True" << std::endl;
-        Py_DECREF(this->scene->frame_set(this->scene->get_frame_current()));
+        this->scene->frame_set(this->scene->get_frame_current());
     }
 
     blender_render_settings render = this->scene->get_render();

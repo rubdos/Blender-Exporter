@@ -38,7 +38,7 @@ private:
     std::unique_ptr<blender_scene> scene;
 
     // Python methods
-    PY_METHOD(update_stats, stats, info);
+    PY_VOID_METHOD(update_stats, stats, info);
     
     // Python attributes
     PY_ATTRIBUTE(is_preview, bool)

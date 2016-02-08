@@ -32,7 +32,7 @@ public:
     blender_scene(const blender_scene &); // Copy c'tor
     blender_scene &operator=(const blender_scene&); // Copy assignment
 
-    PY_METHOD(frame_set, frame)
+    PY_VOID_METHOD(frame_set, frame);
 
     PY_ATTRIBUTE(frame_current, PyObject *);
     PY_ATTRIBUTE(render, blender_render_settings);
