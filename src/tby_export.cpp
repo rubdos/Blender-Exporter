@@ -52,7 +52,7 @@ void render_engine::update(PyObject *data, PyObject *scene)
     if(get_is_preview() == Py_True)
     {
         std::cout << "get_is_preview == True" << std::endl;
-        this->scene->frame_set(this->scene->get_frame_current());
+        Py_DECREF(this->scene->frame_set(this->scene->get_frame_current()));
     }
 }
 
