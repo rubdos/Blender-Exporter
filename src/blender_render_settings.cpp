@@ -22,6 +22,10 @@ blender_render_settings::blender_render_settings(PyObject *render_settings)
     : python_class(render_settings)
 {
 }
+blender_render_settings::blender_render_settings(const VarPyObject& render_settings)
+    : python_class(render_settings.get_PyObject())
+{
+}
 
 blender_render_settings::blender_render_settings(const blender_render_settings& other) // Copy c'tor
     : python_class(other)

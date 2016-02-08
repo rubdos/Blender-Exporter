@@ -19,16 +19,18 @@
 #pragma once
 
 #include <Python.h>
+#include <string>
 #include "python_class.hpp"
 
 class blender_render_settings : public python_class {
     // Python typename: RenderSettings
 public:
     blender_render_settings(PyObject *render_settings);
+    blender_render_settings(const VarPyObject& render_settings);
 
     blender_render_settings(const blender_render_settings &); // Copy c'tor
     blender_render_settings &operator=(const blender_render_settings&); // Copy assignment
 
-    PY_ATTRIBUTE(filepath);
-    PY_ATTRIBUTE(use_border);
+    PY_ATTRIBUTE(filepath, std::string);
+    PY_ATTRIBUTE(use_border, bool);
 };

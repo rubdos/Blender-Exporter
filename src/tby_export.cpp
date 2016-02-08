@@ -50,14 +50,14 @@ void render_engine::update(PyObject *data, PyObject *scene)
     Py_DECREF(update_stats("", "Setting up render"));
     this->scene = std::unique_ptr<blender_scene>(new blender_scene(scene));
 
-    if(get_is_preview() == Py_True)
+    if(get_is_preview())
     {
         std::cout << "get_is_preview == True" << std::endl;
         Py_DECREF(this->scene->frame_set(this->scene->get_frame_current()));
     }
 
-    blender_render_settings render(this->scene->get_render());
-    const char* filePath = PyUnicode_AsUTF8(render.get_filepath());
+    blender_render_settings render = this->scene->get_render();
+    std::string filePath = render.get_filepath();
 
     std::cout << "Filepath: " << filePath << std::endl;
 
@@ -69,7 +69,7 @@ void render_engine::update(PyObject *data, PyObject *scene)
     // [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
     //
     
-    if(render.get_use_border() == Py_True)
+    if(render.get_use_border())
     {
         std::cout << "Using border" << std::endl;
     //     self.resX = self.bsizeX

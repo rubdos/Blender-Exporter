@@ -21,17 +21,19 @@
 #include <Python.h>
 
 #include "python_class.hpp"
+#include "blender_render_settings.hpp"
 
 class blender_scene : public python_class
 {
 public:
     blender_scene(PyObject *scene);
+    blender_scene(const VarPyObject&);
 
     blender_scene(const blender_scene &); // Copy c'tor
     blender_scene &operator=(const blender_scene&); // Copy assignment
 
     PY_METHOD(frame_set, frame)
 
-    PY_ATTRIBUTE(frame_current);
-    PY_ATTRIBUTE(render);
+    PY_ATTRIBUTE(frame_current, PyObject *);
+    PY_ATTRIBUTE(render, blender_render_settings);
 };

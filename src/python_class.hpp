@@ -1,6 +1,26 @@
-// http://stackoverflow.com/a/11994395/3177936
+/**
+ *  Copyright 2016 Ruben De Smet
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software Foundation,
+ *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
 
 #pragma once
+
+#include <string>
+
+// Thanks, http://stackoverflow.com/a/11994395/3177936, for this trick.
 
 #define FE_1(WHAT, X) WHAT(X) 
 #define FE_2(WHAT, X, ...) WHAT(X),FE_1(WHAT, __VA_ARGS__)
@@ -23,9 +43,9 @@
     return this->call_python_method(#x, VA_NUM_ARGS(__VA_ARGS__), __VA_ARGS__);\
 }
 
-#define PY_ATTRIBUTE(x) inline PyObject * get_ ## x () \
+#define PY_ATTRIBUTE(x, type) inline type get_ ## x () \
 {\
-    return PyObject_GetAttrString(self, #x);\
+    return (type)VarPyObject(PyObject_GetAttrString(self, #x));\
 }
 
 
@@ -42,9 +62,32 @@ public:
     {
         this->obj = o;
     }
-    PyObject * get_PyObject()
+    PyObject * get_PyObject() const
     {
         return obj;
+    }
+    // Cast operators
+    explicit operator std::string const() const
+    {
+        // TODO: Check type == unicode
+        return std::string(PyUnicode_AsUTF8(obj));
+    }
+    explicit operator bool const() const
+    {
+        // TODO: Check type == bool
+        return (obj != Py_False);
+    }
+
+    // Note: if you're gonna keep the object
+    // beyond the scope of the VarPyObject,
+    // use Py_INCREF!
+    explicit operator PyObject * const() const
+    {
+        return obj;
+    }
+    ~VarPyObject()
+    {
+        Py_XDECREF(obj);
     }
 private:
     PyObject * obj;

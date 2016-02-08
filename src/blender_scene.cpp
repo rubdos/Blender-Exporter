@@ -25,6 +25,11 @@ blender_scene::blender_scene(PyObject *scene)
 {
 }
 
+blender_scene::blender_scene(const VarPyObject& scene)
+    : python_class((PyObject *)scene)
+{
+}
+
 blender_scene::blender_scene(const blender_scene& other) // Copy c'tor
     : python_class(other)
 {
