@@ -67,13 +67,20 @@ void render_engine::update(PyObject *data, PyObject *scene)
     // filePath = os.path.normpath(filePath)
 
     // [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
-
-    // if render.use_border:
+    //
+    
+    if(render.get_use_border() == Py_True)
+    {
+        std::cout << "Using border" << std::endl;
     //     self.resX = self.bsizeX
     //     self.resY = self.bsizeY
-    // else:
+    }
+    else
+    {
+        std::cout << "Not using border" << std::endl;
     //     self.resX = self.sizeX
     //     self.resY = self.sizeY
+    }
     // # render type setup
     // if scene.bounty.gs_type_render == "file":
     //     self.setInterface(yafrayinterface.yafrayInterface_t())

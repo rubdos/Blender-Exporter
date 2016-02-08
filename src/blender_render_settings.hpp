@@ -29,5 +29,6 @@ public:
     blender_render_settings(const blender_render_settings &); // Copy c'tor
     blender_render_settings &operator=(const blender_render_settings&); // Copy assignment
 
-    PY_ATTRIBUTE(filepath)
+    PY_ATTRIBUTE(filepath);
+    PY_ATTRIBUTE(use_border);
 };
