@@ -34,7 +34,3 @@ blender_scene & blender_scene::operator= (const blender_scene& other) // Copy as
 {
     python_class::operator=(other);
 }
-
-blender_scene::~blender_scene()
-{
-}

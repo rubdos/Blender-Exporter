@@ -19,19 +19,15 @@
 #pragma once
 
 #include <Python.h>
-
 #include "python_class.hpp"
 
-class blender_scene : public python_class
-{
+class blender_render_settings : public python_class {
+    // Python typename: RenderSettings
 public:
-    blender_scene(PyObject *scene);
+    blender_render_settings(PyObject *render_settings);
 
-    blender_scene(const blender_scene &); // Copy c'tor
-    blender_scene &operator=(const blender_scene&); // Copy assignment
+    blender_render_settings(const blender_render_settings &); // Copy c'tor
+    blender_render_settings &operator=(const blender_render_settings&); // Copy assignment
 
-    PY_METHOD(frame_set, frame)
-
-    PY_ATTRIBUTE(frame_current);
-    PY_ATTRIBUTE(render);
+    PY_ATTRIBUTE(filepath)
 };

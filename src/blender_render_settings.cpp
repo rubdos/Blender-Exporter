@@ -16,22 +16,20 @@
  *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#pragma once
+#include "blender_render_settings.hpp"
 
-#include <Python.h>
-
-#include "python_class.hpp"
-
-class blender_scene : public python_class
+blender_render_settings::blender_render_settings(PyObject *render_settings)
+    : python_class(render_settings)
 {
-public:
-    blender_scene(PyObject *scene);
+}
 
-    blender_scene(const blender_scene &); // Copy c'tor
-    blender_scene &operator=(const blender_scene&); // Copy assignment
+blender_render_settings::blender_render_settings(const blender_render_settings& other) // Copy c'tor
+    : python_class(other)
+{
+}
 
-    PY_METHOD(frame_set, frame)
+blender_render_settings & blender_render_settings::operator= (const blender_render_settings& other) // Copy assignment
+{
+    python_class::operator=(other);
+}
 
-    PY_ATTRIBUTE(frame_current);
-    PY_ATTRIBUTE(render);
-};
