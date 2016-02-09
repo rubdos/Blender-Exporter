@@ -42,4 +42,11 @@ private:
     
     // Python attributes
     PY_ATTRIBUTE(is_preview, bool)
+
+    long sizeX;
+    long sizeY;
+    long bStartX;
+    long bStartY;
+    long bsizeX;
+    long bsizeY;
 };

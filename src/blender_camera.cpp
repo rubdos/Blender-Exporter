@@ -16,34 +16,27 @@
  *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#pragma once
-
 #include <Python.h>
+#include <string>
 
-#include "python_class.hpp"
-#include "blender_render_settings.hpp"
 #include "blender_camera.hpp"
 
-class blender_scene : public python_class
+blender_camera::blender_camera(PyObject *camera)
+    : python_class(camera)
 {
-public:
-    blender_scene(PyObject *scene);
-    blender_scene(const VarPyObject&);
+}
 
-    blender_scene(const blender_scene &); // Copy c'tor
-    blender_scene &operator=(const blender_scene&); // Copy assignment
+blender_camera::blender_camera(const VarPyObject& camera)
+    : python_class((PyObject *)camera)
+{
+}
 
-    void compute_scene_size(long &sizeX, long &sizeY);
-    void get_render_coords(long &sizeX,
-            long &sizeY,
-            long &bStartX,
-            long &bStartY,
-            long &bsizeX,
-            long &bsizeY,
-            blender_camera * &cam_data); // void * as placeholder.
+blender_camera::blender_camera(const blender_camera& other) // Copy c'tor
+    : python_class(other)
+{
+}
 
-    PY_VOID_METHOD(frame_set, frame);
-
-    PY_ATTRIBUTE(frame_current, PyObject *);
-    PY_ATTRIBUTE(render, blender_render_settings);
-};
+blender_camera & blender_camera::operator= (const blender_camera& other) // Copy assignment
+{
+    python_class::operator=(other);
+}

@@ -65,9 +65,10 @@ void render_engine::update(PyObject *data, PyObject *scene)
     // filePath = bpy.path.abspath(render.filepath)
     // filePath = os.path.realpath(filePath)
     // filePath = os.path.normpath(filePath)
-
-    // [self.sizeX, self.sizeY, self.bStartX, self.bStartY, self.bsizeX, self.bsizeY, camDummy] = tby_scene.getRenderCoords(scene)
-    //
+    
+    blender_camera *camDummy; // Placeholder
+    this->scene->get_render_coords(sizeX, sizeY, bStartX, bStartY, bsizeX, bsizeY, camDummy);
+    delete camDummy;
     
     if(render.get_use_border())
     {

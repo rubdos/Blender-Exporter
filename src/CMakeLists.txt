@@ -3,6 +3,7 @@ set(TBY_BLENDER_SRC
     blender_render_settings.cpp
     tby_export.cpp
     tby_blender.cpp
+    blender_camera.cpp
     blender_scene.cpp)
 
 add_library(tby_blender SHARED ${TBY_BLENDER_SRC})

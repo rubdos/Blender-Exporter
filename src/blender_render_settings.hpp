@@ -33,4 +33,13 @@ public:
 
     PY_ATTRIBUTE(filepath, std::string);
     PY_ATTRIBUTE(use_border, bool);
+
+    PY_ATTRIBUTE(border_min_x, long);
+    PY_ATTRIBUTE(border_min_y, long);
+    PY_ATTRIBUTE(border_max_x, long);
+    PY_ATTRIBUTE(border_max_y, long);
+
+    PY_ATTRIBUTE(resolution_x, long);
+    PY_ATTRIBUTE(resolution_y, long);
+    PY_ATTRIBUTE(resolution_percentage, long);
 };

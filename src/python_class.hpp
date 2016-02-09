@@ -82,6 +82,10 @@ public:
         // TODO: Check type == bool
         return (obj != Py_False);
     }
+    explicit operator long const() const
+    {
+        return PyLong_AsLong(obj);
+    }
 
     // Note: if you're gonna keep the object
     // beyond the scope of the VarPyObject,
