@@ -16,39 +16,28 @@
  *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#pragma once
-
 #include <Python.h>
-#include <memory>
+#include <string>
 
-#include "python_class.hpp"
-#include "blender_scene.hpp"
+#include "blender_bounty.hpp"
 
-class render_engine : public python_class
+blender_bounty::blender_bounty(PyObject *bounty)
+    : python_class(bounty)
 {
-public:
-    render_engine(PyObject *self);
-    render_engine(const render_engine&);
-    render_engine &operator=(const render_engine& other);
-    void update(PyObject *data, PyObject *scene);
-    void render(PyObject *scene);
-    virtual ~render_engine();
+}
 
-private:
-    std::unique_ptr<blender_scene> scene;
+blender_bounty::blender_bounty(const VarPyObject& bounty)
+    : python_class((PyObject *)bounty)
+{
+}
 
-    // Python methods
-    PY_VOID_METHOD(update_stats, stats, info);
-    
-    // Python attributes
-    PY_ATTRIBUTE(is_preview, bool)
+blender_bounty::blender_bounty(const blender_bounty& other) // Copy c'tor
+    : python_class(other)
+{
+}
 
-    long sizeX;
-    long sizeY;
-    long bStartX;
-    long bStartY;
-    long bsizeX;
-    long bsizeY;
-    long resX;
-    long resY;
-};
+blender_bounty & blender_bounty::operator= (const blender_bounty& other) // Copy assignment
+{
+    python_class::operator=(other);
+}
+

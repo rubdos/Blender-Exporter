@@ -19,33 +19,18 @@
 #pragma once
 
 #include <Python.h>
-
+#include <string>
 #include "python_class.hpp"
-#include "blender_render_settings.hpp"
-#include "blender_camera.hpp"
-#include "blender_bounty.hpp"
 
-class blender_scene : public python_class
+class blender_bounty : public python_class
 {
 public:
-    blender_scene(PyObject *scene);
-    blender_scene(const VarPyObject&);
+    blender_bounty(PyObject *bounty);
+    blender_bounty(const VarPyObject& bounty);
 
-    blender_scene(const blender_scene &); // Copy c'tor
-    blender_scene &operator=(const blender_scene&); // Copy assignment
+    blender_bounty(const blender_bounty &); // Copy c'tor
+    blender_bounty &operator=(const blender_bounty&); // Copy assignment
 
-    void compute_scene_size(long &sizeX, long &sizeY);
-    void get_render_coords(long &sizeX,
-            long &sizeY,
-            long &bStartX,
-            long &bStartY,
-            long &bsizeX,
-            long &bsizeY,
-            blender_camera * &cam_data); // void * as placeholder.
-
-    PY_VOID_METHOD(frame_set, frame);
-
-    PY_ATTRIBUTE(frame_current, PyObject *);
-    PY_ATTRIBUTE(render, blender_render_settings);
-    PY_ATTRIBUTE(bounty, blender_bounty);
+    PY_ATTRIBUTE(gs_type_render, std::string);
 };
+

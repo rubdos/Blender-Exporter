@@ -73,17 +73,21 @@ void render_engine::update(PyObject *data, PyObject *scene)
     if(render.get_use_border())
     {
         std::cout << "Using border" << std::endl;
-    //     self.resX = self.bsizeX
-    //     self.resY = self.bsizeY
+        resX = bsizeX;
+        resY = bsizeY;
     }
     else
     {
         std::cout << "Not using border" << std::endl;
-    //     self.resX = self.sizeX
-    //     self.resY = self.sizeY
+        resX = sizeX;
+        resY = sizeY;
     }
-    // # render type setup
-    // if scene.bounty.gs_type_render == "file":
+
+    // render type setup
+    std::string type_render = this->scene->get_bounty().get_gs_type_render();
+    std::cout << "Rendering to " << type_render << std::endl;
+    if(type_render == "file")
+    {
     //     self.setInterface(yafrayinterface.yafrayInterface_t())
     //     self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
     //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
@@ -96,7 +100,9 @@ void render_engine::update(PyObject *data, PyObject *scene)
     //     self.ih = self.yi.createImageHandler("outFile")
     //     self.co = yafrayinterface.imageOutput_t(self.ih, str(self.outputFile), 0, 0)
 
-    // elif scene.bounty.gs_type_render == "xml":
+    }
+    else if (type_render == "xml")
+    {
     //     self.setInterface(yafrayinterface.xmlInterface_t())
     //     self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
     //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'XML')
@@ -104,9 +110,12 @@ void render_engine::update(PyObject *data, PyObject *scene)
     //     self.co = yafrayinterface.imageOutput_t()
     //     self.yi.setOutfile(self.outputFile)
 
-    // else:
+    }
+    else
+    {
     //     self.setInterface(yafrayinterface.yafrayInterface_t())
     //     self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
+    }
 
     // self.yi.startScene()
     // self.exportScene()# to above, line 92
