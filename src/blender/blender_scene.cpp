@@ -87,7 +87,7 @@ void blender_scene::get_render_coords(long &sizeX,
     }
 
     // # no border when rendering to view
-    if((cam_data != nullptr) and render_settings.get_use_border())
+    if((cam_data != nullptr) && render_settings.get_use_border())
     {
          long minX = render_settings.get_border_min_x() * sizeX;
          long minY = render_settings.get_border_min_y() * sizeY;
