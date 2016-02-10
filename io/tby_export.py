@@ -32,7 +32,7 @@ from . import tby_scene
 from .tby_texture import exportTexture
 from .tby_material import TheBountyMaterialWrite
 from bpy import context
-from . import tby_blender
+import tby_blender
 
 class TheBountyRenderEngine(bpy.types.RenderEngine):
     bl_idname = 'THEBOUNTY'

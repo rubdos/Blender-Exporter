@@ -18,6 +18,9 @@ add_library(tby_blender SHARED ${TBY_EXPORTER_SRC})
 target_compile_features(tby_blender_backend PRIVATE cxx_range_for)
 target_compile_features(tby_blender PRIVATE cxx_range_for)
 
-target_link_libraries(tby_blender tby_blender_backend ${PYTHON_LIBRARIES})
+target_link_libraries(tby_blender
+    tby_blender_backend
+    ${PYTHON_LIBRARIES}
+    ${THE_BOUNTY_LIBS})
 set_target_properties(tby_blender PROPERTIES PREFIX "")
-install(TARGETS tby_blender LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/io)
+install(TARGETS tby_blender LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/bin)

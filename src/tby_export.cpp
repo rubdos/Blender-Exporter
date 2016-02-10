@@ -20,6 +20,8 @@
 #include <iostream>
 #include <cstdarg>
 
+#include <interface/xmlinterface.h>
+
 #include "tby_export.hpp"
 #include "blender_scene.hpp"
 #include "blender_render_settings.hpp"
@@ -88,7 +90,7 @@ void render_engine::update(PyObject *data, PyObject *scene)
     std::cout << "Rendering to " << type_render << std::endl;
     if(type_render == "file")
     {
-    //     self.setInterface(yafrayinterface.yafrayInterface_t())
+        set_interface(new yafaray::yafrayInterface_t());
     //     self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
     //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
     //     self.yi.paramsClearAll()
@@ -103,6 +105,7 @@ void render_engine::update(PyObject *data, PyObject *scene)
     }
     else if (type_render == "xml")
     {
+        set_interface(new yafaray::xmlInterface_t());
     //     self.setInterface(yafrayinterface.xmlInterface_t())
     //     self.yi.setInputGamma(scene.bounty.gs_gamma_input, scene.bounty.sc_apply_gammaInput)
     //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'XML')
@@ -124,6 +127,26 @@ void render_engine::update(PyObject *data, PyObject *scene)
 
     // # must be called last as the params from here will be used by render()
     // tby_scene.exportRenderSettings(self.yi, self.scene)
+}
+
+void render_engine::set_interface(yafaray::yafrayInterface_t *yi)
+{
+    this->interface = std::unique_ptr<yafaray::yafrayInterface_t>(yi);
+    //self.materialMap = {}
+    //self.exportedMaterials = set()
+    //self.yi = yi
+    //# setup specific values for render preview mode
+    if(get_is_preview())
+    {
+    //    self.yi.setVerbosityWarning()
+    //    #to correct alpha problems in preview roughglass
+    //    self.scene.bounty.bg_transp = False
+    //    self.scene.bounty.bg_transp_refract = False
+    }
+    else
+    {
+    //    self.verbositylevel(self.scene.bounty.gs_verbosity_level)
+    }
 }
 
 void render_engine::render(PyObject *scene)

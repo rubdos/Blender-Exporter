@@ -21,6 +21,8 @@
 #include <Python.h>
 #include <memory>
 
+#include <interface/yafrayinterface.h>
+
 #include "python_class.hpp"
 #include "blender_scene.hpp"
 
@@ -36,6 +38,9 @@ public:
 
 private:
     std::unique_ptr<blender_scene> scene;
+    std::unique_ptr<yafaray::yafrayInterface_t> interface;
+
+    void set_interface(yafaray::yafrayInterface_t *yi);
 
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);
