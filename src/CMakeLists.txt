@@ -23,4 +23,6 @@ target_link_libraries(tby_blender
     ${PYTHON_LIBRARIES}
     ${THE_BOUNTY_LIBS})
 set_target_properties(tby_blender PROPERTIES PREFIX "")
-install(TARGETS tby_blender LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/bin)
+install(TARGETS tby_blender
+        LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/bin
+        RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/bin)
