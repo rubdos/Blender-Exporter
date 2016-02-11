@@ -103,7 +103,11 @@ void render_engine::update(PyObject *data, PyObject *scene)
                 this->scene->get_bounty().get_gz_z_channel());
         interface->paramsSetInt("width", resX);
         interface->paramsSetInt("height", resY);
-    //     self.ih = self.yi.createImageHandler("outFile")
+        image_handler = std::unique_ptr<yafaray::imageHandler_t>(
+                interface->createImageHandler("outFile"));
+        // TODO: the empty string should be the outputFile
+        image_output = std::unique_ptr<yafaray::imageOutput_t>(
+                new yafaray::imageOutput_t(image_handler.get(), "", 0, 0));
     //     self.co = yafrayinterface.imageOutput_t(self.ih, str(self.outputFile), 0, 0)
 
     }

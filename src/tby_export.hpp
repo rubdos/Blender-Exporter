@@ -22,6 +22,7 @@
 #include <memory>
 
 #include <interface/yafrayinterface.h>
+#include <yafraycore/imageOutput.h>
 
 #include "python_class.hpp"
 #include "blender_scene.hpp"
@@ -39,6 +40,8 @@ public:
 private:
     std::unique_ptr<blender_scene> scene;
     std::unique_ptr<yafaray::yafrayInterface_t> interface;
+    std::unique_ptr<yafaray::imageHandler_t> image_handler;
+    std::unique_ptr<yafaray::imageOutput_t> image_output;
 
     void set_interface(yafaray::yafrayInterface_t *yi);
     void export_render_settings();
