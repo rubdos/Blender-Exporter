@@ -42,6 +42,7 @@ private:
 
     void set_interface(yafaray::yafrayInterface_t *yi);
     void export_render_settings();
+    void verbosity_level();
 
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);

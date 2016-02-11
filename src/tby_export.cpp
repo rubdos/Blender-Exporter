@@ -226,8 +226,21 @@ void render_engine::set_interface(yafaray::yafrayInterface_t *yi)
     }
     else
     {
-    //    self.verbositylevel(self.scene.bounty.gs_verbosity_level)
+        verbosity_level();
     }
+}
+
+void render_engine::verbosity_level()
+{
+    auto level = scene->get_bounty().get_gs_verbosity_level();
+    if(level == "info")
+        interface->setVerbosityInfo();
+    else if(level == "warning")
+        interface->setVerbosityError();
+    else if(level == "error")
+        interface->setVerbosityError();
+    else
+        interface->setVerbosityMute();
 }
 
 void render_engine::render(PyObject *scene)
