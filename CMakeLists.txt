@@ -9,10 +9,6 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
     add_definitions(-fPIC)
 endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
 
-if (MSVC)
-    add_definitions(/Za)
-endif(MSVC)
-
 include_directories(src)
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(${THE_BOUNTY_INCLUDE_DIRS})
