@@ -18,6 +18,11 @@
 
 #pragma once
 
+// test
+#ifndef __MINGW64__
+#include <algorithm>
+#endif
+//>
 #include <Python.h>
 
 #include "python_class.hpp"
