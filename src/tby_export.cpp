@@ -170,7 +170,7 @@ void render_engine::export_render_settings()
     interface->paramsSetInt("ystart", bStartY);
 
     // no border when rendering to view
-    if(render.get_use_border() and cam_data)
+    if(render.get_use_border() && cam_data)
     {
         interface->paramsSetInt("width", bsizeX);
         interface->paramsSetInt("height", bsizeY);
@@ -216,12 +216,11 @@ void render_engine::set_interface(yafaray::yafrayInterface_t *yi)
     this->interface = std::unique_ptr<yafaray::yafrayInterface_t>(yi);
     //self.materialMap = {}
     //self.exportedMaterials = set()
-    //self.yi = yi
-    //# setup specific values for render preview mode
+    // setup specific values for render preview mode
     if(get_is_preview())
     {
-    //    self.yi.setVerbosityWarning()
-    //    #to correct alpha problems in preview roughglass
+        interface->setVerbosityWarning()
+        // to correct alpha problems in preview roughglass
     //    self.scene.bounty.bg_transp = False
     //    self.scene.bounty.bg_transp_refract = False
     }
