@@ -22,7 +22,16 @@ target_link_libraries(tby_blender
     tby_blender_backend
     ${PYTHON_LIBRARIES}
     ${THE_BOUNTY_LIBS})
+
 set_target_properties(tby_blender PROPERTIES PREFIX "")
+if(WIN32)
+    set_target_properties(tby_blender
+      PROPERTIES
+      IMPORT_SUFFIX ".pyd"
+      IMPORT_PREFIX ""
+      PREFIX "")
+endif(WIN32)
+
 install(TARGETS tby_blender
         LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/bin
         RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/bin)
