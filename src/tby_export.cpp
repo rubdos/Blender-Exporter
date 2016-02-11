@@ -219,7 +219,7 @@ void render_engine::set_interface(yafaray::yafrayInterface_t *yi)
     // setup specific values for render preview mode
     if(get_is_preview())
     {
-        interface->setVerbosityWarning()
+        interface->setVerbosityWarning();
         // to correct alpha problems in preview roughglass
     //    self.scene.bounty.bg_transp = False
     //    self.scene.bounty.bg_transp_refract = False
