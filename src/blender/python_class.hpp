@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include <Python.h>
 #include <string>
+#include <iostream>
 
 // Thanks, http://stackoverflow.com/a/11994395/3177936, for this trick.
 
@@ -84,6 +86,14 @@ public:
     }
     explicit operator long const() const
     {
+        return PyLong_AsLong(obj);
+    }
+    explicit operator float const() const
+    {
+        if(!PyFloat_CheckExact(obj))
+        {
+            std::cout << "WARNING: Object is not a float" << std::endl;
+        }
         return PyLong_AsLong(obj);
     }
 

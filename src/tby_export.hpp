@@ -41,12 +41,14 @@ private:
     std::unique_ptr<yafaray::yafrayInterface_t> interface;
 
     void set_interface(yafaray::yafrayInterface_t *yi);
+    void export_render_settings();
 
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);
     
     // Python attributes
-    PY_ATTRIBUTE(is_preview, bool)
+    PY_ATTRIBUTE(is_preview, bool);
+    PY_ATTRIBUTE(file_type, std::string);
 
     long sizeX;
     long sizeY;

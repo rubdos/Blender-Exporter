@@ -32,5 +32,17 @@ public:
     blender_bounty &operator=(const blender_bounty&); // Copy assignment
 
     PY_ATTRIBUTE(gs_type_render, std::string);
+    PY_ATTRIBUTE(gs_gamma_input, float);
+    PY_ATTRIBUTE(gs_gamma, float);
+    PY_ATTRIBUTE(sc_apply_gammaInput, bool);
+    PY_ATTRIBUTE(gz_z_channel, bool);
+    PY_ATTRIBUTE(gs_clamp_rgb, bool);
+    PY_ATTRIBUTE(gs_show_sam_pix, bool);
+    PY_ATTRIBUTE(gs_tile_size, long);
+    PY_ATTRIBUTE(gs_tile_order, std::string);
+    PY_ATTRIBUTE(gs_z_channel, bool);
+    PY_ATTRIBUTE(gs_draw_params, bool);
+    PY_ATTRIBUTE(gs_custom_string, std::string);
+    PY_ATTRIBUTE(gs_threads, long);
 };
 
