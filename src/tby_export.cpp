@@ -41,6 +41,7 @@ render_engine &render_engine::operator=(const render_engine& other)
 {
     python_class::operator=(other);
     this->scene = std::unique_ptr<blender_scene>(new blender_scene(*other.scene));
+    return *this;
 }
 
 render_engine::~render_engine()
