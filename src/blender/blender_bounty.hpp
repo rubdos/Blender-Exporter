@@ -44,5 +44,7 @@ public:
     PY_ATTRIBUTE(gs_draw_params, bool);
     PY_ATTRIBUTE(gs_custom_string, std::string);
     PY_ATTRIBUTE(gs_threads, long);
+
+    PY_ATTRIBUTE(gs_verbosity_level, std::string);
 };
 

@@ -35,5 +35,6 @@ blender_render_settings::blender_render_settings(const blender_render_settings& 
 blender_render_settings & blender_render_settings::operator= (const blender_render_settings& other) // Copy assignment
 {
     python_class::operator=(other);
+    return *this;
 }
 

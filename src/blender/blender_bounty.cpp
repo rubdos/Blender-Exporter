@@ -39,5 +39,6 @@ blender_bounty::blender_bounty(const blender_bounty& other) // Copy c'tor
 blender_bounty & blender_bounty::operator= (const blender_bounty& other) // Copy assignment
 {
     python_class::operator=(other);
+    return *this;
 }
 

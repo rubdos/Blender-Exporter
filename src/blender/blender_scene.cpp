@@ -41,6 +41,7 @@ blender_scene::blender_scene(const blender_scene& other) // Copy c'tor
 blender_scene & blender_scene::operator= (const blender_scene& other) // Copy assignment
 {
     python_class::operator=(other);
+    return *this;
 }
 
 void blender_scene::compute_scene_size(long &sizeX, long &sizeY)

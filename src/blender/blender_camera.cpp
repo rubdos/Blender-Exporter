@@ -39,4 +39,5 @@ blender_camera::blender_camera(const blender_camera& other) // Copy c'tor
 blender_camera & blender_camera::operator= (const blender_camera& other) // Copy assignment
 {
     python_class::operator=(other);
+    return *this;
 }
