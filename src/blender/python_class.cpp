@@ -49,7 +49,7 @@ python_class &python_class::operator=(const python_class& other) // Copy assignm
 }
 python_class::~python_class()
 {
-    Py_DECREF(self);
+    Py_XDECREF(self);
 }
 
 PyObject *python_class::call_python_method(const char *method, size_t count, ...)
@@ -73,6 +73,7 @@ PyObject *python_class::call_python_method(const char *method, size_t count, ...
     for(size_t i = 0; i < count; ++i)
     {
         PyObject *o = va_arg(args, VarPyObject).get_PyObject();
+        Py_INCREF(o); // Otherwise, VarPyObject will deref to 0
         if(PyTuple_SetItem(method_args, i, o))
         {
             std::cerr << "Setting variable " << i << " of callback `" << method << "' failed" << std::endl;
