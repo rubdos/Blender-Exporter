@@ -104,6 +104,24 @@ public:
     {
         return obj;
     }
+
+    VarPyObject(const VarPyObject& other) // Copy c'tor
+    {
+        std::cout << "copy c'tor of varpyobject" << std::endl;
+        this->obj = other.obj;
+        Py_INCREF(this->obj);
+    }
+
+    VarPyObject &operator=(const VarPyObject& other) // Copy assignment
+    {
+        std::cout << "copy assignment of varpyobject" << std::endl;
+        if(this != &other)
+        {
+            Py_DECREF(this->obj);
+            this->obj = other.obj;
+            Py_INCREF(obj);
+        }
+    }
     ~VarPyObject()
     {
         Py_XDECREF(obj);
