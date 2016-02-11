@@ -18,7 +18,6 @@
 
 #include <Python.h>
 #include <iostream>
-#include <algorithm>
 
 #include "blender_scene.hpp"
 #include "blender_camera.hpp"
