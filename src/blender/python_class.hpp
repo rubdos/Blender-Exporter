@@ -55,7 +55,6 @@
     return (type)VarPyObject(PyObject_GetAttrString(self, #x));\
 }
 
-
 // Class used to do 'automatic' creation of PyObjects when returning
 // them to Python via PY_METHOD.
 class VarPyObject
@@ -125,6 +124,11 @@ public:
             this->obj = other.obj;
             Py_INCREF(obj);
         }
+        return *this;
+    }
+    bool operator!=(const VarPyObject& other) const
+    {
+        return obj != other.obj;
     }
     ~VarPyObject()
     {
@@ -145,4 +149,80 @@ protected:
 
     PyObject *call_python_method(const char *name, size_t count, ...);
     PyObject *self;
+};
+
+template<class T>
+class py_list : public python_class
+{
+public:
+    class py_list_iterator : public python_class
+    {
+    public:
+        py_list_iterator(PyObject *iter)
+            : python_class(iter), item(nullptr)
+        {
+            if(iter == nullptr)
+                return;
+            item = PyIter_Next(self);
+        }
+        bool operator!=(const py_list_iterator& other) const
+        {
+            return item != other.item;
+        }
+        T operator*() const
+        {
+            return T(item);
+        }
+        const py_list_iterator& operator++()
+        {
+            item = PyIter_Next(self);
+            return *this;
+        }
+    private:
+        PyObject *item;
+    };
+
+    py_list(PyObject *lst)
+        : python_class(lst)
+    {
+        std::cout << "New list received" << std::endl;
+        if(!PyList_Check(self))
+        {
+            std::cout << "WARNING: not a pylist" << std::endl;
+        }
+    }
+    py_list(const VarPyObject& object)
+        : python_class((PyObject *)object)
+    {
+        std::cout << "New list received" << std::endl;
+        if(!PyList_Check(self))
+        {
+            std::cout << "WARNING: not a pylist" << std::endl;
+        }
+    }
+    py_list(const py_list & l) // Copy c'tor
+        : python_class(l)
+    {
+    }
+    py_list &operator=(const py_list& l)
+    {
+        python_class::operator=(l);
+        return *this;
+    }
+
+    T operator[](size_t pos) const
+    {
+        return T(PyList_GetItem(self, pos));
+    }
+
+    py_list_iterator begin() const
+    {
+        return py_list_iterator(PyObject_GetIter(self));
+    }
+
+    py_list_iterator end() const
+    {
+        std::cout << "Size of list: " << PyList_Size(self) << std::endl;
+        return py_list_iterator(nullptr);
+    }
 };

@@ -30,6 +30,7 @@
 #include "blender_render_settings.hpp"
 #include "blender_camera.hpp"
 #include "blender_bounty.hpp"
+#include "blender_object.hpp"
 
 class blender_scene : public python_class
 {
@@ -55,4 +56,5 @@ public:
     PY_ATTRIBUTE(render, blender_render_settings);
     PY_ATTRIBUTE(bounty, blender_bounty);
     PY_ATTRIBUTE(frame_end, long);
+    PY_ATTRIBUTE(objects, py_list<blender_object>);
 };

@@ -4,6 +4,7 @@ set(TBY_BLENDER_SRC
     blender/blender_image_settings.cpp
     blender/blender_camera.cpp
     blender/blender_bounty.cpp
+    blender/blender_object.cpp
     blender/blender_scene.cpp)
 
 set(TBY_EXPORTER_SRC

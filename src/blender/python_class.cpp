@@ -28,13 +28,13 @@ python_class::python_class()
 python_class::python_class(PyObject *_self)
 {
     this->self = _self;
-    Py_INCREF(self);
+    Py_XINCREF(self);
 }
 
 python_class::python_class(const python_class& other) //copy c'tor
 {
     this->self = other.self;
-    Py_INCREF(this->self);
+    Py_XINCREF(this->self);
 }
 
 python_class &python_class::operator=(const python_class& other) // Copy assignment

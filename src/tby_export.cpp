@@ -185,6 +185,18 @@ void render_engine::decide_output_file_name(
 
 void render_engine::export_scene()
 {
+    for(auto obj: scene->get_objects())
+    {
+        std::cout << obj.get_type() << std::endl;
+    }
+    // for obj in self.scene.objects:
+    //     self.exportTexture(obj)
+    //     
+    // self.exportMaterials()
+    // self.geometry.setScene(self.scene)
+    // self.exportObjects()
+    // self.geometry.createCamera()
+    // self.environment.setEnvironment(self.scene)
 }
 
 void render_engine::export_render_settings()
