@@ -35,7 +35,11 @@ render_engine::render_engine(PyObject *self)
 
 void render_engine::update(PyObject *data, PyObject *scene)
 {
-    update_stats("", "Setting up render");
+#ifdef _MSC_VER
+    //update_stats("Setting up render");
+#else
+	//update_stats("", "Setting up render");
+#endif
     this->scene = std::unique_ptr<blender_scene>(new blender_scene(scene));
 
     if(is_preview)
