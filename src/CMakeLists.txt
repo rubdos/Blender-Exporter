@@ -1,6 +1,7 @@
 set(TBY_BLENDER_SRC
     blender/python_class.cpp
     blender/blender_render_settings.cpp
+    blender/blender_image_settings.cpp
     blender/blender_camera.cpp
     blender/blender_bounty.cpp
     blender/blender_scene.cpp)

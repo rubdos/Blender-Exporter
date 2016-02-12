@@ -54,6 +54,8 @@ private:
     PY_ATTRIBUTE(is_preview, bool);
     PY_ATTRIBUTE(file_type, std::string);
 
+    std::string output_file;
+
     long sizeX;
     long sizeY;
     long bStartX;

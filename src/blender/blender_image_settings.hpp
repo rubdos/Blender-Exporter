@@ -20,30 +20,17 @@
 
 #include <Python.h>
 #include <string>
-
 #include "python_class.hpp"
-#include "blender_image_settings.hpp"
 
-class blender_render_settings : public python_class {
-    // Python typename: RenderSettings
+class blender_image_settings : public python_class
+{
 public:
-    blender_render_settings(PyObject *render_settings);
-    blender_render_settings(const VarPyObject& render_settings);
+    blender_image_settings(PyObject *image_settings);
+    blender_image_settings(const VarPyObject& image_settings);
 
-    blender_render_settings(const blender_render_settings &); // Copy c'tor
-    blender_render_settings &operator=(const blender_render_settings&); // Copy assignment
+    blender_image_settings(const blender_image_settings &); // Copy c'tor
+    blender_image_settings &operator=(const blender_image_settings&); // Copy assignment
 
-    PY_ATTRIBUTE(filepath, std::string);
-    PY_ATTRIBUTE(use_border, bool);
-
-    PY_ATTRIBUTE(border_min_x, long);
-    PY_ATTRIBUTE(border_min_y, long);
-    PY_ATTRIBUTE(border_max_x, long);
-    PY_ATTRIBUTE(border_max_y, long);
-
-    PY_ATTRIBUTE(resolution_x, long);
-    PY_ATTRIBUTE(resolution_y, long);
-    PY_ATTRIBUTE(resolution_percentage, long);
-
-    PY_ATTRIBUTE(image_settings, blender_image_settings);
+    PY_ATTRIBUTE(color_mode, std::string);
 };
+

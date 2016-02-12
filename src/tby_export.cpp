@@ -97,18 +97,17 @@ void render_engine::update(PyObject *data, PyObject *scene)
     //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
         interface->paramsClearAll();
         interface->paramsSetString("type", get_file_type().c_str());
-        //interface->paramsSetBool("alpha_channel",
-        //    render.image_settings.color_mode == "RGBA");
+        interface->paramsSetBool("alpha_channel",
+            render.get_image_settings().get_color_mode() == "RGBA");
         interface->paramsSetBool("z_channel",
                 this->scene->get_bounty().get_gz_z_channel());
         interface->paramsSetInt("width", resX);
         interface->paramsSetInt("height", resY);
         image_handler = std::unique_ptr<yafaray::imageHandler_t>(
                 interface->createImageHandler("outFile"));
-        // TODO: the empty string should be the outputFile
         image_output = std::unique_ptr<yafaray::imageOutput_t>(
-                new yafaray::imageOutput_t(image_handler.get(), "", 0, 0));
-    //     self.co = yafrayinterface.imageOutput_t(self.ih, str(self.outputFile), 0, 0)
+                new yafaray::imageOutput_t(image_handler.get(),
+                    output_file.c_str(), 0, 0));
 
     }
     else if (type_render == "xml")
@@ -118,9 +117,10 @@ void render_engine::update(PyObject *data, PyObject *scene)
                 this->scene->get_bounty().get_sc_apply_gammaInput());
     //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'XML')
         interface->paramsClearAll();
-    //     self.co = yafrayinterface.imageOutput_t()
-    //     self.yi.setOutfile(self.outputFile)
-
+        image_output = std::unique_ptr<yafaray::imageOutput_t>(
+                new yafaray::imageOutput_t());
+        ((yafaray::xmlInterface_t *)interface.get())->setOutfile(
+            output_file.c_str());
     }
     else
     {
