@@ -22,6 +22,10 @@
 #include <sstream>
 #include <iomanip>
 
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
+
 #include <interface/xmlinterface.h>
 
 #include "tby_export.hpp"
@@ -35,7 +39,11 @@ render_engine::render_engine(PyObject *self)
 
 void render_engine::update(PyObject *data, PyObject *scene)
 {
-    update_stats("", "Setting up render");
+#ifdef _MSC_VER
+    //update_stats("Setting up render");
+#else
+	//update_stats("", "Setting up render");
+#endif
     this->scene = std::unique_ptr<blender_scene>(new blender_scene(scene));
 
     if(is_preview)
@@ -141,7 +149,7 @@ void make_directory(const char* name)
 #ifdef __linux__
     mkdir(name, 777);
 #else
-    _mkdir(name);
+    mkdir(name);
 #endif
 }
 
@@ -202,6 +210,9 @@ void render_engine::export_scene()
 
 void render_engine::export_texture(const blender_object& obj)
 {
+
+    // return outputFile, output, filetype
+    // self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'foo')
 }
 
 void render_engine::export_render_settings()
@@ -326,7 +337,7 @@ void render_engine::verbosity_level()
     if(level == "info")
         interface->setVerbosityInfo();
     else if(level == "warning")
-        interface->setVerbosityError();
+        interface->setVerbosityWarning();
     else if(level == "error")
         interface->setVerbosityError();
     else

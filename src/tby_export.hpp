@@ -56,7 +56,11 @@ private:
     void export_texture(const blender_object&);
 
     // Python methods
-    PY_VOID_METHOD(update_stats, stats, info);
+#ifndef _MSC_VER
+	PY_VOID_METHOD(update_stats, stats, info);
+#endif
+
+    PY_ATTRIBUTE(plugin_path, std::string);
 
     PY_ATTRIBUTE(plugin_path, std::string);
 
