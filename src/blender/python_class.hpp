@@ -65,6 +65,10 @@ public:
     {
         this->obj = PyUnicode_FromString(c);
     }
+    VarPyObject(long l)
+    {
+        this->obj = PyLong_FromLong(l);
+    }
     VarPyObject(PyObject* o)
     {
         this->obj = o;
