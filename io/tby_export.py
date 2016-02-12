@@ -43,6 +43,7 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
 
     def __init__(self):
         self.backend = tby_blender.construct_render_engine(self)
+        self.plugin_path = PLUGIN_PATH
 
     def __del__(self):
         if hasattr(self, 'backend'):

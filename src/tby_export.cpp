@@ -281,10 +281,9 @@ void render_engine::set_interface(yafaray::yafrayInterface_t *yi)
     {
         verbosity_level();
     }
-        
-    // # export go.. load plugins
-    // self.yi.loadPlugins(PLUGIN_PATH)
-    //         
+
+    this->interface->loadPlugins(get_plugin_path().c_str());
+
     // # process geometry
     // self.geometry = exportObject(self.yi, self.materialMap, self.is_preview)
     //      
