@@ -22,6 +22,10 @@
 #include <sstream>
 #include <iomanip>
 
+#ifdef _MSC_VER
+#include <direct.h> // povman add for _mkdir
+#endif
+
 #include <interface/xmlinterface.h>
 
 #include "tby_export.hpp"
@@ -146,7 +150,7 @@ void make_directory(const char* name)
 #ifdef __linux__
     mkdir(name, 777);
 #else
-    _mkdir(name);
+    mkdir(name);
 #endif
 }
 
@@ -313,7 +317,7 @@ void render_engine::verbosity_level()
     if(level == "info")
         interface->setVerbosityInfo();
     else if(level == "warning")
-        interface->setVerbosityError();
+        interface->setVerbosityWarning();
     else if(level == "error")
         interface->setVerbosityError();
     else
