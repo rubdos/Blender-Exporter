@@ -52,6 +52,7 @@ private:
     void decide_output_file_name(
         std::string output_path,
         std::string file_type);
+    void export_scene();
 
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);

@@ -117,12 +117,11 @@ void render_engine::update(PyObject *data, PyObject *scene)
     }
 
     interface->startScene();
-    // self.exportScene()# to above, line 92
+    export_scene();
     // self.lightIntegrator.exportIntegrator(self.scene.bounty) # lightIntegrator, line 26
     // self.lightIntegrator.exportVolumeIntegrator(self.scene)
 
     // Must be called last as the params from here will be used by render()
-    // tby_scene.exportRenderSettings(self.yi, self.scene)
     this->export_render_settings();
 }
 
@@ -182,9 +181,10 @@ void render_engine::decide_output_file_name(
     std::cout << "outputFile: " << this->output_file << std::endl
         << "output: " << this->output << std::endl
         << "filetype: " << this->file_type << std::endl;
+}
 
-    // return outputFile, output, filetype
-    // self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'foo')
+void render_engine::export_scene()
+{
 }
 
 void render_engine::export_render_settings()
