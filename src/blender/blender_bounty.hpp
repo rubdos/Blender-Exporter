@@ -45,5 +45,6 @@ public:
     PY_ATTRIBUTE(gs_threads, long);
 
     PY_ATTRIBUTE(gs_verbosity_level, std::string);
+    PY_ATTRIBUTE(img_output, std::string);
 };
 

@@ -19,6 +19,8 @@
 #include <Python.h>
 #include <iostream>
 #include <cstdarg>
+#include <sstream>
+#include <iomanip>
 
 #include <interface/xmlinterface.h>
 
@@ -69,15 +71,17 @@ void render_engine::update(PyObject *data, PyObject *scene)
         resY = sizeY;
     }
 
+    auto bounty = this->scene->get_bounty();
+
     // render type setup
-    std::string type_render = this->scene->get_bounty().get_gs_type_render();
+    std::string type_render = bounty.get_gs_type_render();
     std::cout << "Rendering to " << type_render << std::endl;
     if(type_render == "file")
     {
         set_interface(new yafaray::yafrayInterface_t());
         interface->setInputGamma(this->scene->get_bounty().get_gs_gamma_input(),
                 this->scene->get_bounty().get_sc_apply_gammaInput());
-    //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
+        decide_output_file_name(filePath, bounty.get_img_output());
         interface->paramsClearAll();
         interface->paramsSetString("type", file_type.c_str());
         interface->paramsSetBool("alpha_channel",
@@ -98,7 +102,7 @@ void render_engine::update(PyObject *data, PyObject *scene)
         set_interface(new yafaray::xmlInterface_t());
         interface->setInputGamma(this->scene->get_bounty().get_gs_gamma_input(),
                 this->scene->get_bounty().get_sc_apply_gammaInput());
-    //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'XML')
+        decide_output_file_name(filePath, "XML");
         interface->paramsClearAll();
         image_output = std::unique_ptr<yafaray::imageOutput_t>(
                 new yafaray::imageOutput_t());
@@ -120,6 +124,67 @@ void render_engine::update(PyObject *data, PyObject *scene)
     // Must be called last as the params from here will be used by render()
     // tby_scene.exportRenderSettings(self.yi, self.scene)
     this->export_render_settings();
+}
+
+static std::map<std::string, std::string>
+switchFileType = {
+    {"PNG", "png"},
+    {"TARGA", "tga"},
+    {"TIFF", "tif"},
+    {"JPEG", "jpg"},
+    {"HDR", "hdr"},
+    {"OPEN_EXR", "exr"},
+    {"XML", "xml"}
+};
+
+void make_directory(const char* name)
+{
+#ifdef __linux__
+    mkdir(name, 777);
+#else
+    _mkdir(name);
+#endif
+}
+
+void render_engine::decide_output_file_name(
+        std::string output_path,
+        std::string file_type)
+{
+    this->file_type = file_type = switchFileType[file_type];
+    if(file_type == "") // Fallback
+    {
+        this->file_type = file_type = "png";
+    }
+
+    // write image or XML-File with filename from framenumber
+
+    std::stringstream output;
+    output << scene->get_frame_end();
+
+    int width = output.str().length();
+    output.str( std::string() );
+    output.clear();
+    output << output_path;
+    if(output_path[output_path.length() - 1] != directory_separator[0])
+    {
+         output << directory_separator;
+    }
+    output << std::setw(width) << std::setfill('0') <<
+        scene->get_frame_current();
+
+    // Create dir if it not exists...
+    make_directory(output_path.c_str());
+
+    this->output = output.str();
+    output << "." << file_type;
+    this->output_file = output.str();
+
+    std::cout << "outputFile: " << this->output_file << std::endl
+        << "output: " << this->output << std::endl
+        << "filetype: " << this->file_type << std::endl;
+
+    // return outputFile, output, filetype
+    // self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, 'foo')
 }
 
 void render_engine::export_render_settings()
@@ -216,6 +281,27 @@ void render_engine::set_interface(yafaray::yafrayInterface_t *yi)
     {
         verbosity_level();
     }
+        
+    // # export go.. load plugins
+    // self.yi.loadPlugins(PLUGIN_PATH)
+    //         
+    // # process geometry
+    // self.geometry = exportObject(self.yi, self.materialMap, self.is_preview)
+    //      
+    // # process lights
+    // self.lights = exportLight(self.yi, self.is_preview)
+    //       
+    // # process environment world
+    // self.environment = exportWorld(self.yi)
+    //       
+    // # process lighting integrators..
+    // self.lightIntegrator = exportIntegrator(self.yi, self.is_preview)
+    //       
+    // # textures before materials
+    // self.yaf_texture = exportTexture(self.yi)
+    //      
+    // # and materials
+    // self.setMaterial = TheBountyMaterialWrite(self.yi, self.materialMap, self.yaf_texture.loadedTextures)
 }
 
 void render_engine::verbosity_level()

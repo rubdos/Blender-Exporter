@@ -27,6 +27,12 @@
 #include "python_class.hpp"
 #include "blender_scene.hpp"
 
+#ifdef _WIN32
+#define directory_separator "\\"
+#else
+#define directory_separator "/"
+#endif
+
 class render_engine : public python_class
 {
 public:
@@ -43,6 +49,9 @@ private:
     void set_interface(yafaray::yafrayInterface_t *yi);
     void export_render_settings();
     void verbosity_level();
+    void decide_output_file_name(
+        std::string output_path,
+        std::string file_type);
 
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);
@@ -50,6 +59,7 @@ private:
     bool is_preview;
 
     std::string output_file;
+    std::string output;
     std::string file_type;
 
     long sizeX;

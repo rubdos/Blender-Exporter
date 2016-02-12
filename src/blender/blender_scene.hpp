@@ -50,7 +50,8 @@ public:
 
     PY_VOID_METHOD(frame_set, frame);
 
-    PY_ATTRIBUTE(frame_current, PyObject *);
+    PY_ATTRIBUTE(frame_current, long);
     PY_ATTRIBUTE(render, blender_render_settings);
     PY_ATTRIBUTE(bounty, blender_bounty);
+    PY_ATTRIBUTE(frame_end, long);
 };
