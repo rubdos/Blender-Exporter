@@ -35,7 +35,6 @@ public:
     PY_ATTRIBUTE(gs_gamma_input, float);
     PY_ATTRIBUTE(gs_gamma, float);
     PY_ATTRIBUTE(sc_apply_gammaInput, bool);
-    PY_ATTRIBUTE(gz_z_channel, bool);
     PY_ATTRIBUTE(gs_clamp_rgb, bool);
     PY_ATTRIBUTE(gs_show_sam_pix, bool);
     PY_ATTRIBUTE(gs_tile_size, long);

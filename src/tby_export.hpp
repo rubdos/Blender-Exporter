@@ -31,11 +31,8 @@ class render_engine : public python_class
 {
 public:
     render_engine(PyObject *self);
-    render_engine(const render_engine&);
-    render_engine &operator=(const render_engine& other);
     void update(PyObject *data, PyObject *scene);
     void render(PyObject *scene);
-    virtual ~render_engine();
 
 private:
     std::unique_ptr<blender_scene> scene;
