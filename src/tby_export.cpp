@@ -53,9 +53,9 @@ void render_engine::update(PyObject *data, PyObject *scene)
     update_stats("", "Setting up render");
     this->scene = std::unique_ptr<blender_scene>(new blender_scene(scene));
 
-    if(get_is_preview())
+    if(is_preview)
     {
-        std::cout << "get_is_preview == True" << std::endl;
+        std::cout << "is_preview == True" << std::endl;
         this->scene->frame_set(this->scene->get_frame_current());
     }
 
@@ -96,7 +96,7 @@ void render_engine::update(PyObject *data, PyObject *scene)
                 this->scene->get_bounty().get_sc_apply_gammaInput());
     //     self.outputFile, self.output, self.file_type = self.decideOutputFileName(filePath, scene.bounty.img_output)
         interface->paramsClearAll();
-        interface->paramsSetString("type", get_file_type().c_str());
+        interface->paramsSetString("type", file_type.c_str());
         interface->paramsSetBool("alpha_channel",
             render.get_image_settings().get_color_mode() == "RGBA");
         interface->paramsSetBool("z_channel",
@@ -222,7 +222,7 @@ void render_engine::set_interface(yafaray::yafrayInterface_t *yi)
     //self.materialMap = {}
     //self.exportedMaterials = set()
     // setup specific values for render preview mode
-    if(get_is_preview())
+    if(is_preview)
     {
         interface->setVerbosityWarning();
         // to correct alpha problems in preview roughglass

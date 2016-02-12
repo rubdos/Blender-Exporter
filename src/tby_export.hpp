@@ -49,12 +49,11 @@ private:
 
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);
-    
-    // Python attributes
-    PY_ATTRIBUTE(is_preview, bool);
-    PY_ATTRIBUTE(file_type, std::string);
+
+    bool is_preview;
 
     std::string output_file;
+    std::string file_type;
 
     long sizeX;
     long sizeY;
