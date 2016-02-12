@@ -1,4 +1,8 @@
-# ##### BEGIN GPL LICENSE BLOCK #####
+#  Copyright 2015 Pedro Alcaide
+#  Copyright 2016 Ruben De Smet
+#                 Pedro Alcaide
+#
+#  This file is part of TheBounty Renderer
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -13,25 +17,9 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software Foundation,
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
-
-# <pep8 compliant>
 
 import bpy
-import os
-import threading
-import time
-import yafrayinterface
 from .. import PLUGIN_PATH
-from .tby_object import exportObject
-from .tby_light  import exportLight
-from .tby_world  import exportWorld
-from .tby_integrator import exportIntegrator
-from . import tby_scene
-from .tby_texture import exportTexture
-from .tby_material import TheBountyMaterialWrite
-from bpy import context
 import tby_blender
 
 class TheBountyRenderEngine(bpy.types.RenderEngine):
