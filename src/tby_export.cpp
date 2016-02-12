@@ -188,6 +188,7 @@ void render_engine::export_scene()
     for(auto obj: scene->get_objects())
     {
         std::cout << obj.get_type() << std::endl;
+        this->export_texture(obj);
     }
     // for obj in self.scene.objects:
     //     self.exportTexture(obj)
@@ -197,6 +198,10 @@ void render_engine::export_scene()
     // self.exportObjects()
     // self.geometry.createCamera()
     // self.environment.setEnvironment(self.scene)
+}
+
+void render_engine::export_texture(const blender_object& obj)
+{
 }
 
 void render_engine::export_render_settings()

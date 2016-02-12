@@ -53,6 +53,7 @@ private:
         std::string output_path,
         std::string file_type);
     void export_scene();
+    void export_texture(const blender_object&);
 
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);
