@@ -56,6 +56,8 @@ private:
     // Python methods
     PY_VOID_METHOD(update_stats, stats, info);
 
+    PY_ATTRIBUTE(plugin_path, std::string);
+
     bool is_preview;
 
     std::string output_file;
