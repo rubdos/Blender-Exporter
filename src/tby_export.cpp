@@ -27,24 +27,7 @@
 #include "blender_render_settings.hpp"
 
 render_engine::render_engine(PyObject *self)
-    : python_class(self)
-{
-}
-
-render_engine::render_engine(const render_engine& other)
-    : python_class(other)
-{
-    this->scene = std::unique_ptr<blender_scene>(new blender_scene(*other.scene));
-}
-
-render_engine &render_engine::operator=(const render_engine& other)
-{
-    python_class::operator=(other);
-    this->scene = std::unique_ptr<blender_scene>(new blender_scene(*other.scene));
-    return *this;
-}
-
-render_engine::~render_engine()
+    : python_class(self), is_preview(false)
 {
 }
 
@@ -100,7 +83,7 @@ void render_engine::update(PyObject *data, PyObject *scene)
         interface->paramsSetBool("alpha_channel",
             render.get_image_settings().get_color_mode() == "RGBA");
         interface->paramsSetBool("z_channel",
-                this->scene->get_bounty().get_gz_z_channel());
+                this->scene->get_bounty().get_gs_z_channel());
         interface->paramsSetInt("width", resX);
         interface->paramsSetInt("height", resY);
         image_handler = std::unique_ptr<yafaray::imageHandler_t>(
