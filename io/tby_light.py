@@ -78,7 +78,7 @@ class exportLight:
         # up = matrix[1]  /* UNUSED */
         to = pos - direct
 
-        power = lamp.bounty.energy
+        power = lamp.energy
         color = lamp.color
 
         if self.preview:
