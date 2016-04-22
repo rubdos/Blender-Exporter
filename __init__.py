@@ -39,14 +39,14 @@ PLUGIN_PATH = os.path.join(__path__[0], 'bin', 'plugins')
 BIN_PATH = os.path.join(__path__[0], 'bin')
 sys.path.append(BIN_PATH)
 
-#---------------------------------------------------------------        
+#---------------------------------------------------------------
 # The order of libs is very important. Please do not alter it.
 #---------------------------------------------------------------
 if sys.platform == 'win32':
     for file in os.listdir(BIN_PATH):
         # load dll's from a MSVC build's
         if file in {'yafaraycore.dll'}:
-            dllArray = ['zlib', 'libiconv', 'libpng16', 'jpeg8', 'libxml2', 'Half', 'Iex', \
+            dllArray = ['zlib', 'libiconv', 'libpng16', 'jpeg8', 'libtiff', 'libxml2', 'Half', 'Iex', \
                         'Imath', 'IlmThread', 'IlmImf', 'yafaraycore', 'yafarayplugin']
             break
         # load dll's from a GCC build's
@@ -57,7 +57,7 @@ if sys.platform == 'win32':
 
 elif sys.platform == 'darwin':
     dllArray = ['libyafaraycore.dylib', 'libyafarayplugin.dylib']
-    
+
 else: # linux
     dllArray = ['libyafaraycore.so', 'libyafarayplugin.so']
 
@@ -88,11 +88,11 @@ def register():
     #
     prop.register()
     bpy.utils.register_module(__name__)
-    
-    
-def unregister():   
-    
-    prop.unregister()  
+
+
+def unregister():
+
+    prop.unregister()
     bpy.utils.unregister_module(__name__)
 
 
