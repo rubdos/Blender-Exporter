@@ -199,6 +199,7 @@ class TheBountyBlend(TheBountyMaterialTypePanel, Panel):
         layout.prop(mat.bounty, "blend_value", slider=True)
         layout.separator()
         blend_two_draw(layout, mat)
+        layout.operator('material.parse_blend')
                     
 class TheBountyShinyDiffuse(TheBountyMaterialTypePanel, Panel):
     bl_label = "Diffuse reflection"
