@@ -124,12 +124,12 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
             if mat_slot.material.bounty.mat_type == 'blend':
                 #-------------------------------------------
                 if mat_slot.material.bounty.blendOne =="":
-                    mat_slot.material.bounty.blendOne = bpy.data.materials['blendone']
+                    mat_slot.material.bounty.blendOne = 'blendone'
                 #
                 mat1 = bpy.data.materials[mat_slot.material.bounty.blendOne]
                 
                 if mat_slot.material.bounty.blendTwo =="":
-                    mat_slot.material.bounty.blendTwo = bpy.data.materials['blendtwo']
+                    mat_slot.material.bounty.blendTwo = 'blendtwo'
                 #
                 mat2 = bpy.data.materials[mat_slot.material.bounty.blendTwo]
                 #                
@@ -247,18 +247,17 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
         #-------------------------
         # blend material one
         #-------------------------
-        if mat.bounty.blendOne == "":
-            mat.bounty.blendOne ='blendone'            
-        mat1 = bpy.data.materials[mat.bounty.blendOne] 
+        if mat.bounty.blendOne in {"", mat.name}:
+            self.yi.printWarning("Not valid material for blend component. Using default 'blendone'")
+            mat.bounty.blendOne = "blendone"       
+        mat1 = bpy.data.materials[mat.bounty.blendOne]
         
+        # not recursive blend        
         if mat1.bounty.mat_type == 'blend':
-            if mat1.name != mat.name:
-                self.handleBlendMat(obj, mat1)
-            else:
-                self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat1.name))
-                return
-        #
+            self.yi.printWarning("Exporter: Recursive Blend material not allowed. Changed type to shinydiffusemat")
+            mat1.bounty.mat_type = 'shinydiffusemat'
+            
+        # write blend material one
         if mat1 not in self.exportedMaterials:
             self.exportedMaterials.add(mat1)
             self.setMaterial.writeMaterial(mat1)
@@ -266,18 +265,15 @@ class TheBountyRenderEngine(bpy.types.RenderEngine):
         #-------------------------
         # blend material two
         #-------------------------
-        if mat.bounty.blendTwo == "":
-            mat.bounty.blendTwo = 'blendtwo'
+        if mat.bounty.blendTwo in {"", mat.name, mat1.name}:
+            self.yi.printWarning("Not valid material for blend component. Using default 'blendtwo'")
+            mat.bounty.blendTwo = "blendtwo"
         mat2 = bpy.data.materials[mat.bounty.blendTwo]
-        
-        # check for recursive 'blend'
+            
+        # not recursive 'blend'
         if mat2.bounty.mat_type == 'blend':
-            if mat2.name != mat.name:
-                self.handleBlendMat(obj, mat2)
-            else:
-                self.yi.printWarning("Exporter: Problem with blend material {0}."
-                                     " You can't use blend material {1}, inside their own blend defination".format(mat.name, mat2.name))
-                return
+            self.yi.printWarning("Exporter: Recursive Blend material not allowed. Change type to glossy")
+            mat2.bounty.mat_type = 'glossy'
             
         # write blend material two    
         if mat2 not in self.exportedMaterials:

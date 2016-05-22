@@ -142,8 +142,8 @@ opClasses.append(TheBounty_OT_presets_ior_list)
 
 class Thebounty_OT_UpdateBlend(Operator):
     bl_idname = "material.parse_blend"
-    bl_label = "Add blend's slots materials for easy edit"
-    
+    bl_label = "Sync material slots or Fix empty selection"
+    bl_description = "Sync material slot with selected materials or fix empty selected item"    
     
     @classmethod
     def poll(cls, context):
@@ -154,26 +154,37 @@ class Thebounty_OT_UpdateBlend(Operator):
         obj = context.object
         mat = bpy.context.object.active_material
                
-        #--------------------------------------------------------------------------
-        # test: try to add blend's material selected to slots for easy edit
-        # state: atm don't work. Any change are only effective after first render
-        # TODO: find the way for allow real time update
+        #-------------------------
+        # blend material one
+        #-------------------------
+        if mat.bounty.blendOne == "":
+            if 'blendone' not in bpy.data.materials:
+                bpy.data.materials.new('blendone')
+            mat.bounty.blendOne = 'blendone'
+        #       
         mat1 = bpy.data.materials[mat.bounty.blendOne]
         if len(obj.data.materials) < 2:
             obj.data.materials.append(mat1)
             
-        if len(obj.data.materials) >= 2:
+        if len(obj.data.materials) > 1:
             if obj.data.materials[1].name is not mat.bounty.blendOne:
                 obj.data.materials[1] = mat1
-        #--------------------------------------------------------------------------
+        #-------------------------
+        # blend material two
+        #-------------------------
+        if mat.bounty.blendTwo == "":
+            if 'blendtwo' not in bpy.data.materials:
+                bpy.data.materials.new('blendtwo')
+            mat.bounty.blendTwo = 'blendtwo'
+        #
         mat2 = bpy.data.materials[mat.bounty.blendTwo]
         if len(obj.data.materials) < 3: 
             obj.data.materials.append(mat2)
         # 
-        if len(obj.data.materials) == 3:
+        if len(obj.data.materials) > 2:
             if obj.data.materials[2].name is not mat.bounty.blendTwo:
                 obj.data.materials[2] = mat2
-        #--------------------------------------------------------------------------
+        
         return {'FINISHED'}
     
 opClasses.append(Thebounty_OT_UpdateBlend)            
